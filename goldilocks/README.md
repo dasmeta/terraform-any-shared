@@ -35,4 +35,3 @@ module "goldilocks" {
 }
 ```
 
-namespace  You add namespaces for watche in dashboard.

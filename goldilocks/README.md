@@ -12,7 +12,7 @@ The module create Goldilocks installation prerequisites. The module default crea
 
 ```
 module "goldilocks" {
-  source     = "dasmeta/terraform-any-modules/goldilocks"
+  source     = "dasmeta/shared/any//goldilocks"
 
   # You add namespaces for watch recommendations in dashboard.
   namespaces = [ "kube-system" , "goldilocks" ]
@@ -25,7 +25,7 @@ You can disable the prerequisites for the Goldilocks installation if you have al
 
 ```
 module "goldilocks" {
-  source     = "dasmeta/terraform-any-modules/goldilocks"
+  source     = "dasmeta/shared/any//goldilocks"
   
   # You add namespaces for watch recommendations in dashboard.
   namespaces = [ "kube-system" , "goldilocks" ]
@@ -33,5 +33,13 @@ module "goldilocks" {
   create_vpa_server    = false
   create_metric_server = false
 }
+
 ```
 
+```
+# Port-forward for access the dashboard
+kubectl -n goldilocks port-forward svc/goldilocks-dashboard 8080:80 
+
+# Dashborad url
+http://localhost:8080/
+```

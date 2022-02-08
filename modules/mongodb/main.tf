@@ -6,9 +6,9 @@ module "mongodb" {
   repository = "https://charts.bitnami.com/bitnami"
 
   app = {
-    name             = "mongodb"
-    version          = "4.4.11"
+    name             = var.name
     chart            = "mongodb"
+    version          = "11.0.2"
     create_namespace = true
     wait             = false
     recreate_pods    = false

@@ -5,7 +5,7 @@
 
 ## minimal module setup
 ```terraform
-module "mongodb-replicaset" {
-    source = "dasmeta/shared/any//modules/mongodb"
-    version = "0.1.0"
+module "mongodb" {
+  source  = "dasmeta/shared/any//modules/mongodb"
+  version = "0.2.0"
 }

@@ -12,7 +12,7 @@ The module create Goldilocks installation prerequisites. The module default crea
 
 ```
 module "goldilocks" {
-  source     = "dasmeta/shared/any//goldilocks"
+  source     = "dasmeta/shared/any//modules/goldilocks"
 
   # You add namespaces for watch recommendations in dashboard.
   namespaces = [ "kube-system" , "goldilocks" ]

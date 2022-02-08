@@ -1,12 +1,12 @@
 
 variable "rootpassword" {
-  type        = string
-  description = "MUST WRITE ROOTPASSWORD"
+  type    = string
+  default = "root"
 }
 
 variable "pvcsize" {
-  type        = string
-  description = "PVC Size"
+  type    = string
+  default = "8Gi"
 }
 
 variable "architecture" {

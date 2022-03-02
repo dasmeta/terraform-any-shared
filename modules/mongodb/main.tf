@@ -22,11 +22,15 @@ module "mongodb" {
     },
     {
       name  = "auth.rootPassword"
-      value = var.rootpassword
+      value = var.root_password
     },
     {
       name  = "persistence.size"
       value = var.pvcsize
+    },
+    {
+      name  = "auth.replicaSetKey"
+      value = var.replicaset_key
     }
   ]
 }

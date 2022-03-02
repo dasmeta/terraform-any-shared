@@ -4,10 +4,16 @@ variable "name" {
   description = "mongodb helm release name"
 }
 
-variable "rootpassword" {
+variable "root_password" {
   type        = string
   default     = "root"
   description = "root user password"
+}
+
+variable "replicaset_key" {
+  type        = string
+  default     = ""
+  description = "Key used for authentication in the replicaset (only when architecture=replicaset)"
 }
 
 variable "pvcsize" {

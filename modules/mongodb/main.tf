@@ -31,6 +31,10 @@ module "mongodb" {
     {
       name  = "auth.replicaSetKey"
       value = var.replicaset_key
+    },
+    {
+      name  = "auth.existing_secret"
+      value = var.auth.existing_secret
     }
   ]
 }

@@ -16,6 +16,12 @@ variable "replicaset_key" {
   description = "Key used for authentication in the replicaset (only when architecture=replicaset)"
 }
 
+variable "existing_secret" {
+  type        = string
+  default     = ""
+  description = "Existing secret with MongoDB(®) credentials (keys: mongodb-password, mongodb-root-password, mongodb-replica-set-key)"
+}
+
 variable "pvcsize" {
   type        = string
   default     = "8Gi"

@@ -34,7 +34,7 @@ module "mongodb" {
     },
     {
       name  = "auth.existing_secret"
-      value = var.auth.existing_secret
+      value = var.existing_secret
     }
   ]
 }

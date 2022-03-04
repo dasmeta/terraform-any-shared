@@ -1,14 +1,14 @@
 # Example 1  
 ```
 module "kafka" {
-    source = "dasmeta/onpremise/onpremise//modules/kafka
+    source = "dasmeta/shared/any//modules/kafka
 }
 ```
 
 # Example 2
 ```
 module "kafka" {
-    source = "dasmeta/onpremise/onpremise//modules/kafka
+    source = "dasmeta/shared/any//modules/kafka
     name   = "kafka2"
     namespace = "kafka2"
     version   = "15.3.4"

@@ -11,9 +11,9 @@ module "kafka" {
     chart            = "kafka"
     create_namespace = var.create_namespace
     force_update     = var.force_update
-    wait             = false
-    recreate_pods    = false
-    deploy           = 1
+    wait             = var.wait
+    recreate_pods    = var.recreate_pods
+    deploy           = var.deploy
   }
 
   set = var.helm_set

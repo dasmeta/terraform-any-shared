@@ -33,3 +33,9 @@ variable "architecture" {
   default     = "replicaset"
   description = "architecture can be replicaset or standalone"
 }
+
+variable "service_type" {
+  type        = string
+  default     = "NodePort"
+  description = "Service Type"
+}

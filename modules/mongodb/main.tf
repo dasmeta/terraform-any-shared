@@ -38,7 +38,7 @@ module "mongodb" {
     },
     {
       name = "service.type"
-      type = "NodePort"
+      type = var.service_type
     }
   ]
 }

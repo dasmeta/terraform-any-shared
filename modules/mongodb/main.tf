@@ -38,7 +38,7 @@ module "mongodb" {
     },
     {
       name = "service.type"
-      type = var.service_type
+      value = var.service_type
     }
   ]
 }

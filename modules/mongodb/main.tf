@@ -35,6 +35,10 @@ module "mongodb" {
     {
       name  = "auth.existing_secret"
       value = var.existing_secret
+    },
+    {
+      name = "service.type"
+      type = "NodePort"
     }
   ]
 }

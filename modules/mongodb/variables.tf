@@ -39,3 +39,21 @@ variable "service_type" {
   default     = "NodePort"
   description = "Service Type"
 }
+
+variable "resources_limits" {
+  type = any
+  default = {
+    cpu    = "500m"
+    memory = "128Mi"
+  }
+  description = "The resources limits for MongoDB containers"
+}
+
+variable "resources_requests" {
+  type = any
+  default = {
+    cpu    = "250m"
+    memory = "64Mi"
+  }
+  description = "The resources resources for MongoDB containers"
+}

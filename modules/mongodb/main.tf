@@ -43,10 +43,6 @@ module "mongodb" {
     {
       name  = "service.type"
       value = var.service_type
-    },
-    {
-      name  = "metrics.enabled"
-      value = true
     }
   ]
 }

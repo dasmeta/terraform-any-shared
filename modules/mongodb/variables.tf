@@ -57,9 +57,3 @@ variable "resources_requests" {
   }
   description = "The resources resources for MongoDB containers"
 }
-
-variable "kubectl_path" {
-  type        = any
-  default     = "~/.kube/config"
-  description = "The resources resources for MongoDB containers"
-}

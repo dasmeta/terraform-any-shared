@@ -21,5 +21,13 @@ module "mongodb" {
 
   root_password  = ""
   replicaset_key = ""
+  resources_requests = {
+    cpu    = "250m"
+    memory = "64Mi"
+  }
+  resources_limits = {
+    cpu    = "500m"
+    memory = "128Mi"
+  }
 }
 ```

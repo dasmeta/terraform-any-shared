@@ -15,6 +15,10 @@ module "mongodb" {
     deploy           = 1
   }
 
+  values = [
+    templatefile("${path.module}/values.yaml", { resources_requests_cpu = "${var.resources_requests.cpu}", resources_requests_memory = "${var.resources_requests.memory}", resources_limits_cpu = "${var.resources_limits.cpu}", resources_limits_memory = "${var.resources_limits.memory}" })
+  ]
+
   set = [
     {
       name  = "architecture"
@@ -37,8 +41,12 @@ module "mongodb" {
       value = var.existing_secret
     },
     {
-      name = "service.type"
-      type = "NodePort"
+      name  = "service.type"
+      value = var.service_type
+    },
+    {
+      name  = "metrics.enabled"
+      value = true
     }
   ]
 }

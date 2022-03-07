@@ -7,7 +7,7 @@
 
 ```
 module "action-runner" {
-  source                = "/Users/juliaaghamyan/Desktop/dasmeta/terraform-any-modules/modules/github-actions-runner"
+  source                = "dasmeta/shared/any//modules/github-actions-runner"
   personal_access_token = "ghp_ZhJoqzL******M6FCk"
   kubectl_config_path   = "~/.kube/config"
   repo_name             = "tutor-platform/action-runner"

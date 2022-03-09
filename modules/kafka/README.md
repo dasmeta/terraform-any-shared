@@ -17,5 +17,13 @@ module "kafka" {
     recreate_pods    = false
     wait   = false
     deploy = 1
+    resources_requests = {
+        cpu    = "250m"
+        memory = "64Mi"
+    }
+    resources_limits = {
+        cpu    = "500m"
+        memory = "128Mi"
+    }
 }
 ```

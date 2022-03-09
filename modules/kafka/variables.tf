@@ -51,3 +51,15 @@ variable "deploy" {
   default     = 1
   description = "Deploy"
 }
+
+variable "resources_limits" {
+  type        = any
+  default     = {}
+  description = "The resources limits for MongoDB containers"
+}
+
+variable "resources_requests" {
+  type        = any
+  default     = {}
+  description = "The resources resources for MongoDB containers"
+}

@@ -63,3 +63,28 @@ variable "resources_requests" {
   default     = {}
   description = "The resources resources for MongoDB containers"
 }
+
+variable "kafka_cluster_0_name" {
+  type    = string
+  default = "local"
+}
+
+variable "kafka_cluster_0_bootstrapservers" {
+  type    = string
+  default = "kafka.kafka.svc.cluster.local:9092"
+}
+
+variable "kafka_cluster_0_zookeeper" {
+  type    = string
+  default = "kafka-zookeeper.kafka.svc.cluster.local:2182"
+}
+
+variable "kafka_ui_chart_version" {
+  type    = string
+  default = "0.0.3"
+}
+
+variable "enable_kafka_ui" {
+  type    = bool
+  default = true
+}

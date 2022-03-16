@@ -76,7 +76,7 @@ variable "kafka_cluster_0_bootstrapservers" {
 
 variable "kafka_cluster_0_zookeeper" {
   type    = string
-  default = "kafka-zookeeper.kafka.svc.cluster.local:2182"
+  default = "kafka-zookeeper.kafka.svc.cluster.local:2181"
 }
 
 variable "kafka_ui_chart_version" {

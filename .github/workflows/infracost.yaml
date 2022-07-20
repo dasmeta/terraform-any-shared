@@ -1,0 +1,37 @@
+on: [pull_request]
+jobs:
+  infracost:
+    name: Infracost
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 2
+
+      - name: Setup Infracost
+        uses: infracost/actions/setup@v2
+        with:
+          api-key: ${{ secrets.INFRACOST_API_KEY }}
+      
+      - name: Checkout base branch
+        uses: actions/checkout@v2
+        with:
+          ref: '${{ github.event.pull_request.base.ref }}'
+          fetch-depth: 0
+
+      - name: Infracost Breakdown
+        run: |
+          for i in modules/*/ ; do
+            infracost breakdown --path ${i} --format=json --out-file=${i}.json
+          done
+
+      - name: Post Infracost comment
+        run: |
+          for i in modules/*/ ; do
+            infracost comment github  --path=${i}.json \
+                                      --repo=$GITHUB_REPOSITORY \
+                                      --github-token=${{github.token}} \
+                                      --pull-request=${{github.event.pull_request.number}} \
+                                      --behavior=update
+          done

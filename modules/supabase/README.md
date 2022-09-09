@@ -1,7 +1,7 @@
 ## Minimal module setup
 ```
 module "supabase" {
-    source = "dasmeta/modules/google//modules/supabase"
+    source = "dasmeta/shared/any//modules/supabase"
     version = "0.3.7"
 
     DB_PASSWORD = "yXm8FfPLMEvhXaQH"
@@ -12,7 +12,7 @@ module "supabase" {
 
 ```
 module "supabase" {
-  source = "dasmeta/modules/google//modules/supabase"
+  source = "dasmeta/shared/any//modules/supabase"
   version = "0.3.7"
 
   DB_PASSWORD = "yXm8FfPLMEvhXaQH"

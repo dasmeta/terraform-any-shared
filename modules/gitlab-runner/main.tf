@@ -2,7 +2,7 @@ data "kubectl_path_documents" "values" {
   pattern = "${path.module}/helm/values.yaml"
   vars = {
     runnerRegistrationToken = "${var.runnerRegistrationToken}"
-    # runnerToken             = "${var.runnerToken}"
+    runnerToken             = "${var.runnerToken}"
   }
 }
 
@@ -11,7 +11,7 @@ resource "kubectl_manifest" "values_yaml" {
   yaml_body = element(data.kubectl_path_documents.values.documents, count.index)
 }
 
-resource "helm_release" "test" {
+resource "helm_release" "gitlab-runner" {
   name      = "gitlab-runner-chart"
   namespace = "gitlab-runner"
 

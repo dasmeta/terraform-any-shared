@@ -4,11 +4,11 @@ variable "runner_name" {
   default     = "gitlab-runner"
 }
 
-# variable "runnerToken" {
-#   type        = string
-#   description = "Gitlab Runner Token"
-#   default     = ""
-# }
+variable "runnerToken" {
+  type        = string
+  description = "Gitlab Runner Token"
+  default     = ""
+}
 
 variable "runnerRegistrationToken" {
   type        = string

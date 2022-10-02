@@ -1,7 +1,7 @@
 gitlabUrl: https://gitlab.com/
 kind: Runner
 runnerRegistrationToken: ${runnerRegistrationToken}   # a new runner, you can specify runnerRegistrationToken
-# runnerToken: ${runnerToken}  // To register an existing runner, you can use runnerToken
+runnerToken: ${runnerToken}  # To register an existing runner, you can use runnerToken
 name: gitlab-runner
 unregisterRunners: true
 terminationGracePeriodSeconds: 3600

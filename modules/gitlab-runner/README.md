@@ -10,6 +10,7 @@ module "action-runner" {
   kubectl_config_path           = "~/.kube/config"
   runner_name                   = "gitlab-runner"
   runnerRegistrationToken       = "Gj*******"
+  runnerToken                   = "*********"
   gitlab_access_token           = "gj*******"
 
 }

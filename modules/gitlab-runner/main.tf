@@ -12,8 +12,8 @@ resource "kubectl_manifest" "values_yaml" {
 }
 
 resource "helm_release" "gitlab-runner" {
-  name      = "gitlab-runner-chart"
-  namespace = "gitlab-runner"
+  name      = var.name
+  namespace = var.namespace
 
   chart            = "./helm/Chart.yaml"
   create_namespace = true

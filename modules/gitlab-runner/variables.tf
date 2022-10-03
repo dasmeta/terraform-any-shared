@@ -24,6 +24,18 @@ variable "gitlab_access_token" {
 
 variable "kubectl_config_path" {
   type        = string
-  default     = "~/.kube/config"
   description = "K8s config path"
+  default     = "~/.kube/config"
+}
+
+variable "namespace" {
+  type        = string
+  description = "Namespace name"
+  default     = "gitlab-runner"
+}
+
+variable "name" {
+  type        = string
+  description = "name"
+  default     = "gitlab-runner"
 }

@@ -1,5 +1,22 @@
 # SETUP gitlab-runner in k8s
 
+
+# Provider
+
+```
+terraform {
+  required_providers {
+    kubectl = {
+      source = "gavinbunney/kubectl"
+    }
+  }
+}
+
+provider "kubectl" {
+  config_path = pathexpand("~/.kube/config")
+}
+```
+
 # Example 1
 
 ```
@@ -46,6 +63,8 @@ No modules.
 |------|-------------|------|---------|:--------:|
 | <a name="input_gitlab_access_token"></a> [gitlab\_access\_token](#input\_gitlab\_access\_token) | Personal Access Token | `string` | `""` | no |
 | <a name="input_kubectl_config_path"></a> [kubectl\_config\_path](#input\_kubectl\_config\_path) | K8s config path | `string` | `"~/.kube/config"` | no |
+| <a name="input_name"></a> [name](#input\_name) | name | `string` | `"gitlab-runner"` | no |
+| <a name="input_namespace"></a> [namespace](#input\_namespace) | Namespace name | `string` | `"gitlab-runner"` | no |
 | <a name="input_runnerRegistrationToken"></a> [runnerRegistrationToken](#input\_runnerRegistrationToken) | gitlab runner registration token | `string` | `""` | no |
 | <a name="input_runnerToken"></a> [runnerToken](#input\_runnerToken) | Gitlab Runner Token | `string` | `""` | no |
 | <a name="input_runner_name"></a> [runner\_name](#input\_runner\_name) | Runner Name | `string` | `"gitlab-runner"` | no |

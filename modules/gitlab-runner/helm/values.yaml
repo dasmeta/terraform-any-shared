@@ -20,5 +20,5 @@ runners:
   config: |
     [[runners]]
       [runners.kubernetes]
-        image = "ubuntu:16.04"
+        image = "ubuntu:20.04"
   privileged: true

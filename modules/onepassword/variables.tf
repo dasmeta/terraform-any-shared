@@ -1,12 +1,6 @@
 variable "data" {
-  type = any
-  default = [
-    {
-      op_vault_name = "test"
-      op_item       = "test-password"
-    }
-  ]
-  description = "OnePassword vault,item name. The Item should be in Vault"
+  type        = list(any)
+  description = "OnePassword vault name and item name object. The Item should be in Vault"
 }
 
 // Op login 

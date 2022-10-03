@@ -1,4 +1,6 @@
-### Pre Required
+### Use module when you want get your secrets from 1password
+
+## Pre Required
 
 Install op-cli https://1password.com/downloads/command-line/
 
@@ -8,9 +10,9 @@ Install op-cli https://1password.com/downloads/command-line/
 module "onepass" {
   source = "dasmeta/shared/any//modules/onepass"
 
-  op_email      = "aram@dasmeta.com"
-  op_password   = "VKcf*****a3hLAs"
-  op_secret_key = "A3-CDN******RN"
+  op_email      = "devops@dasmeta.com"
+  op_password   = "************"
+  op_secret_key = "A3-**********"
 
   data = [
     {

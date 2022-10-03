@@ -1,9 +1,9 @@
 module "onepass" {
   source = "../"
 
-  op_email           = "aram@dasmeta.com"
-  op_password        = "VKcf*****a3hLAs"
-  op_secret_key      = "A3-CDN******RN"
+  op_email           = "devops@dasmeta.com"
+  op_password        = "************"
+  op_secret_key      = "A3-**********"
   op_account_address = "https://my.1password.com"
 
   data = [

@@ -8,7 +8,7 @@ Install op-cli https://1password.com/downloads/command-line/
 
 ```
 module "onepass" {
-  source = "dasmeta/shared/any//modules/onepass"
+  source = "dasmeta/shared/any//modules/onepassword"
 
   op_email      = "devops@dasmeta.com"
   op_password   = "************"

@@ -1,29 +1,45 @@
-data "kubectl_path_documents" "values" {
-  pattern = "${path.module}/helm/values.yaml"
-  vars = {
-    runnerRegistrationToken = "${var.runnerRegistrationToken}"
-    runnerToken             = "${var.runnerToken}"
-  }
-}
+resource "helm_release" "gitlab_runner" {
+  name             = var.release_name
+  repository       = local.repository
+  chart            = local.chart_name
+  namespace        = var.namespace
+  version          = var.chart_version
+  create_namespace = var.create_namespace
+  atomic           = var.atomic
 
-resource "kubectl_manifest" "values_yaml" {
-  count     = length(data.kubectl_path_documents.values.documents)
-  yaml_body = element(data.kubectl_path_documents.values.documents, count.index)
-}
+  values = [
+    yamlencode({
+      image                   = var.runner_image
+      gitlabUrl               = var.gitlab_url
+      concurrent              = var.concurrent
+      runnerRegistrationToken = var.runner_registration_token
+      runnerToken             = local.runner_token
+      replicas                = local.replicas
+      unregisterRunners       = var.unregister_runners
+      secrets                 = var.additional_secrets
 
-resource "helm_release" "gitlab-runner" {
-  name      = var.name
-  namespace = var.namespace
+      runners = {
+        name        = var.runner_name
+        runUntagged = var.run_untagged_jobs
+        tags        = var.runner_tags
+        locked      = var.runner_locked
+        config      = local.config
 
-  chart            = "./helm/Chart.yaml"
-  create_namespace = true
-  set {
-    name  = "authSecret.create"
-    value = true
-  }
+      }
 
-  set {
-    name  = "authSecret.github_token"
-    value = var.gitlab_access_token
-  }
+      rbac = {
+        create                    = var.create_service_account
+        serviceAccountAnnotations = var.service_account_annotations
+        serviceAccountName        = var.service_account
+        clusterWideAccess         = var.service_account_clusterwide_access
+      }
+
+      nodeSelector   = var.manager_node_selectors
+      tolerations    = var.manager_node_tolerations
+      podLabels      = var.manager_pod_labels
+      podAnnotations = var.manager_pod_annotations
+    }),
+    yamlencode(var.values),
+    local.values_file
+  ]
 }

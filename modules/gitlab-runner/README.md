@@ -1,17 +1,4 @@
 # SETUP gitlab-runner in k8s
-
-## Provider configuration
-
-```
-terraform {
-  required_version = ">= 0.12"
-  required_providers {
-    helm       = ">= 1.3"
-    kubernetes = ">= 1.13"
-  }
-}
-
-```
 # Minimal Example
 
 ```
@@ -97,16 +84,34 @@ module "action-runner" {
   unregister_runners = true
 }
 ```
+
+## Provider configuration
+
+```
+terraform {
+  required_version = ">= 0.12"
+  required_providers {
+    helm       = ">= 1.3"
+    kubernetes = ">= 1.13"
+  }
+}
+
+```
+
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
 
-No requirements.
+| Name | Version |
+|------|---------|
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.12 |
+| <a name="requirement_helm"></a> [helm](#requirement\_helm) | >= 1.3 |
+| <a name="requirement_kubernetes"></a> [kubernetes](#requirement\_kubernetes) | >= 1.13 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_helm"></a> [helm](#provider\_helm) | n/a |
+| <a name="provider_helm"></a> [helm](#provider\_helm) | >= 1.3 |
 
 ## Modules
 

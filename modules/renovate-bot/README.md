@@ -11,6 +11,10 @@ module "renovate-bot" {
     token    = "**********"
     schedule = "0 1 * * *"
     autodiscover  = true
+    
+    cluster_host = ""
+    cluster_ca_certificate = ""
+    cluster_token = ""
 }
 ```
 <!-- BEGIN_TF_DOCS -->
@@ -39,6 +43,9 @@ No modules.
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_autodiscover"></a> [autodiscover](#input\_autodiscover) | Autodiscover all repositories. | `string` | `true` | no |
+| <a name="input_cluster_ca_certificate"></a> [cluster\_ca\_certificate](#input\_cluster\_ca\_certificate) | Cluster certificate for helm provider | `string` | n/a | yes |
+| <a name="input_cluster_host"></a> [cluster\_host](#input\_cluster\_host) | Cluster host for helm provider | `string` | n/a | yes |
+| <a name="input_cluster_token"></a> [cluster\_token](#input\_cluster\_token) | Cluster token for helm provider | `string` | n/a | yes |
 | <a name="input_endpoint"></a> [endpoint](#input\_endpoint) | Custom endpoint to use. | `string` | `"https://gitlab.example.com/api/v4"` | no |
 | <a name="input_platform"></a> [platform](#input\_platform) | Platform type of repository. | `string` | `"gitlab"` | no |
 | <a name="input_schedule"></a> [schedule](#input\_schedule) | Bot working shedule. | `string` | `"0 1 * * *"` | no |

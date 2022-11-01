@@ -42,7 +42,6 @@ variable "schedule" {
 }
 
 variable "token" {
-  type = string
-  #   default     = "glpat-WwDhX__K2nYhPR7Jy8Lx"
+  type        = string
   description = "Personal Access token"
 }

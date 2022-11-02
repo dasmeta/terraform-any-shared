@@ -16,6 +16,11 @@ variable "namespace" {
   description = "Helm release namespace"
 }
 
+variable "branch_name" {
+  type = string
+  default = "renovate-configure"
+}
+
 variable "platform" {
   type        = string
   default     = "gitlab"

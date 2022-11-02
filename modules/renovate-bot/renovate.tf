@@ -1,5 +1,5 @@
 locals {
-  config = templatefile("${path.module}/config.yaml", { platform = var.platform, endpoint = var.endpoint, token = var.token, autodiscover = var.autodiscover })
+  config = templatefile("${path.module}/config.yaml", { platform = var.platform, endpoint = var.endpoint, token = var.token, autodiscover = var.autodiscover, branch_name=var.branch_name})
 }
 
 resource "helm_release" "renovate" {

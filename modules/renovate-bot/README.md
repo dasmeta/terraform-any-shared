@@ -12,21 +12,22 @@ module "renovate-bot" {
     schedule = "0 1 * * *"
     autodiscover  = true
 
-    cluster_host = ""
-    cluster_ca_certificate = ""
-    cluster_token = ""
+    cluster_name = "eks"
 }
 ```
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
-No requirements.
+| Name | Version |
+|------|---------|
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | 4.37.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_helm"></a> [helm](#provider\_helm) | 2.7.1 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 4.37.0 |
+| <a name="provider_helm"></a> [helm](#provider\_helm) | n/a |
 
 ## Modules
 
@@ -37,15 +38,15 @@ No modules.
 | Name | Type |
 |------|------|
 | [helm_release.renovate](https://registry.terraform.io/providers/hashicorp/helm/latest/docs/resources/release) | resource |
+| [aws_eks_cluster.cluster](https://registry.terraform.io/providers/hashicorp/aws/4.37.0/docs/data-sources/eks_cluster) | data source |
+| [aws_eks_cluster_auth.cluster](https://registry.terraform.io/providers/hashicorp/aws/4.37.0/docs/data-sources/eks_cluster_auth) | data source |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_autodiscover"></a> [autodiscover](#input\_autodiscover) | Autodiscover all repositories. | `string` | `true` | no |
-| <a name="input_cluster_ca_certificate"></a> [cluster\_ca\_certificate](#input\_cluster\_ca\_certificate) | Cluster certificate for helm provider | `string` | n/a | yes |
-| <a name="input_cluster_host"></a> [cluster\_host](#input\_cluster\_host) | Cluster host for helm provider | `string` | n/a | yes |
-| <a name="input_cluster_token"></a> [cluster\_token](#input\_cluster\_token) | Cluster token for helm provider | `string` | n/a | yes |
+| <a name="input_cluster_name"></a> [cluster\_name](#input\_cluster\_name) | For provider | `string` | n/a | yes |
 | <a name="input_endpoint"></a> [endpoint](#input\_endpoint) | Custom endpoint to use. | `string` | `"https://gitlab.example.com/api/v4"` | no |
 | <a name="input_name"></a> [name](#input\_name) | Helm release name | `string` | `"renovate"` | no |
 | <a name="input_namespace"></a> [namespace](#input\_namespace) | Helm release namespace | `string` | `"renovate"` | no |

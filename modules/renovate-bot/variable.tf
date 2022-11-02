@@ -1,20 +1,7 @@
 // For provider
-
-variable "cluster_host" {
-  type        = string
-  description = "Cluster host for helm provider"
+variable "cluster_name" {
+  type = string
 }
-
-variable "cluster_ca_certificate" {
-  type        = string
-  description = "Cluster certificate for helm provider"
-}
-
-variable "cluster_token" {
-  type        = string
-  description = "Cluster token for helm provider"
-}
-
 
 // For helm
 variable "name" {

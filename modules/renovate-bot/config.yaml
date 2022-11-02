@@ -5,4 +5,5 @@ renovate:
             "endpoint": "${endpoint}",
             "token": "${token}",
             "autodiscover": "${autodiscover}",
+            "onboardingBranch": "${branch_name}",
         }

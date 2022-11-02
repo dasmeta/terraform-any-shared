@@ -17,6 +17,18 @@ variable "cluster_token" {
 
 
 // For helm
+variable "name" {
+  type        = string
+  default     = "renovate"
+  description = "Helm release name"
+}
+
+variable "namespace" {
+  type        = string
+  default     = "renovate"
+  description = "Helm release namespace"
+}
+
 variable "platform" {
   type        = string
   default     = "gitlab"

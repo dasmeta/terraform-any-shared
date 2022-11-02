@@ -1,0 +1,8 @@
+renovate:
+    config: |
+        {
+            "platform": "${platform}",
+            "endpoint": "${endpoint}",
+            "token": "${token}",
+            "autodiscover": "${autodiscover}",
+        }

@@ -15,6 +15,7 @@ resource "helm_release" "renovate" {
     name  = "cronjob.schedule"
     value = var.schedule
   }
+
   set {
     name  = "env.GITHUB_COM_TOKEN"
     value = var.github_token

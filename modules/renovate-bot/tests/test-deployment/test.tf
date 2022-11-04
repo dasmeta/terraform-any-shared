@@ -5,6 +5,7 @@ module "renovate-bot" {
   endpoint = "https://gitlab.example.com/api/v4"
 
   token        = "**********"
+  github_token = "**********"
   schedule     = "0 1 * * *"
   autodiscover = true
 

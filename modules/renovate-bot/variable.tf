@@ -17,7 +17,7 @@ variable "namespace" {
 }
 
 variable "branch_name" {
-  type = string
+  type    = string
   default = "renovate-configure"
 }
 
@@ -47,5 +47,10 @@ variable "schedule" {
 
 variable "token" {
   type        = string
-  description = "Personal Access token"
+  description = "GitLab Personal Access token"
+}
+
+variable "github_token" {
+  type        = string
+  description = "GitHub Personal Access token"
 }

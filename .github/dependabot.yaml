@@ -1,0 +1,16 @@
+version: 2
+
+updates:
+  - package-ecosystem: "terraform"
+    directory:
+      - modules/github-actions-runner
+      - modules/gitlab-runner
+      - modules/goldilocks
+      - modules/kafka
+      - modules/mongodb
+      - modules/onepassword
+      - modules/onepassword_to_secret_manager
+      - modules/renovate-bot
+      - modules/supabase
+    schedule:
+      interval: "daily"

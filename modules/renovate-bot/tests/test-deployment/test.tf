@@ -18,4 +18,12 @@ module "renovate-bot" {
       hostType  = "npm"
     }
   ]
+
+  package_rules = [
+    {
+      matchDatasources  = ["maven"],
+      matchPackageNames = ["somepackage"],
+      registryUrls      = ["https://some.private.registry"],
+    }
+  ]
 }

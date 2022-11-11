@@ -8,9 +8,13 @@ locals {
       }
     ]
   }
-
   host_rules = concat(lookup(local.default_host_rules, var.platform, []), var.host_rules)
-  config     = templatefile("${path.module}/config.yaml", { platform = var.platform, endpoint = var.endpoint, token = var.token, autodiscover = var.autodiscover, branch_name = var.branch_name, host_rules = local.host_rules, })
+  package_rules = [for rule in var.package_rules :
+    { for key, value in rule :
+      key => value if value != null
+    }
+  ]
+  config = templatefile("${path.module}/config.yaml", { platform = var.platform, endpoint = var.endpoint, token = var.token, autodiscover = var.autodiscover, branch_name = var.branch_name, host_rules = local.host_rules, package_rules = local.package_rules })
 }
 
 resource "helm_release" "renovate" {

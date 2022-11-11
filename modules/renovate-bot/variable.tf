@@ -64,3 +64,19 @@ variable "host_rules" {
   }))
   default = []
 }
+
+variable "package_rules" {
+  description = "List of renovate [packageRules](https://docs.renovatebot.com/configuration-options/#packagerules)."
+  type = list(object({
+    matchDatasources            = optional(list(string))
+    matchPackageNames           = optional(list(string))
+    matchPackagePatterns        = optional(list(string))
+    matchPaths                  = optional(list(string))
+    extends                     = optional(list(string))
+    registryUrls                = optional(list(string))
+    groupName                   = optional(string)
+    schedule                    = optional(string)
+    dependencyDashboardApproval = optional(bool)
+  }))
+  default = []
+}

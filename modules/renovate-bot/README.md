@@ -4,19 +4,28 @@
 ```
 module "renovate-bot" {
     source = "dasmeta/shared/any//modules/renovate-bot"
-    
+
     platform = "gitlab"
     endpoint = "https://gitlab.example.com/api/v4"
-    
+
     token    = "**********"
     github_token = "**********"
     schedule = "0 1 * * *"
     autodiscover  = true
 
     cluster_name = "eks"
+
+    # optional
+    host_rules = [
+        {
+          matchHost = "https://some.private.registry",
+          token     = "**********",
+          hostType  = "npm"
+        }
+    ]
 }
 ```
-<!-- BEGIN_TF_DOCS -->
+<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
 
 | Name | Version |
@@ -51,6 +60,7 @@ No modules.
 | <a name="input_cluster_name"></a> [cluster\_name](#input\_cluster\_name) | For provider | `string` | n/a | yes |
 | <a name="input_endpoint"></a> [endpoint](#input\_endpoint) | Custom endpoint to use. | `string` | `"https://gitlab.example.com/api/v4"` | no |
 | <a name="input_github_token"></a> [github\_token](#input\_github\_token) | GitHub Personal Access token | `string` | n/a | yes |
+| <a name="input_host_rules"></a> [host\_rules](#input\_host\_rules) | List of renovate [hostRules](https://docs.renovatebot.com/configuration-options/#hostrules). | <pre>list(object({<br>    hostType  = string<br>    token     = string<br>    matchHost = string<br>  }))</pre> | `[]` | no |
 | <a name="input_name"></a> [name](#input\_name) | Helm release name | `string` | `"renovate"` | no |
 | <a name="input_namespace"></a> [namespace](#input\_namespace) | Helm release namespace | `string` | `"renovate"` | no |
 | <a name="input_platform"></a> [platform](#input\_platform) | Platform type of repository. | `string` | `"gitlab"` | no |
@@ -60,4 +70,4 @@ No modules.
 ## Outputs
 
 No outputs.
-<!-- END_TF_DOCS -->
+<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

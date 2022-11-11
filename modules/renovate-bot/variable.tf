@@ -54,3 +54,13 @@ variable "github_token" {
   type        = string
   description = "GitHub Personal Access token"
 }
+
+variable "host_rules" {
+  description = "List of renovate [hostRules](https://docs.renovatebot.com/configuration-options/#hostrules)."
+  type = list(object({
+    hostType  = string
+    token     = string
+    matchHost = string
+  }))
+  default = []
+}

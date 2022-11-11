@@ -10,4 +10,12 @@ module "renovate-bot" {
   autodiscover = true
 
   cluster_name = "eks"
+
+  host_rules = [
+    {
+      matchHost = "https://some.private.registry",
+      token     = "**********",
+      hostType  = "npm"
+    }
+  ]
 }

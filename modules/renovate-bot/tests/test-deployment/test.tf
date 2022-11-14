@@ -10,4 +10,20 @@ module "renovate-bot" {
   autodiscover = true
 
   cluster_name = "eks"
+
+  host_rules = [
+    {
+      matchHost = "https://some.private.registry",
+      token     = "**********",
+      hostType  = "npm"
+    }
+  ]
+
+  package_rules = [
+    {
+      matchDatasources  = ["maven"],
+      matchPackageNames = ["somepackage"],
+      registryUrls      = ["https://some.private.registry"],
+    }
+  ]
 }

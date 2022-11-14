@@ -6,4 +6,10 @@ renovate:
             "token": "${token}",
             "autodiscover": "${autodiscover}",
             "onboardingBranch": "${branch_name}",
+            %{~ if length(host_rules) > 0 ~}
+            "hostRules": ${jsonencode(host_rules)},
+            %{~ endif ~}
+            %{~ if length(package_rules) > 0 ~}
+            "packageRules": ${jsonencode(package_rules)},
+            %{~ endif ~}
         }

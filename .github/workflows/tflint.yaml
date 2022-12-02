@@ -17,15 +17,15 @@ jobs:
     strategy:
       matrix:
         path:
-          - github-actions-runner
-          - gitlab-runner
-          - goldilocks
-          - kafka
-          - mongodb
-          - onepassword
-          - onepassword_to_secret_manager
-          - renovate-bot
-          - supabase
+          - modules/github-actions-runner
+          - modules/gitlab-runner
+          - modules/goldilocks
+          - modules/kafka
+          - modules/mongodb
+          - modules/onepassword
+          - modules/onepassword_to_secret_manager
+          - modules/renovate-bot
+          - modules/supabase
      
     steps:
     - uses: dasmeta/reusable-actions-workflows/tflint@main
@@ -33,6 +33,6 @@ jobs:
         aws-region: ${{ secrets.AWS_REGION}}
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        path: modules/${{ matrix.path }}
+        path: ${{ matrix.path }}
         repo-token: ${{ secrets.GITHUB_TOKEN }}
       continue-on-error: true

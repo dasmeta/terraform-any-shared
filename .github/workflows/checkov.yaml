@@ -1,0 +1,34 @@
+name: Checkov
+on:
+  pull_request:
+  push:
+    branches: [main, master]
+jobs:
+  terraform-validate:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: write
+      discussions: write
+      pull-requests: write
+      security-events: write
+      id-token: write
+    strategy:
+      matrix:
+        path:
+          - modules/github-actions-runner
+          - modules/gitlab-runner
+          - modules/goldilocks
+          - modules/kafka
+          - modules/mongodb
+          - modules/onepassword
+          - modules/onepassword_to_secret_manager
+          - modules/renovate-bot
+          - modules/supabase
+     
+    steps:
+    - uses: dasmeta/reusable-actions-workflows/checkov@main
+      with:
+        fetch-depth: 0
+        directory: ${{ matrix.path }}
+      continue-on-error: true

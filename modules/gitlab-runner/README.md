@@ -4,6 +4,7 @@
 In my case, service account was created with the name `gitlab-runner-gitlab-runner` and pipeline failed because was looking for a service account `gitlab-runner` and couldn't find.
 Also, docker certificate configs were not available to the runner by passing via variables so I added this part to the configmap.
 
+
 # My Use Case
 ```
 module "gitlab_runner" {

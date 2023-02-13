@@ -68,5 +68,11 @@ locals {
             ${key} = ${value}
           %{~endfor~}
     %{~endif~}
+%{~if var.docker_cert.enabled~}
+  [[runners.kubernetes.volumes.empty_dir]]
+    name = ${lookup(var.docker_cert, "name", "\"docker-certs\"")}
+    mount_path = ${lookup(var.docker_cert, "mount_path", "\"/certs/client\"")}
+    medium = ${lookup(var.docker_cert, "medium", "\"Memory\"")}
+%{~endif~}
 EOF
 }

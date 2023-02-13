@@ -258,3 +258,13 @@ variable "build_job_requests" {
     memory = "512Mi"
   }
 }
+
+variable "docker_cert" {
+  description = "Mounts docker certificate configuration to the ConfigMap."
+  default = {
+    enabled    = false
+    name       = "docker-certs"
+    mount_path = "/certs/client"
+    medium     = "Memory"
+  }
+}

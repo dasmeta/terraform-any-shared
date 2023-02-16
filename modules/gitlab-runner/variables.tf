@@ -246,7 +246,7 @@ variable "build_job_limits" {
   type        = map(any)
   default = {
     cpu    = "2"
-    memory = "1Gi"
+    memory = "3Gi"
   }
 }
 
@@ -255,7 +255,7 @@ variable "build_job_requests" {
   type        = map(any)
   default = {
     cpu    = "1"
-    memory = "512Mi"
+    memory = "1G"
   }
 }
 

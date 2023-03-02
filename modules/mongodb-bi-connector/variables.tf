@@ -4,6 +4,12 @@ variable "name" {
   description = "Release name."
 }
 
+variable "namespace" {
+  type        = string
+  default     = "default"
+  description = "Release namespace."
+}
+
 variable "mongodb_username" {
   type        = string
   description = "MongoDB username."

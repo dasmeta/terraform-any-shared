@@ -4,6 +4,7 @@ resource "helm_release" "mongodb_bi_connector" {
   chart      = "mongodb-bi-connector"
   repository = "https://dasmeta.github.io/helm"
   version    = "1.0.1"
+  namespace  = var.namespace
 
   set {
     name  = "mongosqldConfig.mongodb.net.auth.username"

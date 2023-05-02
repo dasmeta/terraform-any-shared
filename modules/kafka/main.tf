@@ -2,7 +2,8 @@ module "kafka" {
   source  = "terraform-module/release/helm"
   version = "2.7.0"
 
-  namespace  = var.namespace
+  namespace = var.namespace
+  # repository = "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami"
   repository = "https://charts.bitnami.com/bitnami"
 
   app = {
@@ -33,7 +34,7 @@ module "kafka_ui" {
 
   app = {
     name             = "${var.name}-ui"
-    version          = var.kafka_ui_chart_version
+    version          = "0.6.2"
     chart            = "kafka-ui"
     create_namespace = "false"
     force_update     = var.force_update
@@ -41,18 +42,21 @@ module "kafka_ui" {
     recreate_pods    = var.recreate_pods
     deploy           = var.deploy
   }
+  # values = [
+  #   templatefile("${path.module}/values.yaml")
+  # ]
 
   set = [
     {
-      name  = "KAFKA_CLUSTERS_0_NAME"
+      name  = "envs.config.KAFKA_CLUSTERS_0_NAME"
       value = var.kafka_cluster_0_name
     },
     {
-      name  = "KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS"
+      name  = "envs.config.KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS"
       value = var.kafka_cluster_0_bootstrapservers
     },
     {
-      name  = "KAFKA_CLUSTERS_0_ZOOKEEPER"
+      name  = "envs.config.KAFKA_CLUSTERS_0_ZOOKEEPER"
       value = var.kafka_cluster_0_zookeeper
     }
   ]

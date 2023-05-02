@@ -13,6 +13,11 @@ variable "SERVICE_KEY" {
   default = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoic2VydmljZV9yb2xlIiwiaWF0IjoxNjQwMzAwNDAwLCJleHAiOjE3OTgwNjY4MDB9.sUJPVrhMsSaLgizyCWIgNOIRmjavxDB4Lm3hzb4dC5U"
 }
 
+variable "SUPABASE_REST_URL" {
+  type    = string
+  default = "http://localhost:8000/rest/v1/"
+}
+
 variable "JWT_SECRET" {
   type    = string
   default = "your-super-secret-jwt-token-with-at-least-32-characters-long"

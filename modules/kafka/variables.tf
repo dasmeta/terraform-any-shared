@@ -6,7 +6,7 @@ variable "name" {
 
 variable "chart_version" {
   type        = string
-  default     = "15.3.4"
+  default     = "21.4.6"
   description = "Bitnami Kafka chart version"
 }
 
@@ -81,7 +81,7 @@ variable "kafka_cluster_0_zookeeper" {
 
 variable "kafka_ui_chart_version" {
   type    = string
-  default = "0.0.3"
+  default = "0.6.2"
 }
 
 variable "enable_kafka_ui" {

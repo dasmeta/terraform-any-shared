@@ -33,7 +33,7 @@ module "kafka_ui" {
 
   app = {
     name             = "${var.name}-ui"
-    version          = "0.6.2"
+    version          = var.kafka_ui_chart_version
     chart            = "kafka-ui"
     create_namespace = "false"
     force_update     = var.force_update

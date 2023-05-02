@@ -3,7 +3,7 @@ module "mongodb" {
   version = "2.7.0"
 
   namespace  = "default"
-  repository = "https://charts.bitnami.com/bitnami"
+  repository = "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami"
 
   app = {
     name             = var.name

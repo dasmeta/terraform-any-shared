@@ -19,12 +19,16 @@ resource "helm_release" "supabase" {
 
   //studio
   set {
-    name  = "studio.SUPABASE_ANON_KEY"
+    name  = "studio.environment.SUPABASE_ANON_KEY"
     value = var.ANON_KEY
   }
   set {
-    name  = "studio.SUPABASE_SERVICE_KEY"
+    name  = "studio.environment.SUPABASE_SERVICE_KEY"
     value = var.SERVICE_KEY
+  }
+  set {
+    name  = "studio.environment.SUPABASE_REST_URL"
+    value = var.SUPABASE_REST_URL
   }
 
   //auth
@@ -64,6 +68,10 @@ resource "helm_release" "supabase" {
   set {
     name  = "rest.environment.PGRST_JWT_SECRET"
     value = var.JWT_SECRET
+  }
+  set {
+    name  = "rest.environment.PGRST_DB_URI"
+    value = "postgres://postgres:${var.DB_PASSWORD}@supabase-database.supabase.svc.cluster.local:5432/postgres"
   }
   // realtime
   set {

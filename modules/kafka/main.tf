@@ -3,7 +3,6 @@ module "kafka" {
   version = "2.7.0"
 
   namespace = var.namespace
-  # repository = "https://raw.githubusercontent.com/bitnami/charts/archive-full-index/bitnami"
   repository = "https://charts.bitnami.com/bitnami"
 
   app = {
@@ -42,9 +41,6 @@ module "kafka_ui" {
     recreate_pods    = var.recreate_pods
     deploy           = var.deploy
   }
-  # values = [
-  #   templatefile("${path.module}/values.yaml")
-  # ]
 
   set = [
     {

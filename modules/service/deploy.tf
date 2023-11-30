@@ -1,4 +1,4 @@
-resource "helm_release" "marketplace_services" {
+resource "helm_release" "service" {
   name      = var.name
   namespace = var.namespace
   chart     = "dasmeta/base"

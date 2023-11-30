@@ -8,5 +8,5 @@ variable "namespace" {
 }
 
 variable "helm_values" {
-    type = any
+  type = any
 }

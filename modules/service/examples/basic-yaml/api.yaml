@@ -1,6 +1,6 @@
 source: terraform/any/shared//modules/service
 version: 1.1.1
-variables: 
+variables:
   name: api
   namespace: test
   helm_values:
@@ -15,12 +15,11 @@ variables:
     service:
       port: 3000
       annotations:
-        linkerd.io/inject: enabled   
+        linkerd.io/inject: enabled
     config:
       NODE_ENV: dev
       PORT: "8080"
       MONGODB_URI: "mongodb+srv://username:password@db?retryWrites=true&w=majority"
-      JWT_SECRET: "FergergF4tg4g"
 providers:
   - name: aws
     version: ~> 4.0

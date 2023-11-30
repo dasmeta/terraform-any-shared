@@ -4,9 +4,11 @@ variable "name" {
 }
 
 variable "namespace" {
-  type = string
+  type        = string
+  description = "Namespace"
 }
 
 variable "helm_values" {
-  type = any
+  type        = any
+  description = "Values which is overwrite chart defaults"
 }

@@ -22,5 +22,31 @@ module "this" {
 
   alarms = {
     sns_topic = "Default"
+    custom_values = {
+      cpu = {
+        period    = 300,
+        statistic = "avg",
+        threshold = 80
+        equation  = "gte"
+      },
+      memory = {
+        period    = 300,
+        statistic = "avg",
+        threshold = 80
+        equation  = "gte"
+      },
+      restarts = {
+        period    = 300,
+        statistic = "max",
+        threshold = 3
+        equation  = "gte"
+      },
+      replicas = {
+        period    = 300,
+        statistic = "avg",
+        threshold = 0
+        equation  = "lte"
+      },
+    }
   }
 }

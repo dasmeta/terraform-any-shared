@@ -21,6 +21,7 @@ module "this" {
   cluster_name = "eks-dev"
 
   alarms = {
-    sns_topic = "Default"
+    enabled   = false
+    sns_topic = null
   }
 }

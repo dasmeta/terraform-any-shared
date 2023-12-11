@@ -3,6 +3,9 @@ version: 1.1.1
 variables:
   name: api
   namespace: test
+  cluster_name: "eks-dev"
+  alarms:
+    - sns_topic: "Default"
   helm_values:
     image:
       repository: xxxxx.dkr.ecr.us-east-1.amazonaws.com/api

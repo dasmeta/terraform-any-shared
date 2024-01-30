@@ -18,11 +18,11 @@ variable "chart_version" {
 variable "loki_storage" {
   type = object({
     type              = string
-    access_key        = string
-    secret_access_key = string
-    bucketname        = string
-    endpoint          = string
-    region            = string
+    access_key        = optional(string, "")
+    secret_access_key = optional(string, "")
+    bucketname        = optional(string, "")
+    endpoint          = optional(string, "")
+    region            = optional(string, "")
     cache_ttl         = optional(string, "168h")
     period            = optional(string, "24h")
   })

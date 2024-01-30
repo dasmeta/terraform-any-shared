@@ -26,7 +26,7 @@ No resources.
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_chart_version"></a> [chart\_version](#input\_chart\_version) | Loki-stack grafana chart version | `string` | `"2.10.1"` | no |
-| <a name="input_loki_storage"></a> [loki\_storage](#input\_loki\_storage) | Loki bucket storage configs | <pre>object({<br>    type              = string<br>    access_key        = string<br>    secret_access_key = string<br>    bucketname        = string<br>    endpoint          = string<br>    region            = string<br>    cache_ttl         = optional(string, "168h")<br>    period            = optional(string, "24h")<br>  })</pre> | n/a | yes |
+| <a name="input_loki_storage"></a> [loki\_storage](#input\_loki\_storage) | Loki-Stack storage bucket storage configs | <pre>object({<br>    type              = string<br>    access_key        = string<br>    secret_access_key = string<br>    bucketname        = string<br>    endpoint          = string<br>    region            = string<br>    cache_ttl         = optional(string, "168h")<br>    period            = optional(string, "24h")<br>  })</pre> | n/a | yes |
 | <a name="input_name"></a> [name](#input\_name) | Chart name | `string` | `"loki"` | no |
 | <a name="input_namespace"></a> [namespace](#input\_namespace) | n/a | `string` | `"loki-stack"` | no |
 

@@ -26,5 +26,5 @@ variable "loki_storage" {
     cache_ttl         = optional(string, "168h")
     period            = optional(string, "24h")
   })
-  description = "Loki bucket storage configs"
+  description = "Loki-Stack storage bucket storage configs"
 }

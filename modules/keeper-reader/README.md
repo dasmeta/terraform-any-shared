@@ -14,7 +14,7 @@ Make sure the `secret_type` is
 ### Basic Usage Example
 ```
 module "this" {
-  source = "../../"
+  source = "dasmeta/shared/any//modules/keeper-reader"
 
   secrets = [
     {

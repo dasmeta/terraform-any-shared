@@ -3,7 +3,7 @@ variable "data" {
   description = "OnePassword vault name and item name object. The Item should be in Vault"
 }
 
-// Op login 
+// Op login
 variable "op_secret_key" {
   type        = string
   description = "OnePassword user secret key"

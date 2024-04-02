@@ -24,7 +24,7 @@ jobs:
           - modules/onepassword_to_secret_manager
           - modules/renovate-bot
           - modules/supabase
-     
+
     steps:
     - uses: dasmeta/reusable-actions-workflows/terraform-test@main
       with:

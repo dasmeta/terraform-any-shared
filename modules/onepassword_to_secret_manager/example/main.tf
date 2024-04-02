@@ -11,7 +11,7 @@ module "onepassword_to_secret_manager" {
     {
       op_vault_name = "test"
       op_item       = "test-password"
-      // Secret key in secret manager 
+      // Secret key in secret manager
       secret_key = "test"
 
       // By default module use password type , but you use 1password categories (https://support.1password.com/item-categories/)
@@ -20,7 +20,7 @@ module "onepassword_to_secret_manager" {
     {
       op_vault_name = "test"
       op_item       = "test2"
-      // Secret key in secret manager 
+      // Secret key in secret manager
       secret_key = "test2"
 
       // By default module use password type , but you use 1password categories (https://support.1password.com/item-categories/)

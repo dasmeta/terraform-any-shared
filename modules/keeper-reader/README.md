@@ -10,6 +10,7 @@ Make sure the `secret_type` is
 - Use `ssh` for SSH record types.
 - Use `db` for Database record types.
 
+
 ### Basic Usage Example
 ```
 module "this" {
@@ -32,3 +33,41 @@ module "this" {
   keeper_credentials = "/path/to/keeper/config.json"
 }
 ```
+<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+## Requirements
+
+| Name | Version |
+|------|---------|
+| <a name="requirement_secretsmanager"></a> [secretsmanager](#requirement\_secretsmanager) | >= 1.1.2 |
+
+## Providers
+
+No providers.
+
+## Modules
+
+| Name | Source | Version |
+|------|--------|---------|
+| <a name="module_db_secrets"></a> [db\_secrets](#module\_db\_secrets) | ./modules/db | n/a |
+| <a name="module_login_secrets"></a> [login\_secrets](#module\_login\_secrets) | ./modules/login | n/a |
+| <a name="module_ssh_secrets"></a> [ssh\_secrets](#module\_ssh\_secrets) | ./modules/ssh | n/a |
+
+## Resources
+
+No resources.
+
+## Inputs
+
+| Name | Description | Type | Default | Required |
+|------|-------------|------|---------|:--------:|
+| <a name="input_keeper_credentials"></a> [keeper\_credentials](#input\_keeper\_credentials) | Keeper credentials' file in JSON format | `string` | n/a | yes |
+| <a name="input_secrets"></a> [secrets](#input\_secrets) | List of secrets to fetch from Keeper Security | <pre>list(object({<br>    secret_type = string<br>    uid         = string<br>  }))</pre> | n/a | yes |
+
+## Outputs
+
+| Name | Description |
+|------|-------------|
+| <a name="output_db_secrets"></a> [db\_secrets](#output\_db\_secrets) | n/a |
+| <a name="output_login_secrets"></a> [login\_secrets](#output\_login\_secrets) | n/a |
+| <a name="output_ssh_secrets"></a> [ssh\_secrets](#output\_ssh\_secrets) | n/a |
+<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

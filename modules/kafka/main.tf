@@ -2,7 +2,7 @@ module "kafka" {
   source  = "terraform-module/release/helm"
   version = "2.7.0"
 
-  namespace = var.namespace
+  namespace  = var.namespace
   repository = "https://charts.bitnami.com/bitnami"
 
   app = {

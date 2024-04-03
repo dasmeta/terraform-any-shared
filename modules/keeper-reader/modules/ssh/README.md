@@ -5,13 +5,13 @@
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_secretsmanager"></a> [secretsmanager](#requirement\_secretsmanager) | >= 1.1.2 |
+| <a name="requirement_secretsmanager"></a> [secretsmanager](#requirement\_secretsmanager) | 1.1.3 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_secretsmanager"></a> [secretsmanager](#provider\_secretsmanager) | >= 1.1.2 |
+| <a name="provider_secretsmanager"></a> [secretsmanager](#provider\_secretsmanager) | 1.1.3 |
 
 ## Modules
 
@@ -21,7 +21,7 @@ No modules.
 
 | Name | Type |
 |------|------|
-| [secretsmanager_ssh_keys.ssh](https://registry.terraform.io/providers/keeper-security/secretsmanager/latest/docs/data-sources/ssh_keys) | data source |
+| [secretsmanager_ssh_keys.ssh](https://registry.terraform.io/providers/Keeper-Security/secretsmanager/1.1.3/docs/data-sources/ssh_keys) | data source |
 
 ## Inputs
 

@@ -6,3 +6,7 @@ terraform {
     }
   }
 }
+
+provider "secretsmanager" {
+  credential = file("/path/to/keeper/config.json")
+}

@@ -12,3 +12,8 @@ output "ssh_secrets" {
   value     = module.this.ssh_secrets
   sensitive = true
 }
+
+output "all_secrets" {
+  value     = module.this.all_secrets
+  sensitive = true
+}

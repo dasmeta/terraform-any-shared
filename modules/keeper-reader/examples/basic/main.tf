@@ -15,5 +15,4 @@ module "this" {
       uid         = "MCibEDNanLDVsYvqlo3Ovw"
     },
   ]
-  keeper_credentials = "/path/to/keeper/config.json"
 }

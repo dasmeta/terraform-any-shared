@@ -5,8 +5,8 @@ data "secretsmanager_login" "login" {
 terraform {
   required_providers {
     secretsmanager = {
-      source  = "keeper-security/secretsmanager"
-      version = ">= 1.1.2"
+      source  = "Keeper-Security/secretsmanager"
+      version = "1.1.3"
     }
   }
 }

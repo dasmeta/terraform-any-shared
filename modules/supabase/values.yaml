@@ -1,5 +1,5 @@
 database:
-  postgresqlPassword: yXm8FfPLMEvhXaQH      
+  postgresqlPassword: yXm8FfPLMEvhXaQH
 
 studio:
   enable: true

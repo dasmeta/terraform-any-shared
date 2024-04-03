@@ -15,7 +15,7 @@ variable "aws_secret_name" {
   description = "AWS Secret name"
 }
 
-// Op login 
+// Op login
 variable "op_secret_key" {
   type        = string
   description = "OnePassword user secret key"

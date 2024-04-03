@@ -1,4 +1,4 @@
-// Op login 
+// Op login
 variable "op_secret_key" {
   type = string
 }

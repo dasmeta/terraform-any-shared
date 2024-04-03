@@ -108,5 +108,3 @@ resource "helm_release" "supabase" {
   // urls
 
 }
-
-

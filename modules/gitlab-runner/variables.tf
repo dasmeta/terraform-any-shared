@@ -246,12 +246,13 @@ variable "cache" {
     type   = string
     path   = string
     shared = bool
-
+    size   = optional(string,"50Gi")
   })
   default = {
     type   = "local"
     path   = ""
     shared = false
+    size   = "50Gi"
   }
 }
 

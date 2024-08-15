@@ -5,7 +5,13 @@ variable "namespace" {
 
 variable "runner_image" {
   description = "The docker gitlab runner version. https://hub.docker.com/r/gitlab/gitlab-runner/tags/"
-  default     = null
+  default     = "gitlab-org/gitlab-runner"
+  type        = string
+}
+
+variable "runner_image_registry" {
+  description = "The docker gitlab runner version. https://hub.docker.com/r/gitlab/gitlab-runner/tags/"
+  default     = "registry.gitlab.com"
   type        = string
 }
 
@@ -127,6 +133,14 @@ variable "build_job_privileged" {
   default     = false
   type        = bool
   description = "Run all containers with the privileged flag enabled. This will allow the docker:dind image to run if you need to run Docker"
+}
+
+variable "build_job_poll" {
+  default     = {
+    interval = 5
+    timeout = 360
+  }
+  description = "Build job poll interval and timeout"
 }
 
 variable "docker_fs_group" {

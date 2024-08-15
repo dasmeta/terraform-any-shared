@@ -20,6 +20,8 @@ locals {
     service_account = "${var.service_account}"
     image_pull_secrets = ${jsonencode(var.image_pull_secrets)}
     privileged      = ${var.build_job_privileged}
+    poll_interval = ${var.build_job_poll.interval}
+    poll_timeout = ${var.build_job_poll.timeout}
     [runners.kubernetes.affinity]
     [runners.kubernetes.node_selector]
     %{~for key, value in var.build_job_node_selectors~}
@@ -57,6 +59,11 @@ locals {
         name = "cache"
         mount_path = "${var.local_cache_dir}"
         host_path = "${var.local_cache_dir}"
+    %{~endif~}
+    %{~if var.cache.type == "pvc"~}
+      [[runners.kubernetes.volumes.pvc]]
+        name = "cache"
+        mount_path = "${var.local_cache_dir}"
     %{~endif~}
     %{~if lookup(var.build_job_secret_volumes, "name", null) != null~}
       [[runners.kubernetes.volumes.secret]]

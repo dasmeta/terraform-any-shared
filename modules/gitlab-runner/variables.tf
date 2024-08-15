@@ -130,7 +130,7 @@ variable "build_job_run_container_as_user" {
 }
 
 variable "build_job_privileged" {
-  default     = false
+  default     = true
   type        = bool
   description = "Run all containers with the privileged flag enabled. This will allow the docker:dind image to run if you need to run Docker"
 }

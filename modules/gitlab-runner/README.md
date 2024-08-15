@@ -136,6 +136,7 @@ terraform {
 | Name | Version |
 |------|---------|
 | <a name="provider_helm"></a> [helm](#provider\_helm) | >= 1.3 |
+| <a name="provider_kubernetes"></a> [kubernetes](#provider\_kubernetes) | >= 1.13 |
 
 ## Modules
 
@@ -146,6 +147,7 @@ No modules.
 | Name | Type |
 |------|------|
 | [helm_release.gitlab_runner](https://registry.terraform.io/providers/hashicorp/helm/latest/docs/resources/release) | resource |
+| [kubernetes_persistent_volume_claim.this](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs/resources/persistent_volume_claim) | resource |
 
 ## Inputs
 
@@ -161,12 +163,13 @@ No modules.
 | <a name="input_build_job_node_tolerations"></a> [build\_job\_node\_tolerations](#input\_build\_job\_node\_tolerations) | A map of node tolerations to apply to the pods as defined https://docs.gitlab.com/runner/executors/kubernetes.html#other-configtoml-settings | `map` | `{}` | no |
 | <a name="input_build_job_pod_annotations"></a> [build\_job\_pod\_annotations](#input\_build\_job\_pod\_annotations) | A map of annotations to be added to each build pod created by the Runner. The value of these can include environment variables for expansion. Pod annotations can be overwritten in each build. | `map` | `{}` | no |
 | <a name="input_build_job_pod_labels"></a> [build\_job\_pod\_labels](#input\_build\_job\_pod\_labels) | A map of labels to be added to each build pod created by the runner. The value of these can include environment variables for expansion. | `map` | `{}` | no |
-| <a name="input_build_job_privileged"></a> [build\_job\_privileged](#input\_build\_job\_privileged) | Run all containers with the privileged flag enabled. This will allow the docker:dind image to run if you need to run Docker | `bool` | `false` | no |
+| <a name="input_build_job_poll"></a> [build\_job\_poll](#input\_build\_job\_poll) | Build job poll interval and timeout | `map` | <pre>{<br>  "interval": 5,<br>  "timeout": 360<br>}</pre> | no |
+| <a name="input_build_job_privileged"></a> [build\_job\_privileged](#input\_build\_job\_privileged) | Run all containers with the privileged flag enabled. This will allow the docker:dind image to run if you need to run Docker | `bool` | `true` | no |
 | <a name="input_build_job_requests"></a> [build\_job\_requests](#input\_build\_job\_requests) | The CPU allocation given to and the requested for build containers | `map(any)` | <pre>{<br>  "cpu": "1",<br>  "memory": "1G"<br>}</pre> | no |
 | <a name="input_build_job_run_container_as_user"></a> [build\_job\_run\_container\_as\_user](#input\_build\_job\_run\_container\_as\_user) | SecurityContext: runAsUser for all running job pods | `string` | `null` | no |
 | <a name="input_build_job_secret_volumes"></a> [build\_job\_secret\_volumes](#input\_build\_job\_secret\_volumes) | Secret volume configuration instructs Kubernetes to use a secret that is defined in Kubernetes cluster and mount it inside of the containes as defined https://docs.gitlab.com/runner/executors/kubernetes.html#secret-volumes | <pre>object({<br>    name       = string<br>    mount_path = string<br>    read_only  = string<br>    items      = map(string)<br>  })</pre> | <pre>{<br>  "items": {},<br>  "mount_path": null,<br>  "name": null,<br>  "read_only": null<br>}</pre> | no |
-| <a name="input_cache"></a> [cache](#input\_cache) | Describes the properties of the cache. | <pre>object({<br>    type   = string<br>    path   = string<br>    shared = bool<br><br>  })</pre> | <pre>{<br>  "path": "",<br>  "shared": false,<br>  "type": "local"<br>}</pre> | no |
-| <a name="input_chart_version"></a> [chart\_version](#input\_chart\_version) | The version of the chart | `string` | `"0.40.1"` | no |
+| <a name="input_cache"></a> [cache](#input\_cache) | Describes the properties of the cache. | <pre>object({<br>    type               = string<br>    path               = string<br>    shared             = bool<br>    size               = optional(string, "50Gi")<br>    storage_class_name = optional(string, "efs-sc")<br>  })</pre> | <pre>{<br>  "path": "",<br>  "shared": false,<br>  "size": "50Gi",<br>  "storage_class_name": "efs-sc",<br>  "type": "local"<br>}</pre> | no |
+| <a name="input_chart_version"></a> [chart\_version](#input\_chart\_version) | The version of the chart | `string` | `"0.67.1"` | no |
 | <a name="input_concurrent"></a> [concurrent](#input\_concurrent) | Configure the maximum number of concurrent jobs | `number` | `10` | no |
 | <a name="input_create_namespace"></a> [create\_namespace](#input\_create\_namespace) | (Optional) Create the namespace if it does not yet exist. Defaults to false. | `bool` | `true` | no |
 | <a name="input_create_service_account"></a> [create\_service\_account](#input\_create\_service\_account) | If true, the service account, it's role and rolebinding will be created, else, the service account is assumed to already be created | `bool` | `true` | no |
@@ -183,7 +186,8 @@ No modules.
 | <a name="input_release_name"></a> [release\_name](#input\_release\_name) | The helm release name | `string` | `"gitlab-runner"` | no |
 | <a name="input_replicas"></a> [replicas](#input\_replicas) | the number of manager pods to create | `number` | `1` | no |
 | <a name="input_run_untagged_jobs"></a> [run\_untagged\_jobs](#input\_run\_untagged\_jobs) | Specify if jobs without tags should be run. https://docs.gitlab.com/ce/ci/runners/#runner-is-allowed-to-run-untagged-jobs | `bool` | `false` | no |
-| <a name="input_runner_image"></a> [runner\_image](#input\_runner\_image) | The docker gitlab runner version. https://hub.docker.com/r/gitlab/gitlab-runner/tags/ | `string` | `null` | no |
+| <a name="input_runner_image"></a> [runner\_image](#input\_runner\_image) | The docker gitlab runner version. https://hub.docker.com/r/gitlab/gitlab-runner/tags/ | `string` | `"gitlab-org/gitlab-runner"` | no |
+| <a name="input_runner_image_registry"></a> [runner\_image\_registry](#input\_runner\_image\_registry) | Runner Image Registry | `string` | `"registry.gitlab.com"` | no |
 | <a name="input_runner_locked"></a> [runner\_locked](#input\_runner\_locked) | Specify whether the runner should be locked to a specific project/group | `string` | `true` | no |
 | <a name="input_runner_name"></a> [runner\_name](#input\_runner\_name) | name of the runner | `string` | n/a | yes |
 | <a name="input_runner_registration_token"></a> [runner\_registration\_token](#input\_runner\_registration\_token) | runner registration token | `string` | n/a | yes |

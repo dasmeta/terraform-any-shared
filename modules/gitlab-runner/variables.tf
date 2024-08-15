@@ -5,7 +5,13 @@ variable "namespace" {
 
 variable "runner_image" {
   description = "The docker gitlab runner version. https://hub.docker.com/r/gitlab/gitlab-runner/tags/"
-  default     = null
+  default     = "gitlab-org/gitlab-runner"
+  type        = string
+}
+
+variable "runner_image_registry" {
+  description = "Runner Image Registry"
+  default     = "registry.gitlab.com"
   type        = string
 }
 
@@ -33,7 +39,7 @@ variable "service_account_clusterwide_access" {
 
 variable "chart_version" {
   description = "The version of the chart"
-  default     = "0.40.1"
+  default     = "0.67.1"
 }
 
 variable "runner_registration_token" {
@@ -124,9 +130,17 @@ variable "build_job_run_container_as_user" {
 }
 
 variable "build_job_privileged" {
-  default     = false
+  default     = true
   type        = bool
   description = "Run all containers with the privileged flag enabled. This will allow the docker:dind image to run if you need to run Docker"
+}
+
+variable "build_job_poll" {
+  default = {
+    interval = 5
+    timeout  = 360
+  }
+  description = "Build job poll interval and timeout"
 }
 
 variable "docker_fs_group" {
@@ -229,15 +243,18 @@ variable "runner_token" {
 variable "cache" {
   description = "Describes the properties of the cache."
   type = object({
-    type   = string
-    path   = string
-    shared = bool
-
+    type               = string
+    path               = string
+    shared             = bool
+    size               = optional(string, "50Gi")
+    storage_class_name = optional(string, "efs-sc")
   })
   default = {
-    type   = "local"
-    path   = ""
-    shared = false
+    type               = "local"
+    path               = ""
+    shared             = false
+    size               = "50Gi"
+    storage_class_name = "efs-sc"
   }
 }
 

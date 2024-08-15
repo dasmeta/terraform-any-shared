@@ -136,9 +136,9 @@ variable "build_job_privileged" {
 }
 
 variable "build_job_poll" {
-  default     = {
+  default = {
     interval = 5
-    timeout = 360
+    timeout  = 360
   }
   description = "Build job poll interval and timeout"
 }
@@ -246,7 +246,7 @@ variable "cache" {
     type   = string
     path   = string
     shared = bool
-    size   = optional(string,"50Gi")
+    size   = optional(string, "50Gi")
   })
   default = {
     type   = "local"

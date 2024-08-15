@@ -10,7 +10,7 @@ resource "helm_release" "gitlab_runner" {
   values = [
     yamlencode({
       image = {
-        image = var.runner_image
+        image    = var.runner_image
         registry = var.runner_image_registry
       }
       gitlabUrl               = var.gitlab_url

@@ -39,7 +39,7 @@ variable "service_account_clusterwide_access" {
 
 variable "chart_version" {
   description = "The version of the chart"
-  default     = "0.40.1"
+  default     = "0.67.1"
 }
 
 variable "runner_registration_token" {

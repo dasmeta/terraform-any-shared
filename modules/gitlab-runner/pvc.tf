@@ -6,7 +6,7 @@ resource "kubernetes_persistent_volume_claim" "this" {
     namespace = var.namespace
   }
   spec {
-    storage_class_name = "efs-sc"
+    storage_class_name = var.cache.storage_class_name
     access_modes       = ["ReadWriteMany"]
     resources {
       requests = {

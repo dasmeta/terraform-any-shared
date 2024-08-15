@@ -10,7 +10,7 @@ variable "runner_image" {
 }
 
 variable "runner_image_registry" {
-  description = "The docker gitlab runner version. https://hub.docker.com/r/gitlab/gitlab-runner/tags/"
+  description = "Runner Image Registry"
   default     = "registry.gitlab.com"
   type        = string
 }
@@ -243,16 +243,18 @@ variable "runner_token" {
 variable "cache" {
   description = "Describes the properties of the cache."
   type = object({
-    type   = string
-    path   = string
-    shared = bool
-    size   = optional(string, "50Gi")
+    type               = string
+    path               = string
+    shared             = bool
+    size               = optional(string, "50Gi")
+    storage_class_name = optional(string, "efs-sc")
   })
   default = {
-    type   = "local"
-    path   = ""
-    shared = false
-    size   = "50Gi"
+    type               = "local"
+    path               = ""
+    shared             = false
+    size               = "50Gi"
+    storage_class_name = "efs-sc"
   }
 }
 

@@ -1,8 +1,8 @@
 resource "helm_release" "service" {
   name       = var.name
   namespace  = var.namespace
-  repository = "https://dasmeta.github.io/helm/"
-  chart      = "base"
+  repository = var.repository
+  chart      = var.chart
 
   values = [
     yamlencode(var.helm_values)

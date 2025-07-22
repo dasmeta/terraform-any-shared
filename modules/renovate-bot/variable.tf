@@ -10,7 +10,7 @@ variable "name" {
   description = "Helm release name"
 }
 
-variable "version" {
+variable "helm_version" {
   type        = string
   default     = "41.42.2"
   description = "Helm release version"

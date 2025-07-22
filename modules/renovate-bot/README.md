@@ -70,6 +70,7 @@ No modules.
 | <a name="input_cluster_name"></a> [cluster\_name](#input\_cluster\_name) | For provider | `string` | n/a | yes |
 | <a name="input_endpoint"></a> [endpoint](#input\_endpoint) | Custom endpoint to use. | `string` | `"https://gitlab.example.com/api/v4"` | no |
 | <a name="input_github_token"></a> [github\_token](#input\_github\_token) | GitHub Personal Access token | `string` | n/a | yes |
+| <a name="input_helm_version"></a> [helm\_version](#input\_helm\_version) | Helm release version | `string` | `"41.42.2"` | no |
 | <a name="input_host_rules"></a> [host\_rules](#input\_host\_rules) | List of renovate [hostRules](https://docs.renovatebot.com/configuration-options/#hostrules). | <pre>list(object({<br>    hostType  = string<br>    token     = string<br>    matchHost = string<br>  }))</pre> | `[]` | no |
 | <a name="input_name"></a> [name](#input\_name) | Helm release name | `string` | `"renovate"` | no |
 | <a name="input_namespace"></a> [namespace](#input\_namespace) | Helm release namespace | `string` | `"renovate"` | no |

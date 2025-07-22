@@ -23,6 +23,7 @@ resource "helm_release" "renovate" {
 
   repository = "https://docs.renovatebot.com/helm-charts"
   chart      = "renovate"
+  version    = var.helm_version
 
   values = [local.config]
 

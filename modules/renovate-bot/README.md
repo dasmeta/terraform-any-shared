@@ -77,6 +77,7 @@ No modules.
 | <a name="input_platform"></a> [platform](#input\_platform) | Platform type of repository. | `string` | `"gitlab"` | no |
 | <a name="input_schedule"></a> [schedule](#input\_schedule) | Bot working shedule. | `string` | `"0 1 * * *"` | no |
 | <a name="input_token"></a> [token](#input\_token) | GitLab Personal Access token | `string` | n/a | yes |
+| <a name="input_version"></a> [version](#input\_version) | Helm release version | `string` | `"41.42.2"` | no |
 
 ## Outputs
 

@@ -1,6 +1,6 @@
 variable "chart_version" {
   type        = string
-  default     = ""
+  default     = "0.1.0"
   description = "The app chart version to use"
 }
 
@@ -16,8 +16,8 @@ variable "create_namespace" {
   description = "Create namespace if requested"
 }
 
-variable "helm_values" {
+variable "webhookendpoint" {
   type        = any
-  default     = {}
-  description = "Configurations to pass and override default ones. Check the helm chart available configs here: https://artifacthub.io/packages/helm/bitnami/kubernetes-event-exporter"
+  default     = ""
+  description = "Webhook endpoint to send events to. If not set, the exporter will not send events."
 }

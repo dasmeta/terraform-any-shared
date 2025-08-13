@@ -6,8 +6,8 @@
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.3.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.7.0 |
 | <a name="requirement_helm"></a> [helm](#requirement\_helm) | >= 2.0 |
+| <a name="requirement_kubernetes"></a> [kubernetes](#requirement\_kubernetes) | ~> 2.23 |
 
 ## Providers
 
@@ -29,10 +29,10 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_chart_version"></a> [chart\_version](#input\_chart\_version) | The app chart version to use | `string` | `""` | no |
+| <a name="input_chart_version"></a> [chart\_version](#input\_chart\_version) | The app chart version to use | `string` | `"0.1.0"` | no |
 | <a name="input_create_namespace"></a> [create\_namespace](#input\_create\_namespace) | Create namespace if requested | `bool` | `false` | no |
-| <a name="input_helm_values"></a> [helm\_values](#input\_helm\_values) | Configurations to pass and override default ones. Check the helm chart available configs here: https://artifacthub.io/packages/helm/bitnami/kubernetes-event-exporter | `any` | `{}` | no |
 | <a name="input_namespace"></a> [namespace](#input\_namespace) | The namespace to install app helm. | `string` | `"meta-system"` | no |
+| <a name="input_webhookendpoint"></a> [webhookendpoint](#input\_webhookendpoint) | Webhook endpoint to send events to. If not set, the exporter will not send events. | `any` | `""` | no |
 
 ## Outputs
 

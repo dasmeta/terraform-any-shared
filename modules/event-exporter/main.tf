@@ -3,12 +3,14 @@ resource "helm_release" "this" {
   repository       = "https://dasmeta.github.io/helm"
   chart            = "kubernetes-events-exporter-enriched"
   namespace        = var.namespace
-  version          = var.chart_version != "" ? var.chart_version : null
+  version          = var.chart_version
   create_namespace = var.create_namespace
   atomic           = true
   wait             = false
 
   values = [
-    yamlencode(var.helm_values)
+    yamlencode({
+      webhookEndpoint = var.webhookendpoint
+    })
   ]
 }

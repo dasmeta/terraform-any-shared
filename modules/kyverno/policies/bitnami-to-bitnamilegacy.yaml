@@ -1,0 +1,61 @@
+# k diff -f ./bitnami-to-bitnamilegacy.yaml
+# the policy allows to automatically replace bitnami dockerhub registry with bitnamilegacy as of change from https://github.com/bitnami/containers/issues/83267
+
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: bitnami-to-bitnamilegacy
+  annotations:
+    policies.kyverno.io/title: Replace Bitnami Images with Bitnami Legacy
+    policies.kyverno.io/description: Automatically replaces docker.io/bitnami/ with docker.io/bitnamilegacy/ in container images.
+    policies.kyverno.io/subject: Pod
+    policies.kyverno.io/severity: medium
+spec:
+  background: false # whether to run policy in background so that existing resources will be impacted, we need this policy rule only at pod creation/update time so we disable this
+  failurePolicy: Ignore # whether to fail the api action if the policy apply failed, the Ignore is recommended as it will not block pods creation if policy fails by some reason
+  validationFailureAction: Audit # applies for validation policies, no impact on our mutation policy
+  rules:
+    - name: replace-bitnami-in-containers
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+      mutate:
+        foreach:
+          - list: "request.object.spec.containers"
+            preconditions:
+              all:
+                - key: "{{ element.image }}"
+                  operator: Equals
+                  value: "*bitnami/*"
+            patchStrategicMerge:
+              spec:
+                containers:
+                  - (name): "{{ element.name }}"
+                    image: "{{ replace_all(element.image, 'bitnami/', 'bitnamilegacy/') }}"
+
+    - name: replace-bitnami-in-initcontainers
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+      preconditions:
+        all:
+          - key: "{{ (request.object.spec.initContainers) || `[]` | length(@) }}"
+            operator: GreaterThanOrEquals
+            value: 1
+      mutate:
+        foreach:
+          - list: "request.object.spec.initContainers"
+            preconditions:
+              all:
+                - key: "{{ element.image }}"
+                  operator: Equals
+                  value: "*bitnami/*"
+            patchStrategicMerge:
+              spec:
+                initContainers:
+                  - (name): "{{ element.name }}"
+                    image: "{{ replace_all(element.image, 'bitnami/', 'bitnamilegacy/') }}"

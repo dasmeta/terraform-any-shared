@@ -59,7 +59,7 @@ No resources.
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_aws_secret_name"></a> [aws\_secret\_name](#input\_aws\_secret\_name) | AWS Secret name | `string` | n/a | yes |
-| <a name="input_data"></a> [data](#input\_data) | OnePassword vault name and item name object. The Item should be in Vault | `list(any)` | <pre>[<br>  {<br>    "op_item": "test-password",<br>    "op_vault_name": "test",<br>    "secret_key": "test"<br>  }<br>]</pre> | no |
+| <a name="input_data"></a> [data](#input\_data) | OnePassword vault name and item name object. The Item should be in Vault | `list(any)` | <pre>[<br/>  {<br/>    "op_item": "test-password",<br/>    "op_vault_name": "test",<br/>    "secret_key": "test"<br/>  }<br/>]</pre> | no |
 | <a name="input_op_account_address"></a> [op\_account\_address](#input\_op\_account\_address) | OnePassword account address | `string` | `"https://my.1password.com"` | no |
 | <a name="input_op_email"></a> [op\_email](#input\_op\_email) | OnePassword user email | `string` | n/a | yes |
 | <a name="input_op_password"></a> [op\_password](#input\_op\_password) | OnePassword user password | `string` | n/a | yes |

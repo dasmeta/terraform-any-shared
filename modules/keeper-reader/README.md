@@ -60,7 +60,7 @@ No resources.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_secrets"></a> [secrets](#input\_secrets) | List of secrets to fetch from Keeper Security | <pre>list(object({<br>    secret_type = string # Record type for each one<br>    uid         = string # UID of a specific secret record<br>  }))</pre> | n/a | yes |
+| <a name="input_secrets"></a> [secrets](#input\_secrets) | List of secrets to fetch from Keeper Security | <pre>list(object({<br/>    secret_type = string # Record type for each one<br/>    uid         = string # UID of a specific secret record<br/>  }))</pre> | n/a | yes |
 
 ## Outputs
 

@@ -59,8 +59,8 @@ No resources.
 | <a name="input_name"></a> [name](#input\_name) | mongodb helm release name | `string` | `"mongodb"` | no |
 | <a name="input_pvcsize"></a> [pvcsize](#input\_pvcsize) | persistence volume size | `string` | `"8Gi"` | no |
 | <a name="input_replicaset_key"></a> [replicaset\_key](#input\_replicaset\_key) | Key used for authentication in the replicaset (only when architecture=replicaset) | `string` | `""` | no |
-| <a name="input_resources_limits"></a> [resources\_limits](#input\_resources\_limits) | The resources limits for MongoDB containers | `any` | <pre>{<br>  "cpu": "500m",<br>  "memory": "128Mi"<br>}</pre> | no |
-| <a name="input_resources_requests"></a> [resources\_requests](#input\_resources\_requests) | The resources resources for MongoDB containers | `any` | <pre>{<br>  "cpu": "250m",<br>  "memory": "64Mi"<br>}</pre> | no |
+| <a name="input_resources_limits"></a> [resources\_limits](#input\_resources\_limits) | The resources limits for MongoDB containers | `any` | <pre>{<br/>  "cpu": "500m",<br/>  "memory": "128Mi"<br/>}</pre> | no |
+| <a name="input_resources_requests"></a> [resources\_requests](#input\_resources\_requests) | The resources resources for MongoDB containers | `any` | <pre>{<br/>  "cpu": "250m",<br/>  "memory": "64Mi"<br/>}</pre> | no |
 | <a name="input_root_password"></a> [root\_password](#input\_root\_password) | root user password | `string` | `"root"` | no |
 | <a name="input_service_type"></a> [service\_type](#input\_service\_type) | Service Type | `string` | `"NodePort"` | no |
 

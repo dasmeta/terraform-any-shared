@@ -1,3 +1,6 @@
+image:
+  repository: bitnamilegacy/kafka # TODO: related to change in bitnami to remove the original bitnami org dockerhub repos and migrate all existing/old images to bitnamilegacy, for more info check https://github.com/bitnami/containers/issues/83267, consider a change to use another image which is maintained
+
 resources:
   requests:
     memory: ${resources_requests_memory}

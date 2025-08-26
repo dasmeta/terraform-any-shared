@@ -43,7 +43,7 @@ variable "resource_chart_version" {
 variable "default_configs" {
   type = any
   default = {
-    # we disabled the following controller as seems no need for them for now, TODO: check what they do and maybe enable/configure this controllers
+    # we disabled the following controllers as seems no need for them for now, TODO: check what they do and maybe enable/configure this controllers
     backgroundController = {
       enabled : false
     }

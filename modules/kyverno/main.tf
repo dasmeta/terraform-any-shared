@@ -25,8 +25,6 @@ resource "helm_release" "resources" {
   depends_on = [helm_release.this]
 }
 
-# /Users/tmuradyan/projects/dasmeta/helm/charts/resource
-
 module "custom_default_configs" {
   source  = "cloudposse/config/yaml//modules/deepmerge"
   version = "1.0.2"

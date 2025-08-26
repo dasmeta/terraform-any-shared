@@ -1,3 +1,6 @@
+image:
+  repository: bitnamilegacy/mongodb # TODO: related to change in bitnami to remove the original dockerhub repos under bitnami, consider to change to image maintaned
+
 resources:
   requests:
     memory: ${resources_requests_memory}

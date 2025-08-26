@@ -1,5 +1,7 @@
+# NOTE: we set/switch image repository related to change in bitnami to remove the original bitnami org/repository dockerhub repos and migrate all existing/old images to bitnamilegacy, for more info check https://github.com/bitnami/containers/issues/83267
+# TODO: consider a change to use another image repository which is maintained
 image:
-  repository: bitnamilegacy/mongodb # TODO: related to change in bitnami to remove the original dockerhub repos under bitnami, consider to change to image maintaned
+  repository: bitnamilegacy/mongodb
 
 resources:
   requests:

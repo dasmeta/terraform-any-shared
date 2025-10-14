@@ -1,14 +1,3 @@
-## terraform module to install kyverno kubernetes policies management tool, it allows to have predefined policies and also create custom ones
-
-## basic example on how to enable bitnami registry to bitnamilegacy switch automatically
-```terraform
-module "this" {
-  source  = "dasmeta/shared/any//modules/kyverno"
-  version = "1.5.0"
-
-  policies = ["bitnami-to-bitnamilegacy"]
-}
-```
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
 

@@ -2,7 +2,7 @@ module "this" {
   source = "../"
 
   name      = "horizon"
-  namespace = "appstauber"
+  namespace = "horizon"
 
   image = {
     repository = "dasmeta/horizon-monitor"

@@ -33,7 +33,7 @@ variable "chart_version" {
 variable "create_namespace" {
   description = "Whether to create the namespace if it doesn't exist"
   type        = bool
-  default     = false
+  default     = true
 }
 
 # Image configuration
@@ -95,7 +95,16 @@ variable "resources" {
       memory = optional(string)
     }))
   })
-  default = {}
+  default = {
+    requests = {
+      cpu    = "100m"
+      memory = "128Mi"
+    }
+    limits = {
+      cpu    = "500m"
+      memory = "512Mi"
+    }
+  }
 }
 
 # Environment variables
@@ -149,20 +158,74 @@ variable "volumes" {
 # Health checks
 variable "liveness_probe" {
   description = "Liveness probe configuration"
-  type        = map(any)
-  default     = {}
+  type = object({
+    httpGet = object({
+      path = string
+      port = string
+    })
+    initialDelaySeconds = number
+    periodSeconds       = number
+    timeoutSeconds      = number
+    failureThreshold    = number
+  })
+  default = {
+    httpGet = {
+      path = "/up"
+      port = "http"
+    }
+    initialDelaySeconds = 30
+    periodSeconds       = 10
+    timeoutSeconds      = 5
+    failureThreshold    = 3
+  }
 }
 
 variable "readiness_probe" {
   description = "Readiness probe configuration"
-  type        = map(any)
-  default     = {}
+  type = object({
+    httpGet = object({
+      path = string
+      port = string
+    })
+    initialDelaySeconds = number
+    periodSeconds       = number
+    timeoutSeconds      = number
+    failureThreshold    = number
+  })
+  default = {
+    httpGet = {
+      path = "/up"
+      port = "http"
+    }
+    initialDelaySeconds = 30
+    periodSeconds       = 10
+    timeoutSeconds      = 5
+    failureThreshold    = 3
+  }
 }
 
 variable "startup_probe" {
   description = "Startup probe configuration"
-  type        = map(any)
-  default     = {}
+  type = object({
+    httpGet = object({
+      path = string
+      port = string
+    })
+    initialDelaySeconds = number
+    periodSeconds       = number
+    timeoutSeconds      = number
+    failureThreshold    = number
+  })
+  default = {
+    httpGet = {
+      path = "/up"
+      port = "http"
+    }
+    initialDelaySeconds = 30
+    periodSeconds       = 10
+    timeoutSeconds      = 5
+    failureThreshold    = 3
+  }
 }
 
 # Node selection

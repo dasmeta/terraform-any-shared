@@ -1,5 +1,5 @@
 module "this" {
-  source = "../"
+  source = "../../"
 
   name      = "horizon"
   namespace = "horizon"

@@ -50,7 +50,7 @@ module "this" {
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | ~> 1.3.0 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | ~> 1.3 |
 | <a name="requirement_helm"></a> [helm](#requirement\_helm) | ~> 2.0 |
 | <a name="requirement_kubernetes"></a> [kubernetes](#requirement\_kubernetes) | ~> 2.23 |
 
@@ -76,7 +76,7 @@ No modules.
 |------|-------------|------|---------|:--------:|
 | <a name="input_affinity"></a> [affinity](#input\_affinity) | Affinity rules for pod placement | `map(any)` | `{}` | no |
 | <a name="input_chart"></a> [chart](#input\_chart) | Path to the base Helm chart | `string` | `"base"` | no |
-| <a name="input_chart_version"></a> [chart\_version](#input\_chart\_version) | Version of the base Helm chart | `string` | `null` | no |
+| <a name="input_chart_version"></a> [chart\_version](#input\_chart\_version) | Version of the base Helm chart | `string` | `"0.3.14"` | no |
 | <a name="input_config"></a> [config](#input\_config) | Environment variables | `map(string)` | `{}` | no |
 | <a name="input_container_port"></a> [container\_port](#input\_container\_port) | Container port for the application | `number` | `8000` | no |
 | <a name="input_create_namespace"></a> [create\_namespace](#input\_create\_namespace) | Whether to create the namespace if it doesn't exist | `bool` | `true` | no |

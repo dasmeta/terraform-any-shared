@@ -27,7 +27,7 @@ variable "chart" {
 variable "chart_version" {
   description = "Version of the base Helm chart"
   type        = string
-  default     = null
+  default     = "0.3.14"
 }
 
 variable "create_namespace" {

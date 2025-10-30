@@ -169,7 +169,7 @@ variable "minio_configs" {
     enabled       = optional(bool, true)
     name          = optional(string, "sentry-minio")
     extra_configs = optional(any, {})
-    chart_version = optional(string, "17.0.21")
+    chart_version = optional(string, "5.4.0")
   })
   default     = {}
   description = "Configuration for minio deployment"

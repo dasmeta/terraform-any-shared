@@ -6,7 +6,7 @@ variable "name" {
 
 variable "chart_version" {
   type        = string
-  default     = "17.0.21"
+  default     = "5.4.0"
   description = "The app chart version to use"
 }
 
@@ -37,14 +37,6 @@ variable "atomic" {
 variable "default_configs" {
   type = any
   default = {
-    image = {
-      repository = "bitnamilegacy/minio"
-    }
-    console = {
-      image = {
-        repository = "bitnamilegacy/minio-object-browser"
-      }
-    }
     accessKey = {
       password = "sentry"
     }

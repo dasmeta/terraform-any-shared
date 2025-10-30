@@ -1,6 +1,6 @@
 resource "helm_release" "minio" {
   name             = var.name
-  repository       = "oci://registry-1.docker.io/bitnamicharts"
+  repository       = "https://charts.min.io/"
   chart            = "minio"
   namespace        = var.namespace
   version          = var.chart_version

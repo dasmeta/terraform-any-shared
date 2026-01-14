@@ -8,7 +8,7 @@ resource "helm_release" "qdrant" {
   namespace  = var.namespace
   repository = var.chart_repo
   chart      = var.chart_name
-  version    = var.chart_version != "" ? var.chart_version : null
+  version    = var.chart_version
 
   atomic          = true
   cleanup_on_fail = true

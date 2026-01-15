@@ -20,10 +20,4 @@ locals {
       hosts       = []
     }
   }
-
-  # ✅ Terraform-supported merge (shallow, deterministic)
-  helm_values = merge(
-    local.default_values,
-    var.config
-  )
 }

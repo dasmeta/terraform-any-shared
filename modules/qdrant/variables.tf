@@ -30,7 +30,7 @@ variable "chart_name" {
 variable "chart_version" {
   description = "Specific version of the Qdrant Helm chart to deploy. If empty, the latest available version is used."
   type        = string
-  default     = ""
+  default     = "1.16.3"
 }
 
 variable "config" {

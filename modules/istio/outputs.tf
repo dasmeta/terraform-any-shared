@@ -1,7 +1,7 @@
 
-output "gateway_api_crds_helm_metadata" {
-  value       = try(helm_release.gateway_api_crds[0].metadata, null)
-  description = "Gateway API CRDs Helm release metadata"
+output "gateway_api_crds_manifests" {
+  value       = try(module.gateway_api_crds[0].manifests, null)
+  description = "Map of kubectl_manifest resources for Gateway API CRDs"
 }
 
 output "istio_base_helm_metadata" {

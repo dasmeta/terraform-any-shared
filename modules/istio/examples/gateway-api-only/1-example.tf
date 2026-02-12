@@ -11,8 +11,12 @@ module "this" {
   source = "../.."
 
   configs = {
+    base             = { enabled = false } # todo: enable this
+    gateway_api_crds = { enabled = true }
+    gateway          = { enabled = false } # todo: enable this
     # Istiod configuration - disable automatic sidecar injection
     istiod = {
+      enabled = false # todo: enable this
       configs = {
         # Disable automatic sidecar injection globally
         # This prevents Istio from injecting sidecars into pods (horizontal service mesh)

@@ -7,6 +7,14 @@ locals {
   istio_wait             = var.configs.wait
 }
 
+# Gateway API CRDs should be installed first before any Istio components
+module "gateway_api_crds" {
+  count  = var.configs.gateway_api_crds.enabled ? 1 : 0
+  source = "../gateway-api-crds"
+
+  crd_version = var.configs.gateway_api_crds.version
+}
+
 resource "helm_release" "istio_base" {
   count = var.configs.base.enabled ? 1 : 0
 
@@ -22,6 +30,10 @@ resource "helm_release" "istio_base" {
   values = [
     jsonencode(var.configs.base.values),
     jsonencode(var.configs.base.extra_values),
+  ]
+
+  depends_on = [
+    module.gateway_api_crds,
   ]
 }
 
@@ -67,18 +79,4 @@ resource "helm_release" "gateway" {
   depends_on = [
     helm_release.istiod,
   ]
-}
-
-# https://github.com/aws/aws-application-networking-k8s
-resource "helm_release" "gateway_api_crds" {
-  count = try(var.configs.gateway_api_crds.enabled, true) ? 1 : 0
-
-  name             = try(var.configs.gateway_api_crds.name, "gateway-api-crds")
-  repository       = local.istio_repository
-  chart            = try(var.configs.gateway_api_crds.chart, "gateway-api-crds")
-  namespace        = local.istio_namespace
-  version          = try(var.configs.gateway_api_crds.chart_version, var.configs.base.chart_version)
-  create_namespace = local.istio_create_namespace
-  atomic           = local.istio_atomic
-  wait             = local.istio_wait
 }

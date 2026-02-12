@@ -20,7 +20,7 @@ resource "helm_release" "istio_base" {
 
   name             = var.configs.base.name
   repository       = local.istio_repository
-  chart            = "istio-base"
+  chart            = "base"
   namespace        = local.istio_namespace
   version          = var.configs.base.chart_version
   create_namespace = local.istio_create_namespace

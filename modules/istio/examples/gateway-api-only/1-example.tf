@@ -13,14 +13,18 @@ module "this" {
   configs = {
     # base = { enabled = false } # todo: enable this
     gateway = {
+      ingressgateway = {
+        enabled = false
+      }
       # Enable Gateway API resources (native k8s Gateway objects)
-      items = [
+      resources = [
         {
           name             = "main"
           gatewayClassName = "istio"
           listeners = [
+            # http-echo-gateway-api.localhost
             {
-              name     = "domain1"
+              name     = "http-echo-gateway-api-http"
               hostname = "http-echo-gateway-api.localhost"
               port     = 80
               protocol = "HTTP"
@@ -30,11 +34,60 @@ module "this" {
                 }
               }
             },
+            # http-echo-gw.localhost
             {
-              name     = "domain2"
+              name     = "http-echo-gw-http"
               port     = 80
               protocol = "HTTP"
-              hostname = "http-echo-route-only.localhost"
+              hostname = "http-echo-gw.localhost"
+              allowedRoutes = {
+                namespaces = {
+                  from = "All"
+                }
+              }
+            },
+            # redirect-example.localhost
+            {
+              name     = "redirect-example"
+              port     = 80
+              protocol = "HTTP"
+              hostname = "redirect-example.localhost"
+              allowedRoutes = {
+                namespaces = {
+                  from = "All"
+                }
+              }
+            },
+            # forbidden-example.localhost
+            {
+              name     = "forbidden-example"
+              port     = 80
+              protocol = "HTTP"
+              hostname = "forbidden-example.localhost"
+              allowedRoutes = {
+                namespaces = {
+                  from = "All"
+                }
+              }
+            },
+            # not-found-example.localhost
+            {
+              name     = "not-found-example"
+              port     = 80
+              protocol = "HTTP"
+              hostname = "not-found-example.localhost"
+              allowedRoutes = {
+                namespaces = {
+                  from = "All"
+                }
+              }
+            },
+            # virtualservice-example.localhost
+            {
+              name     = "virtualservice-example"
+              port     = 80
+              protocol = "HTTP"
+              hostname = "virtualservice-example.localhost"
               allowedRoutes = {
                 namespaces = {
                   from = "All"
@@ -54,6 +107,7 @@ module "this" {
         global = {
           proxy = {
             autoInject = "disabled"
+            # logLevel   = "debug"
           }
         }
       }

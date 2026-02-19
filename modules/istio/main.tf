@@ -105,18 +105,20 @@ resource "kubectl_manifest" "istio_ingress_class" {
 # These resources work with Istio when Gateway API CRDs are installed and istiod is running.
 # This is the recommended approach for managing ingress traffic when using Istio with native Gateway API.
 resource "helm_release" "gateway_api_resources" {
-  count = length(try(var.configs.gateway.items, [])) > 0 ? 1 : 0
+  count = length(try(var.configs.gateway.resources, [])) > 0 ? 1 : 0
 
-  name      = "gateway-api-resources"
-  chart     = "/Users/tmuradyan/projects/dasmeta/helm/charts/gateway-api"
-  namespace = local.istio_namespace
-  atomic    = local.istio_atomic
-  wait      = local.istio_wait
+  name       = "gateway-api-resources"
+  chart      = var.configs.gateway.resource_chart
+  repository = var.configs.gateway.resource_chart_repository
+  version    = var.configs.gateway.resource_chart_version
+  namespace  = local.istio_namespace
+  atomic     = local.istio_atomic
+  wait       = local.istio_wait
 
   values = [
     jsonencode({
       enabled  = true
-      gateways = var.configs.gateway.items
+      gateways = var.configs.gateway.resources
     }),
   ]
 

@@ -28,7 +28,7 @@ variable "configs" {
         # NOTE: The istio-gateway helm chart is NOT required when using Kubernetes native Gateway API resources.
         # It is only needed when using Istio's custom Gateway API implementation/CRDs (e.g., VirtualService, Gateway CRDs).
         # When using Kubernetes native Gateway API (gateway.networking.k8s.io), the gateway is managed through
-        # Kubernetes Gateway resources and the istio-gateway helm chart should be disabled (enabled = false).
+        # Kubernetes Gateway resources and the istio-gateway helm chart can be disabled (enabled = false).
         # Additionally, the istio-gateway helm chart is also used for Istio ingress creation and management.
         # When enabled, it provides the ingress gateway service that can be used with Kubernetes Ingress resources
         # (via IngressClass) to route traffic into the Istio service mesh.
@@ -42,14 +42,17 @@ variable "configs" {
           name   = optional(string, "istio")                     # the name of the IngressClass (default: "istio")
         }), {})                                                  # This IngressClass allows Kubernetes Ingress resources to use Istio's ingress gateway
       }), {})
-      items = optional(any, []) # list (or single object) of Gateway resources to create
+      resources                 = optional(any, [])                                  # list (or single object) of Gateway resources to create
+      resource_chart            = optional(string, "gateway-api")                    # the gateway-api chart
+      resource_chart_version    = optional(string, "0.1.0")                          # the version of gateway-api chart
+      resource_chart_repository = optional(string, "https://dasmeta.github.io/helm") # the repository of gateway-api chart
       # This creates native Kubernetes Gateway API resources (gateway.networking.k8s.io) using the gateway-api helm chart.
       # These resources work with Istio when Gateway API CRDs are installed and istiod is running.
       # This is the recommended approach for managing ingress traffic when using Istio with native Gateway API.
       # The chart path and release name are hardcoded. Resources will be created in configs.namespace.
       # If the list is empty, Gateway API resources will not be created.
       # Example:
-      # items = [
+      # resources = [
       #   {
       #     name = "main"
       #     gatewayClassName = "istio"

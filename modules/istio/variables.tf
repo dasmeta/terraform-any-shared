@@ -42,10 +42,10 @@ variable "configs" {
           name   = optional(string, "istio")                     # the name of the IngressClass (default: "istio")
         }), {})                                                  # This IngressClass allows Kubernetes Ingress resources to use Istio's ingress gateway
       }), {})
-      resources                 = optional(any, [])                                  # list (or single object) of Gateway resources to create
       resource_chart            = optional(string, "gateway-api")                    # the gateway-api chart
       resource_chart_version    = optional(string, "0.1.0")                          # the version of gateway-api chart
       resource_chart_repository = optional(string, "https://dasmeta.github.io/helm") # the repository of gateway-api chart
+      resources                 = optional(any, [])                                  # list (or single object) of Gateway resources to create
       # This creates native Kubernetes Gateway API resources (gateway.networking.k8s.io) using the gateway-api helm chart.
       # These resources work with Istio when Gateway API CRDs are installed and istiod is running.
       # This is the recommended approach for managing ingress traffic when using Istio with native Gateway API.

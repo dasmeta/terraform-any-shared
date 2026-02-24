@@ -1,7 +1,3 @@
-# locals {
-#   helm_values = merge(var.default_configs, var.custom_configs)
-# }
-
 resource "helm_release" "this" {
   name             = var.name
   repository       = "https://raw.githubusercontent.com/DefectDojo/django-DefectDojo/helm-charts"

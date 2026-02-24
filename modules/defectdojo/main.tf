@@ -1,6 +1,6 @@
-locals {
-  helm_values = merge(var.default_configs, var.custom_configs)
-}
+# locals {
+#   helm_values = merge(var.default_configs, var.custom_configs)
+# }
 
 resource "helm_release" "this" {
   name             = var.name
@@ -12,5 +12,8 @@ resource "helm_release" "this" {
   atomic           = var.atomic
   wait             = var.wait
 
-  values = [jsonencode(local.helm_values)]
+  values = [
+    jsonencode(var.default_configs),
+    jsonencode(var.custom_configs),
+  ]
 }

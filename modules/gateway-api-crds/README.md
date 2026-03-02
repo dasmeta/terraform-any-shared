@@ -71,7 +71,6 @@ module "gateway_api_crds" {
 
 | Name | Version |
 |------|---------|
-| <a name="provider_http"></a> [http](#provider\_http) | ~> 3.0 |
 | <a name="provider_kubectl"></a> [kubectl](#provider\_kubectl) | ~> 1.14 |
 
 ## Modules
@@ -83,7 +82,6 @@ No modules.
 | Name | Type |
 |------|------|
 | [kubectl_manifest.gateway_api_crds](https://registry.terraform.io/providers/gavinbunney/kubectl/latest/docs/resources/manifest) | resource |
-| [http_http.gateway_api_crds](https://registry.terraform.io/providers/hashicorp/http/latest/docs/data-sources/http) | data source |
 | [kubectl_file_documents.gateway_api_crds](https://registry.terraform.io/providers/gavinbunney/kubectl/latest/docs/data-sources/file_documents) | data source |
 
 ## Inputs

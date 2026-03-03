@@ -117,8 +117,14 @@ resource "helm_release" "gateway_api_resources" {
 
   values = [
     jsonencode({
-      enabled  = true
-      gateways = var.configs.gateway.resources
+      enabled    = true
+      gateways   = var.configs.gateway.resources
+      httpRoutes = try(var.configs.gateway.httpRoutes, [])
+      grpcRoutes = try(var.configs.gateway.grpcRoutes, [])
+      tcpRoutes  = try(var.configs.gateway.tcpRoutes, [])
+      tlsRoutes  = try(var.configs.gateway.tlsRoutes, [])
+      udpRoutes  = try(var.configs.gateway.udpRoutes, [])
+      istio      = try(var.configs.gateway.istio, {})
     }),
   ]
 

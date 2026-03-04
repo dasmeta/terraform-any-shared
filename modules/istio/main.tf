@@ -65,20 +65,20 @@ resource "helm_release" "istiod" {
 # Additionally, this helm chart is also used for Istio ingress creation and management, providing the ingress gateway
 # service that can be used with Kubernetes Ingress resources (via IngressClass) to route traffic into the Istio service mesh.
 resource "helm_release" "gateway" {
-  count = try(var.configs.gateway.ingressgateway.enabled, false) ? 1 : 0
+  count = try(var.configs.gateway.ingress_gateway.enabled, false) ? 1 : 0
 
-  name             = try(var.configs.gateway.ingressgateway.name, "istio-ingressgateway")
+  name             = try(var.configs.gateway.ingress_gateway.name, "istio-ingressgateway")
   repository       = local.istio_repository
   chart            = "gateway"
   namespace        = local.istio_namespace
-  version          = try(var.configs.gateway.ingressgateway.chart_version, "1.28.3")
+  version          = try(var.configs.gateway.ingress_gateway.chart_version, "1.28.3")
   create_namespace = local.istio_create_namespace
   atomic           = local.istio_atomic
   wait             = local.istio_wait
 
   values = [
-    jsonencode(try(var.configs.gateway.ingressgateway.configs, {})),
-    jsonencode(try(var.configs.gateway.ingressgateway.extra_configs, {})),
+    jsonencode(try(var.configs.gateway.ingress_gateway.configs, {})),
+    jsonencode(try(var.configs.gateway.ingress_gateway.extra_configs, {})),
   ]
 
   depends_on = [
@@ -89,13 +89,13 @@ resource "helm_release" "gateway" {
 # Creates a Kubernetes IngressClass resource that allows Kubernetes Ingress resources to use Istio's ingress gateway.
 # This IngressClass enables routing traffic through Istio's ingress gateway when using standard Kubernetes Ingress resources.
 resource "kubectl_manifest" "istio_ingress_class" {
-  count = try(var.configs.gateway.ingressgateway.enabled, false) && try(var.configs.gateway.ingressgateway.ingress_class.create, true) ? 1 : 0
+  count = try(var.configs.gateway.ingress_gateway.enabled, false) && try(var.configs.gateway.ingress_gateway.ingress_class.create, true) ? 1 : 0
 
   yaml_body = <<-YAML
     apiVersion: networking.k8s.io/v1
     kind: IngressClass
     metadata:
-      name: ${try(var.configs.gateway.ingressgateway.ingress_class.name, "istio")}
+      name: ${try(var.configs.gateway.ingress_gateway.ingress_class.name, "istio")}
     spec:
       controller: istio.io/ingress-controller
   YAML
@@ -105,27 +105,29 @@ resource "kubectl_manifest" "istio_ingress_class" {
 # These resources work with Istio when Gateway API CRDs are installed and istiod is running.
 # This is the recommended approach for managing ingress traffic when using Istio with native Gateway API.
 resource "helm_release" "gateway_api_resources" {
-  count = length(try(var.configs.gateway.resources, [])) > 0 ? 1 : 0
+  count = try(var.configs.gateway.api_resources.enabled, true) ? 1 : 0
 
   name       = "gateway-api-resources"
-  chart      = var.configs.gateway.resource_chart
-  repository = var.configs.gateway.resource_chart_repository
-  version    = var.configs.gateway.resource_chart_version
+  chart      = try(var.configs.gateway.api_resources.chart, "gateway-api")
+  repository = try(var.configs.gateway.api_resources.chart_repository, "https://dasmeta.github.io/helm")
+  version    = try(var.configs.gateway.api_resources.chart_version, "0.1.1")
   namespace  = local.istio_namespace
   atomic     = local.istio_atomic
   wait       = local.istio_wait
 
   values = [
-    jsonencode({
-      enabled    = true
-      gateways   = var.configs.gateway.resources
-      httpRoutes = try(var.configs.gateway.httpRoutes, [])
-      grpcRoutes = try(var.configs.gateway.grpcRoutes, [])
-      tcpRoutes  = try(var.configs.gateway.tcpRoutes, [])
-      tlsRoutes  = try(var.configs.gateway.tlsRoutes, [])
-      udpRoutes  = try(var.configs.gateway.udpRoutes, [])
-      istio      = try(var.configs.gateway.istio, {})
-    }),
+    jsonencode(merge(
+      { enabled = true },
+      {
+        gateways   = try(var.configs.gateway.api_resources.gateways, [])
+        httpRoutes = try(var.configs.gateway.api_resources.httpRoutes, [])
+        grpcRoutes = try(var.configs.gateway.api_resources.grpcRoutes, [])
+        tcpRoutes  = try(var.configs.gateway.api_resources.tcpRoutes, [])
+        tlsRoutes  = try(var.configs.gateway.api_resources.tlsRoutes, [])
+        udpRoutes  = try(var.configs.gateway.api_resources.udpRoutes, [])
+        istio      = try(var.configs.gateway.api_resources.istio, {})
+      }
+    )),
   ]
 
   depends_on = [

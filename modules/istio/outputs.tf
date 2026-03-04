@@ -20,6 +20,6 @@ output "gateway_helm_metadata" {
 }
 
 output "gateway_api_resources_helm_metadata" {
-  value       = try(helm_release.gateway_api_resources[0].metadata, null)
+  value       = try(var.configs.gateway.api_resources.enabled, true) ? helm_release.gateway_api_resources[0].metadata : null
   description = "Gateway API resources Helm release metadata"
 }

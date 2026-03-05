@@ -10,9 +10,6 @@ module "renovate" {
 
   autodiscover = true # discover all repos the token can access
 
-  host_rules    = []
-  package_rules = []
-
   # Only run on repos that already have renovate.json; don't create onboarding PRs everywhere
   extra_config = jsonencode({
     onboarding    = false

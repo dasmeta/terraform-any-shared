@@ -1,4 +1,4 @@
-# test-deployment
+# basic
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
@@ -13,7 +13,7 @@ No providers.
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_renovate-bot"></a> [renovate-bot](#module\_renovate-bot) | ../../ | n/a |
+| <a name="module_renovate"></a> [renovate](#module\_renovate) | ../.. | n/a |
 
 ## Resources
 

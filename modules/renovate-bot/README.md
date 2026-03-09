@@ -46,7 +46,7 @@ module "renovate-bot" {
 
 | Name | Version |
 |------|---------|
-| <a name="provider_helm"></a> [helm](#provider\_helm) | ~> 2.0 |
+| <a name="provider_helm"></a> [helm](#provider\_helm) | 2.17.0 |
 
 ## Modules
 
@@ -63,21 +63,13 @@ No modules.
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_atomic"></a> [atomic](#input\_atomic) | If set, the installation process will be rolled back on failure. | `bool` | `false` | no |
-| <a name="input_autodiscover"></a> [autodiscover](#input\_autodiscover) | Autodiscover all repositories the token can access. | `bool` | `true` | no |
 | <a name="input_chart_version"></a> [chart\_version](#input\_chart\_version) | The Renovate Helm chart version to use. | `string` | `"46.52.2"` | no |
 | <a name="input_create_namespace"></a> [create\_namespace](#input\_create\_namespace) | Create the namespace if it does not exist. | `bool` | `true` | no |
-| <a name="input_custom_configs"></a> [custom\_configs](#input\_custom\_configs) | Additional or override values for the Helm chart. Merged on top of default values. See Renovate Helm chart documentation. | `any` | `{}` | no |
-| <a name="input_endpoint"></a> [endpoint](#input\_endpoint) | Platform API endpoint (e.g. https://gitlab.com/api/v4). | `string` | `"https://gitlab.com/api/v4"` | no |
-| <a name="input_extra_config"></a> [extra\_config](#input\_extra\_config) | Optional JSON object merged into Renovate config. Use for self-hosted-only options (e.g. allowScripts, allowedCommands) or shared defaults. See https://docs.renovatebot.com/self-hosted-configuration/ | `string` | `"{}"` | no |
-| <a name="input_github_token"></a> [github\_token](#input\_github\_token) | GitHub Personal Access token (for fetching release notes etc.). | `string` | n/a | yes |
-| <a name="input_host_rules"></a> [host\_rules](#input\_host\_rules) | List of Renovate hostRules (private registries, auth). See https://docs.renovatebot.com/configuration-options/#hostrules. | <pre>list(object({<br/>    matchHost = string<br/>    token     = string<br/>    hostType  = string<br/>  }))</pre> | `[]` | no |
+| <a name="input_helm_extra_configs"></a> [helm\_extra\_configs](#input\_helm\_extra\_configs) | Additional or override values for the Helm chart. Merged on top of default values. See Renovate Helm chart documentation. | `any` | `{}` | no |
 | <a name="input_name"></a> [name](#input\_name) | The name of the Helm release. | `string` | `"renovate"` | no |
 | <a name="input_namespace"></a> [namespace](#input\_namespace) | The Kubernetes namespace to install Renovate. | `string` | `"renovate"` | no |
-| <a name="input_onboarding_branch"></a> [onboarding\_branch](#input\_onboarding\_branch) | Branch name used for onboarding PRs (e.g. renovate-configure). | `string` | `"renovate-configure"` | no |
-| <a name="input_package_rules"></a> [package\_rules](#input\_package\_rules) | List of Renovate packageRules. See https://docs.renovatebot.com/configuration-options/#packagerules. | <pre>list(object({<br/>    matchDatasources            = optional(list(string))<br/>    matchPackageNames           = optional(list(string))<br/>    matchPackagePatterns        = optional(list(string))<br/>    matchPaths                  = optional(list(string))<br/>    extends                     = optional(list(string))<br/>    registryUrls                = optional(list(string))<br/>    groupName                   = optional(string)<br/>    schedule                    = optional(string)<br/>    dependencyDashboardApproval = optional(bool)<br/>  }))</pre> | `[]` | no |
-| <a name="input_platform"></a> [platform](#input\_platform) | Platform type (e.g. gitlab, github). | `string` | `"gitlab"` | no |
-| <a name="input_schedule"></a> [schedule](#input\_schedule) | Cron schedule for the Renovate CronJob (e.g. '0 1 * * *' for daily at 01:00). | `string` | `"0 1 * * *"` | no |
-| <a name="input_token"></a> [token](#input\_token) | Platform Personal Access token (GitLab/GitHub etc.). | `string` | n/a | yes |
+| <a name="input_renovate_configs"></a> [renovate\_configs](#input\_renovate\_configs) | Renovate bot configuration (keys match Renovate's config format). Override only the keys you need (e.g. platform = "github"); the rest use defaults. | <pre>object({<br/>    platform         = optional(string, "gitlab")<br/>    endpoint         = optional(string, "https://gitlab.com/api/v4")<br/>    token            = optional(string, "")<br/>    github_token     = optional(string, "")<br/>    autodiscover     = optional(bool, true)<br/>    onboardingBranch = optional(string, "renovate-configure")<br/>    schedule         = optional(string, "0 1 * * *")<br/>    hostRules = optional(list(object({<br/>      matchHost = string<br/>      token     = string<br/>      hostType  = string<br/>    })), [])<br/>    packageRules = optional(list(object({<br/>      matchDatasources            = optional(list(string))<br/>      matchPackageNames           = optional(list(string))<br/>      matchPackagePatterns        = optional(list(string))<br/>      matchPaths                  = optional(list(string))<br/>      extends                     = optional(list(string))<br/>      registryUrls                = optional(list(string))<br/>      groupName                   = optional(string)<br/>      schedule                    = optional(string)<br/>      dependencyDashboardApproval = optional(bool)<br/>    })), [])<br/>  })</pre> | `{}` | no |
+| <a name="input_renovate_extra_configs"></a> [renovate\_extra\_configs](#input\_renovate\_extra\_configs) | Extra Renovate config options not covered by renovate\_configs (e.g. onboarding, requireConfig). Merged into the final config. See https://docs.renovatebot.com/self-hosted-configuration/ | `any` | `{}` | no |
 | <a name="input_wait"></a> [wait](#input\_wait) | Wait for the release to be deployed successfully. | `bool` | `true` | no |
 
 ## Outputs

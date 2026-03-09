@@ -36,84 +36,48 @@ variable "atomic" {
   default     = false
 }
 
-variable "custom_configs" {
+variable "helm_extra_configs" {
   description = "Additional or override values for the Helm chart. Merged on top of default values. See Renovate Helm chart documentation."
   type        = any
   default     = {}
 }
 
 # Renovate bot config (self-hosted). See https://docs.renovatebot.com/self-hosted-configuration/
+# Pass only the keys you want to override; defaults apply for the rest.
 
-variable "platform" {
-  description = "Platform type (e.g. gitlab, github)."
-  type        = string
-  default     = "gitlab"
+variable "renovate_configs" {
+  description = "Renovate bot configuration (keys match Renovate's config format). Override only the keys you need (e.g. platform = \"github\"); the rest use defaults."
+  type = object({
+    platform         = optional(string, "gitlab")
+    endpoint         = optional(string, "https://gitlab.com/api/v4")
+    token            = optional(string, "")
+    github_token     = optional(string, "")
+    autodiscover     = optional(bool, true)
+    onboardingBranch = optional(string, "renovate-configure")
+    schedule         = optional(string, "0 1 * * *")
+    hostRules = optional(list(object({
+      matchHost = string
+      token     = string
+      hostType  = string
+    })), [])
+    packageRules = optional(list(object({
+      matchDatasources            = optional(list(string))
+      matchPackageNames           = optional(list(string))
+      matchPackagePatterns        = optional(list(string))
+      matchPaths                  = optional(list(string))
+      extends                     = optional(list(string))
+      registryUrls                = optional(list(string))
+      groupName                   = optional(string)
+      schedule                    = optional(string)
+      dependencyDashboardApproval = optional(bool)
+    })), [])
+  })
+  default   = {}
+  sensitive = true
 }
 
-variable "endpoint" {
-  description = "Platform API endpoint (e.g. https://gitlab.com/api/v4)."
-  type        = string
-  default     = "https://gitlab.com/api/v4"
-}
-
-variable "token" {
-  description = "Platform Personal Access token (GitLab/GitHub etc.)."
-  type        = string
-  sensitive   = true
-}
-
-variable "github_token" {
-  description = "GitHub Personal Access token (for fetching release notes etc.)."
-  type        = string
-  sensitive   = true
-}
-
-variable "autodiscover" {
-  description = "Autodiscover all repositories the token can access."
-  type        = bool
-  default     = true
-}
-
-variable "onboarding_branch" {
-  description = "Branch name used for onboarding PRs (e.g. renovate-configure)."
-  type        = string
-  default     = "renovate-configure"
-}
-
-variable "schedule" {
-  description = "Cron schedule for the Renovate CronJob (e.g. '0 1 * * *' for daily at 01:00)."
-  type        = string
-  default     = "0 1 * * *"
-}
-
-variable "host_rules" {
-  description = "List of Renovate hostRules (private registries, auth). See https://docs.renovatebot.com/configuration-options/#hostrules."
-  type = list(object({
-    matchHost = string
-    token     = string
-    hostType  = string
-  }))
-  default = []
-}
-
-variable "package_rules" {
-  description = "List of Renovate packageRules. See https://docs.renovatebot.com/configuration-options/#packagerules."
-  type = list(object({
-    matchDatasources            = optional(list(string))
-    matchPackageNames           = optional(list(string))
-    matchPackagePatterns        = optional(list(string))
-    matchPaths                  = optional(list(string))
-    extends                     = optional(list(string))
-    registryUrls                = optional(list(string))
-    groupName                   = optional(string)
-    schedule                    = optional(string)
-    dependencyDashboardApproval = optional(bool)
-  }))
-  default = []
-}
-
-variable "extra_config" {
-  description = "Optional JSON object merged into Renovate config. Use for self-hosted-only options (e.g. allowScripts, allowedCommands) or shared defaults. See https://docs.renovatebot.com/self-hosted-configuration/"
-  type        = string
-  default     = "{}"
+variable "renovate_extra_configs" {
+  description = "Extra Renovate config options not covered by renovate_configs (e.g. onboarding, requireConfig). Merged into the final config. See https://docs.renovatebot.com/self-hosted-configuration/"
+  type        = any
+  default     = {}
 }

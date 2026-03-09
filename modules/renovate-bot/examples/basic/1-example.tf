@@ -1,20 +1,17 @@
 module "renovate" {
   source = "../.."
 
-  platform = "gitlab"
+  renovate_configs = {
+    token        = "your-gitlab-token" # GitLab PAT with repo access
+    github_token = "your-github-token" # GitHub PAT (e.g. for release notes)
+    schedule     = "*/2 * * * *"
+  }
 
-  token        = "your-gitlab-token" # GitLab PAT with repo access
-  github_token = "your-github-token" # GitHub PAT (e.g. for release notes)
-
-  schedule = "*/15 * * * *"
-
-  autodiscover = true # discover all repos the token can access
-
-  # Only run on repos that already have renovate.json; don't create onboarding PRs everywhere
-  extra_config = jsonencode({
+  # Options not in renovate_configs: only run on repos that already have renovate.json
+  renovate_extra_configs = {
     onboarding    = false
     requireConfig = "required"
-  })
+  }
 
-  custom_configs = {}
+  helm_extra_configs = {}
 }

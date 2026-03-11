@@ -11,13 +11,13 @@ resource "helm_release" "this" {
   values = [
     jsonencode({
       renovate = {
-        config = jsonencode(merge(var.renovate_configs, var.renovate_extra_configs))
+        config = jsonencode(merge(var.renovate.configs, var.renovate_extra_configs))
       }
       cronjob = {
-        schedule = var.renovate_configs.schedule
+        schedule = var.renovate.configs.schedule
       }
       env = {
-        GITHUB_COM_TOKEN = var.renovate_configs.github_token
+        GITHUB_COM_TOKEN = var.renovate.configs.github_token
       }
     }),
     jsonencode(var.helm_extra_configs),

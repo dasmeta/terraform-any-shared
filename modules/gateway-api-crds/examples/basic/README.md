@@ -78,7 +78,7 @@ No providers.
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_gateway_api_crds"></a> [gateway\_api\_crds](#module\_gateway\_api\_crds) | ../.. | n/a |
+| <a name="module_this"></a> [this](#module\_this) | ../.. | n/a |
 
 ## Resources
 

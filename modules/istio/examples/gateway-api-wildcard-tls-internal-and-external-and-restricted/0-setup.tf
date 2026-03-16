@@ -10,10 +10,6 @@ terraform {
       source  = "gavinbunney/kubectl"
       version = "~> 1.14"
     }
-    http = {
-      source  = "hashicorp/http"
-      version = "~> 3.0"
-    }
   }
 }
 
@@ -22,7 +18,6 @@ terraform {
 # `export KUBE_CONFIG_PATH=$KUBECONFIG`
 provider "helm" {}
 provider "kubectl" {}
-provider "http" {}
 
 # Domain variable for DNS zones and Gateway API configuration
 variable "domain" {

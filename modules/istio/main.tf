@@ -1,31 +1,20 @@
-locals {
-  istio_repository = var.configs.repository
-  istio_namespace  = var.configs.namespace
-
-  istio_create_namespace = var.configs.create_namespace
-  istio_atomic           = var.configs.atomic
-  istio_wait             = var.configs.wait
-}
-
 # Gateway API CRDs should be installed first before any Istio components
 module "gateway_api_crds" {
   count  = try(var.configs.gateway.crds.enabled, true) ? 1 : 0
   source = "../gateway-api-crds"
-
-  crd_version = try(var.configs.gateway.crds.version, "v1.4.1")
 }
 
 resource "helm_release" "istio_base" {
   count = var.configs.base.enabled ? 1 : 0
 
   name             = var.configs.base.name
-  repository       = local.istio_repository
+  repository       = var.configs.repository
   chart            = "base"
-  namespace        = local.istio_namespace
+  namespace        = var.configs.namespace
   version          = var.configs.base.chart_version
-  create_namespace = local.istio_create_namespace
-  atomic           = local.istio_atomic
-  wait             = local.istio_wait
+  create_namespace = var.configs.create_namespace
+  atomic           = var.configs.atomic
+  wait             = var.configs.wait
 
   values = [
     jsonencode(var.configs.base.values),
@@ -41,13 +30,13 @@ resource "helm_release" "istiod" {
   count = var.configs.istiod.enabled ? 1 : 0
 
   name             = var.configs.istiod.name
-  repository       = local.istio_repository
+  repository       = var.configs.repository
   chart            = "istiod"
-  namespace        = local.istio_namespace
+  namespace        = var.configs.namespace
   version          = var.configs.istiod.chart_version
-  create_namespace = local.istio_create_namespace
-  atomic           = local.istio_atomic
-  wait             = local.istio_wait
+  create_namespace = var.configs.create_namespace
+  atomic           = var.configs.atomic
+  wait             = var.configs.wait
 
   values = [
     jsonencode(var.configs.istiod.configs),
@@ -68,13 +57,13 @@ resource "helm_release" "gateway" {
   count = try(var.configs.gateway.ingress_gateway.enabled, false) ? 1 : 0
 
   name             = try(var.configs.gateway.ingress_gateway.name, "istio-ingressgateway")
-  repository       = local.istio_repository
+  repository       = var.configs.repository
   chart            = "gateway"
-  namespace        = local.istio_namespace
-  version          = try(var.configs.gateway.ingress_gateway.chart_version, "1.28.3")
-  create_namespace = local.istio_create_namespace
-  atomic           = local.istio_atomic
-  wait             = local.istio_wait
+  namespace        = var.configs.namespace
+  version          = try(var.configs.gateway.ingress_gateway.chart_version, "1.29.0")
+  create_namespace = var.configs.create_namespace
+  atomic           = var.configs.atomic
+  wait             = var.configs.wait
 
   values = [
     jsonencode(try(var.configs.gateway.ingress_gateway.configs, {})),
@@ -108,12 +97,12 @@ resource "helm_release" "gateway_api_resources" {
   count = try(var.configs.gateway.api_resources.enabled, true) ? 1 : 0
 
   name       = "gateway-api-resources"
-  chart      = try(var.configs.gateway.api_resources.chart, "gateway-api")
-  repository = try(var.configs.gateway.api_resources.chart_repository, "https://dasmeta.github.io/helm")
-  version    = try(var.configs.gateway.api_resources.chart_version, "0.1.1")
-  namespace  = local.istio_namespace
-  atomic     = local.istio_atomic
-  wait       = local.istio_wait
+  chart      = var.configs.gateway.api_resources.chart
+  repository = var.configs.gateway.api_resources.chart_repository
+  version    = var.configs.gateway.api_resources.chart_version
+  namespace  = var.configs.namespace
+  atomic     = var.configs.atomic
+  wait       = var.configs.wait
 
   values = [
     jsonencode(merge(

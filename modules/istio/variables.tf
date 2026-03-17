@@ -1,21 +1,20 @@
 variable "configs" {
   type = object({
     repository       = optional(string, "https://istio-release.storage.googleapis.com/charts") # The istio helm charts repository
+    chart_version    = optional(string, "1.29.1")                                              # the version of istio base/gateway/istiod charts
     namespace        = optional(string, "istio-system")                                        # the namespace where istio and related components will be installed
     create_namespace = optional(bool, true)                                                    # whether to create namespace or not
     atomic           = optional(bool, false)                                                   # whether auto rollback if helm install fails
     wait             = optional(bool, true)                                                    # whether wait to get the workload run successfully
     base = optional(object({                                                                   # istio-base configuration
-      enabled       = optional(bool, true)                                                     # weather install istio-base helm chart
-      name          = optional(string, "istio-base")                                           # the name of istio-base helm release
-      chart_version = optional(string, "1.29.0")                                               # the version of istio-base chart
-      values        = optional(any, {})                                                        # helm chart common default configs
-      extra_values  = optional(any, {})                                                        # helm chart extra configs to pass and extend/use all available options
+      enabled      = optional(bool, true)                                                      # weather install istio-base helm chart
+      name         = optional(string, "istio-base")                                            # the name of istio-base helm release
+      values       = optional(any, {})                                                         # helm chart common default configs
+      extra_values = optional(any, {})                                                         # helm chart extra configs to pass and extend/use all available options
     }), {})
     istiod = optional(object({                   # istiod configuration
       enabled       = optional(bool, true)       # weather install istiod helm chart
       name          = optional(string, "istiod") # the name of istiod helm release
-      chart_version = optional(string, "1.29.0") # the version of istio-base chart
       configs       = optional(any, {})          # helm chart common default configs
       extra_configs = optional(any, {})          # helm chart extra configs to pass and extend/use all available options
     }), {})
@@ -33,7 +32,6 @@ variable "configs" {
         # (via IngressClass) to route traffic into the Istio service mesh.
         enabled       = optional(bool, false)                    # whether install istio-gateway helm chart (default: false, not needed for native Gateway API)
         name          = optional(string, "istio-ingressgateway") # the name of istio-gateway helm release
-        chart_version = optional(string, "1.29.0")               # the version of istio-gateway chart
         configs       = optional(any, {})                        # helm chart common default configs
         extra_configs = optional(any, {})                        # helm chart extra configs to pass and extend/use all available options
         ingress_class = optional(object({                        # Kubernetes IngressClass configuration for Istio ingress
@@ -46,7 +44,7 @@ variable "configs" {
       api_resources = optional(object({
         enabled          = optional(bool, true)                               # whether to create the gateway-api resources helm release
         chart            = optional(string, "gateway-api")                    # the gateway-api chart name
-        chart_version    = optional(string, "0.1.3")                          # the version of gateway-api chart
+        chart_version    = optional(string, "0.1.4")                          # the version of gateway-api chart
         chart_repository = optional(string, "https://dasmeta.github.io/helm") # the repository of gateway-api chart
         gateways         = optional(any, [])                                  # list (or single object) of Gateway resources to create (gateway.networking.k8s.io)
         # Example:

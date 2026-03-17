@@ -11,7 +11,7 @@ resource "helm_release" "istio_base" {
   repository       = var.configs.repository
   chart            = "base"
   namespace        = var.configs.namespace
-  version          = var.configs.base.chart_version
+  version          = var.configs.chart_version
   create_namespace = var.configs.create_namespace
   atomic           = var.configs.atomic
   wait             = var.configs.wait
@@ -33,7 +33,7 @@ resource "helm_release" "istiod" {
   repository       = var.configs.repository
   chart            = "istiod"
   namespace        = var.configs.namespace
-  version          = var.configs.istiod.chart_version
+  version          = var.configs.chart_version
   create_namespace = var.configs.create_namespace
   atomic           = var.configs.atomic
   wait             = var.configs.wait
@@ -60,7 +60,7 @@ resource "helm_release" "gateway" {
   repository       = var.configs.repository
   chart            = "gateway"
   namespace        = var.configs.namespace
-  version          = try(var.configs.gateway.ingress_gateway.chart_version, "1.29.0")
+  version          = var.configs.chart_version
   create_namespace = var.configs.create_namespace
   atomic           = var.configs.atomic
   wait             = var.configs.wait

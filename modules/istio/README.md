@@ -1,5 +1,53 @@
 # istio
 
+Terraform module to install and manage Istio core components plus Gateway API integration on Kubernetes.
+
+This module can:
+
+- install Gateway API CRDs,
+- install Istio `base` and `istiod`,
+- optionally install Istio `gateway` chart for ingress mode,
+- create Gateway API resources (`Gateway`, `HTTPRoute`, and others) through the `gateway-api` Helm chart.
+
+It is intended for setups where Istio is used as the Gateway API implementation (`gatewayClassName: istio`), including both gateway-only and service-mesh-enabled scenarios.
+
+## Usage
+
+### Minimal Example
+
+```hcl
+module "this" {
+  source  = "dasmeta/shared/any//modules/istio"
+  # version = "x.y.z" # Check https://registry.terraform.io/modules/dasmeta/shared/any/latest/submodules/istio and set the version
+
+  configs = {
+    namespace = "istio-system"
+
+    gateway = {
+      ingress_gateway = {
+        enabled = false
+      }
+      api_resources = {
+        gateways = [
+          {
+            name             = "main"
+            gatewayClassName = "istio"
+            listeners = [
+              {
+                name     = "http-80"
+                hostname = "example.com"
+                port     = 80
+                protocol = "HTTP"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}
+```
+
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
 

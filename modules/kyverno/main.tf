@@ -8,7 +8,10 @@ resource "helm_release" "this" {
   atomic           = var.atomic
   wait             = var.wait
 
-  values = [jsonencode(module.custom_default_configs.merged)]
+  values = [
+    jsonencode(var.default_configs),
+    jsonencode(var.extra_configs)
+  ]
 }
 
 resource "helm_release" "resources" {
@@ -23,14 +26,4 @@ resource "helm_release" "resources" {
   values = [jsonencode({ resources = local.policies })]
 
   depends_on = [helm_release.this]
-}
-
-module "custom_default_configs" {
-  source  = "cloudposse/config/yaml//modules/deepmerge"
-  version = "1.0.2"
-
-  maps = [
-    var.default_configs,
-    var.extra_configs
-  ]
 }

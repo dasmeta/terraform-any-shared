@@ -1,3 +1,8 @@
+## minio
+
+Use this module to deploy MinIO into Kubernetes with the repository's shared
+Helm wrapper defaults and override hooks for chart configuration.
+
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
 

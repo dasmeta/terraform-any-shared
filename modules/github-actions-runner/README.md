@@ -1,6 +1,8 @@
-# Setup github actions runner in k8s,
-# By default, actions-runner-controller uses cert-manager for certificate management of Admission Webhook
-# You can install cert manager 'kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.7.1/cert-manager.yaml'
+# GitHub Actions Runner
+
+Use this module to deploy a GitHub Actions runner into Kubernetes using the
+repository's shared runner baseline. By default, the underlying controller
+expects cert-manager for admission webhook certificates.
 
 
 # Example 1

@@ -1,5 +1,8 @@
 # Gateway API CRDs Module
 
+Use this module when a cluster needs the Gateway API CRDs installed ahead of
+controllers or gateways that depend on them.
+
 This Terraform module installs Kubernetes Gateway API Custom Resource Definitions (CRDs) using the official manifests from the [Kubernetes SIGs Gateway API repository](https://github.com/kubernetes-sigs/gateway-api).
 
 ## Features

@@ -1,4 +1,7 @@
-# example
+# basic
+
+This example demonstrates the standard consumer path for exporting selected
+1Password items into AWS Secrets Manager using this module.
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements

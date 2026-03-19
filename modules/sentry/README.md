@@ -1,3 +1,8 @@
+## sentry
+
+Use this module to deploy Sentry into Kubernetes with the repository's shared
+Helm wrapper defaults and optional embedded MinIO support.
+
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
 

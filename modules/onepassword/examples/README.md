@@ -1,5 +1,8 @@
 # examples
 
+This example shows the standard consumer shape for reading 1Password items
+through the shared `onepassword` module.
+
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
 

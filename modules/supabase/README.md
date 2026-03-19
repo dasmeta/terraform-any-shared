@@ -1,3 +1,9 @@
+## supabase
+
+Use this module to deploy Supabase through the repository's shared Helm wrapper
+baseline. The examples below show the minimum and expanded configuration
+surfaces expected by the current module interface.
+
 ## Minimal module setup
 ```
 module "supabase" {

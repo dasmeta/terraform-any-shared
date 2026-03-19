@@ -1,5 +1,9 @@
 # event-exporter
 
+Deploys event-exporter into Kubernetes through a compact Helm wrapper. Use this
+module when you want a shared installation pattern and an optional webhook
+endpoint without exposing every upstream chart setting.
+
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
 

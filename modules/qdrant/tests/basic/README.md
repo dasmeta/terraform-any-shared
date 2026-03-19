@@ -1,5 +1,8 @@
 # basic
 
+This test scenario documents the baseline verification path for the `qdrant`
+module against an existing cluster context.
+
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
 

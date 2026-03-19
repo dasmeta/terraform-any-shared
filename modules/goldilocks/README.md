@@ -1,5 +1,8 @@
-# todo
-- Goldilocks is a Kubernetes controller that provides a dashboard that gives recommendations on how to set your resource requests.
+# goldilocks
+
+Goldilocks is a Kubernetes controller that recommends container resource
+requests and exposes the results through a dashboard. Use this module to deploy
+the controller and, by default, the prerequisite components it depends on.
 
 ## Usage
 

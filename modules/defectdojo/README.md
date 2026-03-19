@@ -1,5 +1,9 @@
 # defectdojo
 
+Deploys DefectDojo into Kubernetes with an opinionated Helm-based baseline.
+Use this module when you need a shared security-testing installation with a
+small input surface and override-friendly chart configuration.
+
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
 

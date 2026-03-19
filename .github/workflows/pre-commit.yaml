@@ -12,6 +12,31 @@ jobs:
       discussions: write
       pull-requests: write
       id-token: write
+    strategy:
+      matrix:
+        path:
+          - modules/defectdojo
+          - modules/event-exporter
+          - modules/gateway-api-crds
+          - modules/github-actions-runner
+          - modules/gitlab-runner
+          - modules/goldilocks
+          - modules/horizon-monitor
+          - modules/istio
+          - modules/kafka
+          - modules/keeper-reader
+          - modules/kyverno
+          - modules/loki
+          - modules/minio
+          - modules/mongodb
+          - modules/mongodb-bi-connector
+          - modules/onepassword
+          - modules/onepassword_to_secret_manager
+          - modules/qdrant
+          - modules/renovate-bot
+          - modules/sentry
+          - modules/service
+          - modules/supabase
     steps:
     - name: Pre-Commit
       uses: dasmeta/reusable-actions-workflows/pre-commit@main
@@ -19,5 +44,5 @@ jobs:
         repo-token: ${{ secrets.GITHUB_TOKEN }}
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        path: modules/${{ matrix.path }}
+        path: ${{ matrix.path }}
       continue-on-error: true

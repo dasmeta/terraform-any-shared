@@ -1,5 +1,9 @@
 # service
 
+Use this module to deploy a service Helm chart from the DasMeta chart
+repository with a small input surface for release name, namespace, repository,
+and chart values.
+
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
 

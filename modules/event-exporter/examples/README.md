@@ -1,5 +1,8 @@
 # examples
 
+This example shows the standard consumer shape for installing the
+`event-exporter` module from this repository.
+
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
 

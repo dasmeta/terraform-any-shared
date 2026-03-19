@@ -16,14 +16,27 @@ jobs:
     strategy:
       matrix:
         path:
+          - modules/defectdojo
+          - modules/event-exporter
+          - modules/gateway-api-crds
           - modules/github-actions-runner
           - modules/gitlab-runner
           - modules/goldilocks
+          - modules/horizon-monitor
+          - modules/istio
           - modules/kafka
+          - modules/keeper-reader
+          - modules/kyverno
+          - modules/loki
+          - modules/minio
           - modules/mongodb
+          - modules/mongodb-bi-connector
           - modules/onepassword
           - modules/onepassword_to_secret_manager
+          - modules/qdrant
           - modules/renovate-bot
+          - modules/sentry
+          - modules/service
           - modules/supabase
 
     steps:

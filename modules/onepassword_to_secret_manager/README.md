@@ -1,7 +1,9 @@
-### Use module when you want integrate 1password to AWS Secret manager
-### The module pull 1password items credential and will create new secrets in AWS
+### onepassword_to_secret_manager
 
-## Pre Required
+Use this module when you need to pull credentials from 1Password and publish
+them into AWS Secrets Manager through the repository's shared wrapper pattern.
+
+## Prerequisites
 
 Install op-cli https://1password.com/downloads/command-line/
 

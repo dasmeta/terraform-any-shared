@@ -1,6 +1,8 @@
-# This module intended to add MongoDB  in onpremise kubernetes setup and will do the following:
-* Default will created mongodb replicaset if you want change setup standalone please change from variables.tf file
-* If created with replicaset pods will created with statesfulset, if change setup type standalone pods will created with deployments
+# mongodb
+
+Use this module to deploy MongoDB into an on-premises Kubernetes environment
+with an opinionated baseline for replica set deployments. Standalone operation
+remains available through the documented module inputs.
 
 
 ## Example 1

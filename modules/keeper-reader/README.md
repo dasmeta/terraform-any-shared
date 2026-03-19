@@ -1,5 +1,7 @@
-### Keeper-Reader Module
-This module is designed to read data from Keeper Security. Keeper stores various types of secrets. Currently, this module supports three types:
+### keeper-reader
+
+This module reads data from Keeper Security using the repository's shared
+wrapper pattern. Keeper records are currently supported in three categories:
 - Login
 - SSH
 - Database

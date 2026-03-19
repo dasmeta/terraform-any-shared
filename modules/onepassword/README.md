@@ -1,6 +1,10 @@
-### Use module when you want get your secrets from 1password
+### onepassword
 
-## Pre Required
+Use this module when you need to read secrets from 1Password and expose them to
+the rest of a Terraform configuration through a narrow, repository-standard
+interface.
+
+## Prerequisites
 
 Install op-cli https://1password.com/downloads/command-line/
 

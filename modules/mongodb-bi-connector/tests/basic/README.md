@@ -1,5 +1,8 @@
 # basic
 
+This test scenario documents the baseline verification path for the
+`mongodb-bi-connector` module.
+
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
 

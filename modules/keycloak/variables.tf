@@ -11,10 +11,8 @@ variable "namespace" {
 }
 
 variable "create_namespace" {
-  type    = bool
-  default = true
-  # NOTE(change): Helm can create the namespace, but our bootstrap Secrets are applied before Helm.
-  # So this module can create the namespace via Kubernetes provider first.
+  type        = bool
+  default     = true
   description = "When true, create the target namespace with the Kubernetes provider before secrets and Helm (required so bootstrap Secrets can be applied)."
 }
 
@@ -25,9 +23,8 @@ variable "chart_version" {
 }
 
 variable "helm_timeout" {
-  type    = number
-  default = 900
-  # NOTE(change): Mitigates Helm "context deadline exceeded" for slow Keycloak startups.
+  type        = number
+  default     = 900
   description = "Seconds Helm waits for the release when wait is true. Keycloak startup often exceeds the provider default (300s), causing context deadline exceeded with atomic installs."
 }
 
@@ -37,10 +34,8 @@ variable "hostname" {
 }
 
 variable "hostname_strict" {
-  type    = bool
-  default = false
-  # NOTE(change): When false, you can access Keycloak via port-forward/localhost without being
-  # redirected to var.hostname.
+  type        = bool
+  default     = false
   description = "When false, sets KC_HOSTNAME_STRICT=false so Keycloak accepts any Host header (e.g. kubectl port-forward to 127.0.0.1 without redirects to hostname). Set true when public URLs must strictly match hostname."
 }
 

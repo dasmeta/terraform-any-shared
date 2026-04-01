@@ -33,11 +33,21 @@ locals {
       }
     ] : []
     } : {
-    enabled = false
+    # NOTE(change): Keep both sides of the conditional the same object shape.
+    # This avoids: "Inconsistent conditional result types".
+    enabled          = false
+    ingressClassName = null
+    annotations      = {}
+    rules            = []
+    tls              = []
   }
 
   values = merge(
     {
+      # NOTE(change): keycloakx chart only renders args when non-empty; otherwise the image may run
+      # `kc.sh` with no subcommand (prints help, exits 0). Force server startup.
+      args = ["start"]
+
       replicas = var.replicas
       http = {
         relativePath = "/"
@@ -79,6 +89,11 @@ locals {
         {
           name  = "KC_HOSTNAME"
           value = var.hostname
+        },
+        {
+          # NOTE(change): Allow kubectl port-forward / alternative Host headers without redirects.
+          name  = "KC_HOSTNAME_STRICT"
+          value = var.hostname_strict ? "true" : "false"
         }
       ])
     },
@@ -87,8 +102,21 @@ locals {
   )
 }
 
+resource "kubernetes_namespace_v1" "this" {
+  # NOTE(change): Helm's create_namespace happens at helm install time, but we create Secrets before
+  # the helm release. So we manage the namespace here to avoid "namespace not found" for Secrets.
+  count = var.create_namespace ? 1 : 0
+
+  metadata {
+    name = var.namespace
+  }
+}
+
 resource "kubernetes_secret_v1" "admin_password" {
   count = var.admin_password != null ? 1 : 0
+
+  # NOTE(change): Ensure namespace exists before Secret creation.
+  depends_on = [kubernetes_namespace_v1.this]
 
   metadata {
     name      = local.admin_password_secret_name
@@ -105,6 +133,9 @@ resource "kubernetes_secret_v1" "admin_password" {
 resource "kubernetes_secret_v1" "database_password" {
   count = try(var.database.password, null) != null ? 1 : 0
 
+  # NOTE(change): Ensure namespace exists before Secret creation.
+  depends_on = [kubernetes_namespace_v1.this]
+
   metadata {
     name      = local.database_password_secret_name
     namespace = var.namespace
@@ -119,20 +150,25 @@ resource "kubernetes_secret_v1" "database_password" {
 
 resource "helm_release" "this" {
   depends_on = [
+    kubernetes_namespace_v1.this,
     kubernetes_secret_v1.admin_password,
     kubernetes_secret_v1.database_password,
   ]
 
-  name             = var.name
-  repository       = "https://codecentric.github.io/helm-charts"
-  chart            = "keycloakx"
-  namespace        = var.namespace
-  version          = var.chart_version
-  create_namespace = var.create_namespace
+  name       = var.name
+  repository = "https://codecentric.github.io/helm-charts"
+  chart      = "keycloakx"
+  namespace  = var.namespace
+  version    = var.chart_version
+  # NOTE(change): Namespace is created by kubernetes_namespace_v1 when create_namespace is true,
+  # otherwise it must already exist.
+  create_namespace = false
 
   atomic          = true
   cleanup_on_fail = true
   wait            = true
+  # NOTE(change): Keycloak can take longer than Helm provider default (300s) to become ready.
+  timeout = var.helm_timeout
 
   values = [
     yamlencode(local.values),

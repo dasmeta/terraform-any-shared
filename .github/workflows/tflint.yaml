@@ -26,6 +26,7 @@ jobs:
           - modules/horizon-monitor
           - modules/istio
           - modules/kafka
+          - modules/keycloak
           - modules/keeper-reader
           - modules/kyverno
           - modules/loki

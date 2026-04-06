@@ -1,6 +1,3 @@
-# Run in the same terminal before plan/apply:
-#   meta exec payconomy eks-dev
-#
 # Meta writes the cluster context to a dedicated kubeconfig file (see meta output), e.g.
 #   ~/.kube/payconomy-dev-eks-dev
 # Terraform must use that same file; relying on the default client config alone can

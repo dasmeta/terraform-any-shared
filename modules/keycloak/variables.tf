@@ -42,7 +42,7 @@ variable "hostname_strict" {
 variable "proxy_mode" {
   type        = string
   default     = "xforwarded"
-  description = "Sets keycloakx chart proxy.mode (env KC_PROXY_HEADERS). Default xforwarded for AWS ALB / nginx X-Forwarded-*. Use forwarded only if your proxy sends RFC 7239 Forwarded."
+  description = "Sets keycloakx chart proxy.mode"
 }
 
 variable "replicas" {

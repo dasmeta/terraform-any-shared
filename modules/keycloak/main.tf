@@ -62,7 +62,7 @@ locals {
       }
       proxy = {
         enabled = true
-        mode    = "forwarded"
+        mode    = var.proxy_mode
         http = {
           enabled = true
         }

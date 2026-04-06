@@ -39,6 +39,12 @@ variable "hostname_strict" {
   description = "When false, sets KC_HOSTNAME_STRICT=false so Keycloak accepts any Host header (e.g. kubectl port-forward to 127.0.0.1 without redirects to hostname). Set true when public URLs must strictly match hostname."
 }
 
+variable "proxy_mode" {
+  type        = string
+  default     = "xforwarded"
+  description = "Sets keycloakx chart proxy.mode"
+}
+
 variable "replicas" {
   type        = number
   default     = 1

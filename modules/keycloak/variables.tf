@@ -42,7 +42,7 @@ variable "hostname_strict" {
 variable "proxy_mode" {
   type        = string
   default     = "xforwarded"
-  description = "Sets keycloakx chart proxy.mode"
+  description = "Sets keycloakx chart proxy.mode (KC_PROXY_HEADERS). Use xforwarded behind AWS ALB / X-Forwarded-* proxies."
 }
 
 variable "replicas" {
@@ -60,7 +60,7 @@ variable "admin_username" {
 variable "admin_password" {
   type        = string
   default     = null
-  description = "Raw admin password used only when the module manages the bootstrap secret."
+  description = "Admin password when the module creates the bootstrap Secret (mutually exclusive with admin_password_secret_name). May be sourced from Terraform Cloud remote state / workspace outputs (same idea as grafana_admin_password); value is sensitive in Terraform state."
   sensitive   = true
 }
 
@@ -87,7 +87,7 @@ variable "database" {
     password_secret_name = optional(string)
     password_secret_key  = optional(string, "password")
   })
-  description = "The external database configuration for Keycloak."
+  description = "External PostgreSQL (or supported vendor). Set database.password from remote workspace outputs, OR database.password_secret_name for a pre-existing Secret (e.g. ExternalSecret), not both."
   sensitive   = true
 }
 

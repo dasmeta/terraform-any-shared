@@ -64,7 +64,6 @@ No providers.
 | Name | Source | Version |
 |------|--------|---------|
 | <a name="module_keycloak"></a> [keycloak](#module\_keycloak) | ../.. | n/a |
-| <a name="module_keycloak_existing_secrets"></a> [keycloak\_existing\_secrets](#module\_keycloak\_existing\_secrets) | ../.. | n/a |
 
 ## Resources
 

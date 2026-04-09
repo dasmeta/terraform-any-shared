@@ -199,13 +199,13 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_admin_password"></a> [admin\_password](#input\_admin\_password) | Raw admin password used only when the module manages the bootstrap secret. | `string` | `null` | no |
+| <a name="input_admin_password"></a> [admin\_password](#input\_admin\_password) | Admin password when the module creates the bootstrap Secret (mutually exclusive with admin\_password\_secret\_name). May be sourced from Terraform Cloud remote state / workspace outputs (same idea as grafana\_admin\_password); value is sensitive in Terraform state. | `string` | `null` | no |
 | <a name="input_admin_password_secret_key"></a> [admin\_password\_secret\_key](#input\_admin\_password\_secret\_key) | The key inside the admin password Secret. | `string` | `"password"` | no |
 | <a name="input_admin_password_secret_name"></a> [admin\_password\_secret\_name](#input\_admin\_password\_secret\_name) | Existing Kubernetes Secret name that contains the Keycloak admin password. | `string` | `null` | no |
 | <a name="input_admin_username"></a> [admin\_username](#input\_admin\_username) | The initial Keycloak admin username. | `string` | `"admin"` | no |
 | <a name="input_chart_version"></a> [chart\_version](#input\_chart\_version) | The version of the codecentric/keycloakx Helm chart to deploy. | `string` | `"7.1.9"` | no |
 | <a name="input_create_namespace"></a> [create\_namespace](#input\_create\_namespace) | When true, create the target namespace with the Kubernetes provider before secrets and Helm (required so bootstrap Secrets can be applied). | `bool` | `true` | no |
-| <a name="input_database"></a> [database](#input\_database) | The external database configuration for Keycloak. | <pre>object({<br/>    host                 = string<br/>    name                 = string<br/>    username             = string<br/>    vendor               = optional(string, "postgres")<br/>    port                 = optional(number, 5432)<br/>    password             = optional(string)<br/>    password_secret_name = optional(string)<br/>    password_secret_key  = optional(string, "password")<br/>  })</pre> | n/a | yes |
+| <a name="input_database"></a> [database](#input\_database) | External PostgreSQL (or supported vendor). Set database.password from remote workspace outputs, OR database.password\_secret\_name for a pre-existing Secret (e.g. ExternalSecret), not both. | <pre>object({<br/>    host                 = string<br/>    name                 = string<br/>    username             = string<br/>    vendor               = optional(string, "postgres")<br/>    port                 = optional(number, 5432)<br/>    password             = optional(string)<br/>    password_secret_name = optional(string)<br/>    password_secret_key  = optional(string, "password")<br/>  })</pre> | n/a | yes |
 | <a name="input_helm_timeout"></a> [helm\_timeout](#input\_helm\_timeout) | Seconds Helm waits for the release when wait is true. Keycloak startup often exceeds the provider default (300s), causing context deadline exceeded with atomic installs. | `number` | `900` | no |
 | <a name="input_hostname"></a> [hostname](#input\_hostname) | The public hostname configured for Keycloak. | `string` | n/a | yes |
 | <a name="input_hostname_strict"></a> [hostname\_strict](#input\_hostname\_strict) | When false, sets KC\_HOSTNAME\_STRICT=false so Keycloak accepts any Host header (e.g. kubectl port-forward to 127.0.0.1 without redirects to hostname). Set true when public URLs must strictly match hostname. | `bool` | `false` | no |
@@ -213,7 +213,7 @@ No modules.
 | <a name="input_name"></a> [name](#input\_name) | The name of the Helm release. | `string` | `"keycloak"` | no |
 | <a name="input_namespace"></a> [namespace](#input\_namespace) | The Kubernetes namespace where Keycloak is deployed. | `string` | `"keycloak"` | no |
 | <a name="input_pod_labels"></a> [pod\_labels](#input\_pod\_labels) | Additional labels applied to the Keycloak pod. | `map(string)` | `{}` | no |
-| <a name="input_proxy_mode"></a> [proxy\_mode](#input\_proxy\_mode) | Sets keycloakx chart proxy.mode | `string` | `"xforwarded"` | no |
+| <a name="input_proxy_mode"></a> [proxy\_mode](#input\_proxy\_mode) | Sets keycloakx chart proxy.mode (KC\_PROXY\_HEADERS). Use xforwarded behind AWS ALB / X-Forwarded-* proxies. | `string` | `"xforwarded"` | no |
 | <a name="input_replicas"></a> [replicas](#input\_replicas) | The number of Keycloak replicas to run. | `number` | `1` | no |
 | <a name="input_resources"></a> [resources](#input\_resources) | CPU and memory resource requests and limits for Keycloak. | <pre>object({<br/>    limits   = optional(map(string), {})<br/>    requests = optional(map(string), {})<br/>  })</pre> | `{}` | no |
 

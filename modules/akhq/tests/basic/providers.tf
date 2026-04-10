@@ -17,14 +17,18 @@ terraform {
   }
 }
 
-
+locals {
+  kubeconfig = var.kubeconfig_path != "" ? var.kubeconfig_path : pathexpand("~/.kube/config")
+}
 
 provider "helm" {
-
+  kubernetes {
+    config_path = local.kubeconfig
+  }
 }
 
 provider "kubernetes" {
-
+  config_path = local.kubeconfig
 }
 
 provider "random" {}

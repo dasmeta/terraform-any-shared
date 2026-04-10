@@ -260,4 +260,3 @@ except Exception:
     # Callers running under set -e should use: TEMPLATE=$(resolve_template ...) || true
     return 1
 }
-

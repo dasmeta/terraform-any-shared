@@ -15,6 +15,32 @@ terraform apply -var="kubeconfig_path=${KUBECONFIG}"
 `main.tf` uses **placeholders** (hostname, Kafka brokers, cert ARN, `security.*` secrets) safe for git. For a real apply, either edit locally without committing or use a **gitignored** `terraform.tfvars` / `-var` for `kafka_scram_*` and adjust `main.tf` copies privately.
 
 MSK **SCRAM**: set `kafka_scram_username` and `kafka_scram_password` via tfvars; **rotate** any credential that was ever committed.
+
+## Destroy
+
+You **do not** need to restore old passwords or real `main.tf` values. Destroy uses **Terraform state** plus the same module inputs that identify the release (`name` defaults to `akhq`, `namespace` in `main.tf` must match what you applied, e.g. `dev`).
+
+From this directory, with the same kube access as for apply:
+
+```bash
+meta exec <account> <env>   # or your usual cluster login
+cd modules/akhq/tests/basic
+terraform destroy
+```
+
+If you use a non-default kubeconfig file, pass **`kubeconfig_path`** (this test wires both `kubernetes` and `helm` providers to the same path):
+
+```bash
+echo "$KUBECONFIG"   # must be non-empty for -var=… to work
+terraform destroy -var="kubeconfig_path=${KUBECONFIG}"
+```
+
+`KUBECONFIG` must be a **single file path**. If it lists several files (`:`-separated), point Terraform at the first one, for example:
+
+```bash
+terraform destroy -var="kubeconfig_path=$(echo "$KUBECONFIG" | cut -d: -f1)"
+```
+
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
 

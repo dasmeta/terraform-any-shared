@@ -23,6 +23,7 @@
 | `modules/onepassword_to_secret_manager/` | maintained | normalized | `examples/basic` | exception | covered | aligned | Singular example path normalized |
 | `modules/qdrant/` | maintained | existing | exception | `tests/basic`, `tests/helm_config_overwrite` | covered | aligned | Version file normalized to `versions.tf` |
 | `modules/renovate-bot/` | maintained | existing | `examples/basic` | exception | covered | aligned | Strong baseline coverage already present |
+| `modules/argocd/` | maintained | normalized | `examples/basic` | exception | covered | aligned | Helm module for Argo CD with AWS ALB ingress wrapper |
 | `modules/sentry/` | maintained | normalized | `examples/basic` | exception | covered | aligned | README preamble added |
 | `modules/service/` | maintained | normalized | `examples/basic` | exception | covered | excepted | Keeps `deploy.tf` pending explicit approval |
 | `modules/supabase/` | maintained | normalized | exception | exception | covered | excepted | No standardized example/test harness yet |
@@ -37,7 +38,7 @@
 
 ## Review Summary
 
-- Maintained top-level module paths: 22
+- Maintained top-level module paths: 23
 - Support-only top-level paths: 1
 - Explicitly excepted maintained modules: 9
-- Fully aligned maintained modules: 13
+- Fully aligned maintained modules: 14

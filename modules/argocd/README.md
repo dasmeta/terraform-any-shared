@@ -48,14 +48,12 @@ module "argocd" {
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | ~> 1.3 |
 | <a name="requirement_helm"></a> [helm](#requirement\_helm) | ~> 2.0 |
-| <a name="requirement_kubernetes"></a> [kubernetes](#requirement\_kubernetes) | ~> 2.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
 | <a name="provider_helm"></a> [helm](#provider\_helm) | ~> 2.0 |
-| <a name="provider_kubernetes"></a> [kubernetes](#provider\_kubernetes) | ~> 2.0 |
 
 ## Modules
 
@@ -66,21 +64,26 @@ No modules.
 | Name | Type |
 |------|------|
 | [helm_release.this](https://registry.terraform.io/providers/hashicorp/helm/latest/docs/resources/release) | resource |
-| [kubernetes_namespace_v1.this](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs/resources/namespace_v1) | resource |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_admin_password_bcrypt"></a> [admin\_password\_bcrypt](#input\_admin\_password\_bcrypt) | Bcrypt hash for the Argo CD admin password (not plaintext). Stored in Terraform state as a sensitive value when set. | `string` | `null` | no |
-| <a name="input_chart_version"></a> [chart\_version](#input\_chart\_version) | The version of the argoproj/argo-cd Helm chart to deploy. | `string` | `"9.5.0"` | no |
-| <a name="input_create_namespace"></a> [create\_namespace](#input\_create\_namespace) | When true, create the target namespace with the Kubernetes provider before Helm. | `bool` | `true` | no |
+| <a name="input_atomic"></a> [atomic](#input\_atomic) | Whether to roll back changes made in case of failed release (helm\_release.atomic). | `bool` | `true` | no |
+| <a name="input_chart_version"></a> [chart\_version](#input\_chart\_version) | The version of the argoproj/argo-cd Helm chart to deploy. | `string` | `"9.5.2"` | no |
+| <a name="input_cleanup_on_fail"></a> [cleanup\_on\_fail](#input\_cleanup\_on\_fail) | Allow deletion of new resources created in this upgrade when upgrade fails (helm\_release.cleanup\_on\_fail). | `bool` | `true` | no |
+| <a name="input_create_namespace"></a> [create\_namespace](#input\_create\_namespace) | When true, allow Helm to create the target namespace. | `bool` | `false` | no |
+| <a name="input_extra_configs"></a> [extra\_configs](#input\_extra\_configs) | Extra Helm values to pass for advanced configuration not covered by this module. Merged on top of module defaults. | `any` | `{}` | no |
 | <a name="input_helm_timeout"></a> [helm\_timeout](#input\_helm\_timeout) | Seconds Helm waits for the release when wait is true. | `number` | `900` | no |
 | <a name="input_hostname"></a> [hostname](#input\_hostname) | The Argo CD server hostname used when ingress is enabled. | `string` | `null` | no |
-| <a name="input_ingress"></a> [ingress](#input\_ingress) | Ingress configuration for the consumer-managed AWS ALB ingress path. | <pre>object({<br/>    enabled         = optional(bool, true)<br/>    annotations     = optional(map(string), {})<br/>    path            = optional(string, "/")<br/>    path_type       = optional(string, "Prefix")<br/>    tls_secret_name = optional(string, null)<br/>  })</pre> | `{}` | no |
+| <a name="input_ingress"></a> [ingress](#input\_ingress) | Ingress configuration for the consumer-managed AWS ALB ingress path. | <pre>object({<br/>    enabled            = optional(bool, true)<br/>    controller         = optional(string, "aws")<br/>    ingress_class_name = optional(string, "alb")<br/>    annotations        = optional(map(string), {})<br/>    path               = optional(string, "/")<br/>    path_type          = optional(string, "Prefix")<br/>    tls_secret_name    = optional(string, null)<br/>  })</pre> | `{}` | no |
 | <a name="input_name"></a> [name](#input\_name) | The name of the Helm release. | `string` | `"argocd"` | no |
 | <a name="input_namespace"></a> [namespace](#input\_namespace) | The Kubernetes namespace where Argo CD is deployed. | `string` | `"argocd"` | no |
+| <a name="input_replicas"></a> [replicas](#input\_replicas) | The number of Argo CD server replicas. | `number` | `2` | no |
+| <a name="input_resources"></a> [resources](#input\_resources) | Resource requests/limits for the Argo CD server workload. | <pre>object({<br/>    requests = optional(map(string), {<br/>      cpu    = "100m"<br/>      memory = "256Mi"<br/>    })<br/>    limits = optional(map(string), {<br/>      cpu    = "500m"<br/>      memory = "512Mi"<br/>    })<br/>  })</pre> | `{}` | no |
 | <a name="input_use_existing_admin_secret"></a> [use\_existing\_admin\_secret](#input\_use\_existing\_admin\_secret) | When true, do not manage admin password material and expect an existing argocd-secret in the target namespace. | `bool` | `false` | no |
+| <a name="input_wait"></a> [wait](#input\_wait) | Whether Helm should wait until all resources are in a ready state before marking the release as successful (helm\_release.wait). | `bool` | `true` | no |
 
 ## Outputs
 
@@ -101,14 +104,12 @@ No modules.
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | ~> 1.3 |
 | <a name="requirement_helm"></a> [helm](#requirement\_helm) | ~> 2.0 |
-| <a name="requirement_kubernetes"></a> [kubernetes](#requirement\_kubernetes) | ~> 2.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
 | <a name="provider_helm"></a> [helm](#provider\_helm) | 2.17.0 |
-| <a name="provider_kubernetes"></a> [kubernetes](#provider\_kubernetes) | 2.38.0 |
 
 ## Modules
 
@@ -119,21 +120,26 @@ No modules.
 | Name | Type |
 |------|------|
 | [helm_release.this](https://registry.terraform.io/providers/hashicorp/helm/latest/docs/resources/release) | resource |
-| [kubernetes_namespace_v1.this](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs/resources/namespace_v1) | resource |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_admin_password_bcrypt"></a> [admin\_password\_bcrypt](#input\_admin\_password\_bcrypt) | Bcrypt hash for the Argo CD admin password (not plaintext). Stored in Terraform state as a sensitive value when set. | `string` | `null` | no |
-| <a name="input_chart_version"></a> [chart\_version](#input\_chart\_version) | The version of the argoproj/argo-cd Helm chart to deploy. | `string` | `"9.5.0"` | no |
-| <a name="input_create_namespace"></a> [create\_namespace](#input\_create\_namespace) | When true, create the target namespace with the Kubernetes provider before Helm. | `bool` | `true` | no |
+| <a name="input_atomic"></a> [atomic](#input\_atomic) | Whether to roll back changes made in case of failed release (helm\_release.atomic). | `bool` | `true` | no |
+| <a name="input_chart_version"></a> [chart\_version](#input\_chart\_version) | The version of the argoproj/argo-cd Helm chart to deploy. | `string` | `"9.5.2"` | no |
+| <a name="input_cleanup_on_fail"></a> [cleanup\_on\_fail](#input\_cleanup\_on\_fail) | Allow deletion of new resources created in this upgrade when upgrade fails (helm\_release.cleanup\_on\_fail). | `bool` | `true` | no |
+| <a name="input_create_namespace"></a> [create\_namespace](#input\_create\_namespace) | When true, allow Helm to create the target namespace. | `bool` | `false` | no |
+| <a name="input_extra_configs"></a> [extra\_configs](#input\_extra\_configs) | Extra Helm values to pass for advanced configuration not covered by this module. Merged on top of module defaults. | `any` | `{}` | no |
 | <a name="input_helm_timeout"></a> [helm\_timeout](#input\_helm\_timeout) | Seconds Helm waits for the release when wait is true. | `number` | `900` | no |
 | <a name="input_hostname"></a> [hostname](#input\_hostname) | The Argo CD server hostname used when ingress is enabled. | `string` | `null` | no |
-| <a name="input_ingress"></a> [ingress](#input\_ingress) | Ingress configuration for the consumer-managed AWS ALB ingress path. | <pre>object({<br/>    enabled         = optional(bool, true)<br/>    annotations     = optional(map(string), {})<br/>    path            = optional(string, "/")<br/>    path_type       = optional(string, "Prefix")<br/>    tls_secret_name = optional(string, null)<br/>  })</pre> | `{}` | no |
+| <a name="input_ingress"></a> [ingress](#input\_ingress) | Ingress configuration for the consumer-managed AWS ALB ingress path. | <pre>object({<br/>    enabled            = optional(bool, true)<br/>    controller         = optional(string, "aws")<br/>    ingress_class_name = optional(string, "alb")<br/>    annotations        = optional(map(string), {})<br/>    path               = optional(string, "/")<br/>    path_type          = optional(string, "Prefix")<br/>    tls_secret_name    = optional(string, null)<br/>  })</pre> | `{}` | no |
 | <a name="input_name"></a> [name](#input\_name) | The name of the Helm release. | `string` | `"argocd"` | no |
 | <a name="input_namespace"></a> [namespace](#input\_namespace) | The Kubernetes namespace where Argo CD is deployed. | `string` | `"argocd"` | no |
+| <a name="input_replicas"></a> [replicas](#input\_replicas) | The number of Argo CD server replicas. | `number` | `2` | no |
+| <a name="input_resources"></a> [resources](#input\_resources) | Resource requests/limits for the Argo CD server workload. | <pre>object({<br/>    requests = optional(map(string), {<br/>      cpu    = "100m"<br/>      memory = "256Mi"<br/>    })<br/>    limits = optional(map(string), {<br/>      cpu    = "500m"<br/>      memory = "512Mi"<br/>    })<br/>  })</pre> | `{}` | no |
 | <a name="input_use_existing_admin_secret"></a> [use\_existing\_admin\_secret](#input\_use\_existing\_admin\_secret) | When true, do not manage admin password material and expect an existing argocd-secret in the target namespace. | `bool` | `false` | no |
+| <a name="input_wait"></a> [wait](#input\_wait) | Whether Helm should wait until all resources are in a ready state before marking the release as successful (helm\_release.wait). | `bool` | `true` | no |
 
 ## Outputs
 

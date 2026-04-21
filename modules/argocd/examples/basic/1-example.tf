@@ -16,11 +16,11 @@ module "argocd" {
     path      = "/"
     path_type = "Prefix"
     annotations = {
-      "alb.ingress.kubernetes.io/listen-ports"    = "[{\"HTTP\":80},{\"HTTPS\":443}]"
-      "alb.ingress.kubernetes.io/ssl-redirect"    = "443"
-      "alb.ingress.kubernetes.io/group.name"      = "my-existing-alb-group"
-      "alb.ingress.kubernetes.io/scheme"          = "internal"
-      "alb.ingress.kubernetes.io/target-type"     = "ip"
+      "alb.ingress.kubernetes.io/listen-ports" = "[{\"HTTP\":80},{\"HTTPS\":443}]"
+      "alb.ingress.kubernetes.io/ssl-redirect" = "443"
+      "alb.ingress.kubernetes.io/group.name"   = "my-existing-alb-group"
+      "alb.ingress.kubernetes.io/scheme"       = "internal"
+      "alb.ingress.kubernetes.io/target-type"  = "ip"
       # "alb.ingress.kubernetes.io/certificate-arn" = "arn:aws:acm:region:account:certificate/..."
     }
   }

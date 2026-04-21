@@ -4,8 +4,8 @@ locals {
   server_ingress = local.ingress_enabled ? merge(
     {
       enabled          = true
-      controller       = "aws"
-      ingressClassName = "alb"
+      controller       = try(var.ingress.controller, "aws")
+      ingressClassName = try(var.ingress.ingress_class_name, "alb")
       annotations      = try(var.ingress.annotations, {})
       hostname         = var.hostname
       path             = try(var.ingress.path, "/")
@@ -21,8 +21,8 @@ locals {
     } : {}
     ) : {
     enabled          = false
-    controller       = "aws"
-    ingressClassName = "alb"
+    controller       = try(var.ingress.controller, "aws")
+    ingressClassName = try(var.ingress.ingress_class_name, "alb")
     annotations      = {}
     hostname         = null
     path             = "/"
@@ -43,8 +43,23 @@ locals {
     "server.insecure" = "true"
   }
 
+  server_autoscaling = {
+    enabled                           = try(var.autoscaling.enabled, false)
+    minReplicas                       = try(var.autoscaling.min_replicas, 1)
+    maxReplicas                       = try(var.autoscaling.max_replicas, 5)
+    targetCPUUtilizationPercentage    = try(var.autoscaling.target_cpu_utilization_percentage, 50)
+    targetMemoryUtilizationPercentage = try(var.autoscaling.target_memory_utilization_percentage, 50)
+    behavior                          = try(var.autoscaling.behavior, {})
+    metrics                           = try(var.autoscaling.metrics, [])
+  }
+
   values = {
-    server = { ingress = local.server_ingress }
+    server = {
+      ingress   = local.server_ingress
+      replicas  = var.replicas
+      resources = var.resources
+      autoscaling = local.server_autoscaling
+    }
     configs = {
       secret = local.configs_secret
       params = local.configs_params
@@ -52,31 +67,22 @@ locals {
   }
 }
 
-resource "kubernetes_namespace_v1" "this" {
-  count = var.create_namespace ? 1 : 0
-
-  metadata {
-    name = var.namespace
-  }
-}
-
 resource "helm_release" "this" {
-  depends_on = [kubernetes_namespace_v1.this]
-
   name             = var.name
   repository       = "https://argoproj.github.io/argo-helm"
   chart            = "argo-cd"
   namespace        = var.namespace
   version          = var.chart_version
-  create_namespace = false
+  create_namespace = var.create_namespace
 
-  atomic          = true
-  cleanup_on_fail = true
-  wait            = true
+  atomic          = var.atomic
+  cleanup_on_fail = var.cleanup_on_fail
+  wait            = var.wait
   timeout         = var.helm_timeout
 
   values = [
     yamlencode(local.values),
+    yamlencode(var.extra_configs),
   ]
 
   lifecycle {

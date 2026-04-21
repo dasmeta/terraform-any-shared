@@ -39,9 +39,9 @@ locals {
     } : {}
   )
 
-  configs_params = {
+  configs_params = local.ingress_enabled ? {
     "server.insecure" = "true"
-  }
+  } : {}
 
   server_autoscaling = {
     enabled                           = try(var.autoscaling.enabled, false)
@@ -55,9 +55,9 @@ locals {
 
   values = {
     server = {
-      ingress   = local.server_ingress
-      replicas  = var.replicas
-      resources = var.resources
+      ingress     = local.server_ingress
+      replicas    = var.replicas
+      resources   = var.resources
       autoscaling = local.server_autoscaling
     }
     configs = {

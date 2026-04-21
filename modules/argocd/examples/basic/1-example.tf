@@ -21,13 +21,14 @@ module "argocd" {
       "alb.ingress.kubernetes.io/group.name"   = "my-existing-alb-group"
       "alb.ingress.kubernetes.io/scheme"       = "internal"
       "alb.ingress.kubernetes.io/target-type"  = "ip"
-      # "alb.ingress.kubernetes.io/certificate-arn" = "arn:aws:acm:region:account:certificate/..."
+      #"alb.ingress.kubernetes.io/certificate-arn" = "arn:aws:acm:region:account:certificate/..."
     }
   }
 
   # Recommended: manage argocd-secret outside Terraform (e.g. ExternalSecret -> AWS Secrets Manager).
   use_existing_admin_secret = true
-
-  # Bootstrap-only alternative (stored in Terraform state):
-  # admin_password_bcrypt = "$2b$12$..."
+  create_namespace = true
+  
+  # generate a new password and paste for admin user here before apply with bcrypt hash
+  #admin_password_bcrypt = "$2b$12$..."
 }

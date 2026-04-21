@@ -6,7 +6,7 @@ existing Kubernetes cluster, exposed via a consumer-managed **AWS ALB Ingress**.
 
 The interface is intentionally narrow:
 
-- no generic Helm values pass-through
+- no generic Helm values pass-through (use `extra_configs` as an escape hatch)
 - no AWS ALB / ACM / Route53 lifecycle ownership
 - no SSO/OIDC wiring in this first version
 
@@ -41,6 +41,29 @@ module "argocd" {
 }
 ```
 
+## Advanced configuration (escape hatch)
+
+If you need an upstream chart option that is not part of this wrapper's inputs, you can use `extra_configs`:
+
+```terraform
+module "argocd" {
+  source = "dasmeta/shared/any//modules/argocd"
+
+  hostname = "argocd.example.com"
+
+  ingress = {
+    enabled = true
+  }
+
+  use_existing_admin_secret = true
+
+  extra_configs = {
+    # Example only: pass any supported argo-cd chart values here.
+    # server = { service = { type = "ClusterIP" } }
+  }
+}
+```
+
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
@@ -71,6 +94,7 @@ No modules.
 |------|-------------|------|---------|:--------:|
 | <a name="input_admin_password_bcrypt"></a> [admin\_password\_bcrypt](#input\_admin\_password\_bcrypt) | Bcrypt hash for the Argo CD admin password (not plaintext). Stored in Terraform state as a sensitive value when set. | `string` | `null` | no |
 | <a name="input_atomic"></a> [atomic](#input\_atomic) | Whether to roll back changes made in case of failed release (helm\_release.atomic). | `bool` | `true` | no |
+| <a name="input_autoscaling"></a> [autoscaling](#input\_autoscaling) | Argo CD server HPA settings (maps to server.autoscaling in the Helm chart). When enabled, server.replicas is typically ignored by the chart. | <pre>object({<br/>    enabled                              = optional(bool, false)<br/>    min_replicas                         = optional(number, 1)<br/>    max_replicas                         = optional(number, 5)<br/>    target_cpu_utilization_percentage    = optional(number, 50)<br/>    target_memory_utilization_percentage = optional(number, 50)<br/>    behavior                             = optional(any, {})<br/>    metrics                              = optional(any, [])<br/>  })</pre> | `{}` | no |
 | <a name="input_chart_version"></a> [chart\_version](#input\_chart\_version) | The version of the argoproj/argo-cd Helm chart to deploy. | `string` | `"9.5.2"` | no |
 | <a name="input_cleanup_on_fail"></a> [cleanup\_on\_fail](#input\_cleanup\_on\_fail) | Allow deletion of new resources created in this upgrade when upgrade fails (helm\_release.cleanup\_on\_fail). | `bool` | `true` | no |
 | <a name="input_create_namespace"></a> [create\_namespace](#input\_create\_namespace) | When true, allow Helm to create the target namespace. | `bool` | `false` | no |
@@ -127,6 +151,7 @@ No modules.
 |------|-------------|------|---------|:--------:|
 | <a name="input_admin_password_bcrypt"></a> [admin\_password\_bcrypt](#input\_admin\_password\_bcrypt) | Bcrypt hash for the Argo CD admin password (not plaintext). Stored in Terraform state as a sensitive value when set. | `string` | `null` | no |
 | <a name="input_atomic"></a> [atomic](#input\_atomic) | Whether to roll back changes made in case of failed release (helm\_release.atomic). | `bool` | `true` | no |
+| <a name="input_autoscaling"></a> [autoscaling](#input\_autoscaling) | Argo CD server HPA settings (maps to server.autoscaling in the Helm chart). When enabled, server.replicas is typically ignored by the chart. | <pre>object({<br/>    enabled                              = optional(bool, false)<br/>    min_replicas                         = optional(number, 1)<br/>    max_replicas                         = optional(number, 5)<br/>    target_cpu_utilization_percentage    = optional(number, 50)<br/>    target_memory_utilization_percentage = optional(number, 50)<br/>    behavior                             = optional(any, {})<br/>    metrics                              = optional(any, [])<br/>  })</pre> | `{}` | no |
 | <a name="input_chart_version"></a> [chart\_version](#input\_chart\_version) | The version of the argoproj/argo-cd Helm chart to deploy. | `string` | `"9.5.2"` | no |
 | <a name="input_cleanup_on_fail"></a> [cleanup\_on\_fail](#input\_cleanup\_on\_fail) | Allow deletion of new resources created in this upgrade when upgrade fails (helm\_release.cleanup\_on\_fail). | `bool` | `true` | no |
 | <a name="input_create_namespace"></a> [create\_namespace](#input\_create\_namespace) | When true, allow Helm to create the target namespace. | `bool` | `false` | no |
@@ -137,7 +162,7 @@ No modules.
 | <a name="input_name"></a> [name](#input\_name) | The name of the Helm release. | `string` | `"argocd"` | no |
 | <a name="input_namespace"></a> [namespace](#input\_namespace) | The Kubernetes namespace where Argo CD is deployed. | `string` | `"argocd"` | no |
 | <a name="input_replicas"></a> [replicas](#input\_replicas) | The number of Argo CD server replicas. | `number` | `2` | no |
-| <a name="input_resources"></a> [resources](#input\_resources) | Resource requests/limits for the Argo CD server workload. | <pre>object({<br/>    requests = optional(map(string), {<br/>      cpu    = "100m"<br/>      memory = "256Mi"<br/>    })<br/>    limits = optional(map(string), {<br/>      cpu    = "500m"<br/>      memory = "512Mi"<br/>    })<br/>  })</pre> | `{}` | no |
+| <a name="input_resources"></a> [resources](#input\_resources) | Resource requests/limits for the Argo CD server workload. | <pre>object({<br/>    requests = optional(map(string), { cpu = "100m", memory = "256Mi" })<br/>    limits   = optional(map(string), { cpu = "500m", memory = "512Mi" })<br/>  })</pre> | `{}` | no |
 | <a name="input_use_existing_admin_secret"></a> [use\_existing\_admin\_secret](#input\_use\_existing\_admin\_secret) | When true, do not manage admin password material and expect an existing argocd-secret in the target namespace. | `bool` | `false` | no |
 | <a name="input_wait"></a> [wait](#input\_wait) | Whether Helm should wait until all resources are in a ready state before marking the release as successful (helm\_release.wait). | `bool` | `true` | no |
 

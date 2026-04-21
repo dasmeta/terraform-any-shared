@@ -54,13 +54,13 @@ variable "hostname" {
 
 variable "ingress" {
   type = object({
-    enabled         = optional(bool, true)
-    controller      = optional(string, "aws")
+    enabled            = optional(bool, true)
+    controller         = optional(string, "aws")
     ingress_class_name = optional(string, "alb")
-    annotations     = optional(map(string), {})
-    path            = optional(string, "/")
-    path_type       = optional(string, "Prefix")
-    tls_secret_name = optional(string, null)
+    annotations        = optional(map(string), {})
+    path               = optional(string, "/")
+    path_type          = optional(string, "Prefix")
+    tls_secret_name    = optional(string, null)
   })
   default     = {}
   description = "Ingress configuration for the consumer-managed AWS ALB ingress path."
@@ -83,13 +83,13 @@ variable "resources" {
 
 variable "autoscaling" {
   type = object({
-    enabled                           = optional(bool, false)
-    min_replicas                      = optional(number, 1)
-    max_replicas                      = optional(number, 5)
-    target_cpu_utilization_percentage = optional(number, 50)
+    enabled                              = optional(bool, false)
+    min_replicas                         = optional(number, 1)
+    max_replicas                         = optional(number, 5)
+    target_cpu_utilization_percentage    = optional(number, 50)
     target_memory_utilization_percentage = optional(number, 50)
-    behavior                          = optional(any, {})
-    metrics                           = optional(any, [])
+    behavior                             = optional(any, {})
+    metrics                              = optional(any, [])
   })
   default     = {}
   description = "Argo CD server HPA settings (maps to server.autoscaling in the Helm chart). When enabled, server.replicas is typically ignored by the chart."

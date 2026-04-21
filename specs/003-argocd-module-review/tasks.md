@@ -105,4 +105,3 @@
 ### Parallel Opportunities
 
 - [P] tasks can be done in parallel when touching different files (e.g., example README vs module README vs example asserts).
-

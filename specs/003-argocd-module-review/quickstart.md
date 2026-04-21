@@ -37,4 +37,3 @@ kubectl -n argocd get ingress
   - `use_existing_admin_secret=true` (recommended), or
   - `admin_password_bcrypt` for bootstrap/testing.
 - Use `extra_configs` if you need an upstream chart option not covered by module inputs.
-

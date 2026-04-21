@@ -37,4 +37,3 @@
 - **Decision**: Support `extra_configs` (type `any`) passed as an additional Helm values layer.
 - **Rationale**: Keeps wrapper opinionated while enabling advanced chart configuration without forking.
 - **Alternatives considered**: Deep-merge module defaults with `cloudposse` module; may be added later if needed.
-

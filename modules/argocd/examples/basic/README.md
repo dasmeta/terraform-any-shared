@@ -73,5 +73,10 @@ No inputs.
 
 ## Outputs
 
-No outputs.
+| Name | Description |
+|------|-------------|
+| <a name="output_admin_password_secret_name"></a> [admin\_password\_secret\_name](#output\_admin\_password\_secret\_name) | n/a |
+| <a name="output_ingress_hostnames"></a> [ingress\_hostnames](#output\_ingress\_hostnames) | n/a |
+| <a name="output_release_name"></a> [release\_name](#output\_release\_name) | n/a |
+| <a name="output_release_namespace"></a> [release\_namespace](#output\_release\_namespace) | n/a |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

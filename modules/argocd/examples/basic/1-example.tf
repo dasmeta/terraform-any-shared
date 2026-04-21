@@ -27,8 +27,8 @@ module "argocd" {
 
   # Recommended: manage argocd-secret outside Terraform (e.g. ExternalSecret -> AWS Secrets Manager).
   use_existing_admin_secret = true
-  create_namespace = true
-  
+  create_namespace          = true
+
   # generate a new password and paste for admin user here before apply with bcrypt hash
   #admin_password_bcrypt = "$2b$12$..."
 }

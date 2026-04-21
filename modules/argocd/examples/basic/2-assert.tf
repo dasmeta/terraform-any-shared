@@ -20,4 +20,3 @@ check "ingress_hostname_matches" {
     error_message = "Expected ingress_hostnames to contain argocd.example.com"
   }
 }
-

@@ -54,4 +54,3 @@ This feature is a Terraform module wrapper; the “data model” is the structur
   - `extra_configs` (free-form object)
 - **Invariant**:
   - Must not require widening the wrapper interface for edge values.
-

@@ -4,9 +4,9 @@
 
 | Validation | Coverage | Status | Notes |
 |------------|----------|--------|-------|
-| `.github/workflows/checkov.yaml` | 22 maintained top-level modules | aligned | Support-only `modules/k8s/` excluded |
-| `.github/workflows/tflint.yaml` | 22 maintained top-level modules | aligned | Support-only `modules/k8s/` excluded |
-| `.github/workflows/pre-commit.yaml` | 22 maintained top-level modules | aligned | Matrix handling repaired and path scope normalized |
+| `.github/workflows/checkov.yaml` | 23 maintained top-level modules | aligned | Support-only `modules/k8s/` excluded |
+| `.github/workflows/tflint.yaml` | 23 maintained top-level modules | aligned | Support-only `modules/k8s/` excluded |
+| `.github/workflows/pre-commit.yaml` | 23 maintained top-level modules | aligned | Matrix handling repaired and path scope normalized |
 | `.github/workflows/terraform-test.yaml` | 16 maintained modules with standardized example/test scaffolding | partial | Six modules remain excluded pending example/test support |
 | `.github/workflows/tfsec.yaml` | repo-wide Terraform files | aligned | Complements module-scoped workflows |
 | `.pre-commit-config.yaml` | repo-wide formatting and terraform-docs expectations | aligned | Local validation baseline retained and clarified |
@@ -35,6 +35,7 @@ and `pre-commit`:
 - `modules/onepassword_to_secret_manager`
 - `modules/qdrant`
 - `modules/renovate-bot`
+- `modules/argocd`
 - `modules/sentry`
 - `modules/service`
 - `modules/supabase`

@@ -42,8 +42,8 @@ module "keycloak" {
   database = {
     host     = "postgresql.example.internal"
     port     = 5432
-    name     = "keycloak_test"
-    username = "keycloak_test_user"
+    name     = "keycloak"
+    username = "keycloak"
     password = "change-me-db-password"
   }
 

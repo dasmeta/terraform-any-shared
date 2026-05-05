@@ -135,6 +135,11 @@ module "keycloak" {
 - for **existing-Secret** mode: consumer-managed Kubernetes Secrets (or ExternalSecrets) in the target namespace
 - for **raw password** mode: same linked workspaces as other apps (e.g. master-secret); secrets still end up in Terraform state as **sensitive** attributes
 
+## RBAC note: namespace creation
+
+By default `create_namespace = true` so the module can create the namespace before creating bootstrap Secrets and installing Helm.
+If your Terraform identity is not authorized to create namespaces, set **`create_namespace = false`** and pre-create the namespace out-of-band (for example: `kubectl create namespace <namespace>`).
+
 ## Supported boundaries
 
 - Password sourcing is explicit: **either** raw `admin_password` / `database.password` **or** `*_secret_name` for each credential, never both for the same slot.
@@ -245,8 +250,8 @@ No modules.
 
 | Name | Version |
 |------|---------|
-| <a name="provider_helm"></a> [helm](#provider\_helm) | ~> 2.0 |
-| <a name="provider_kubernetes"></a> [kubernetes](#provider\_kubernetes) | ~> 2.0 |
+| <a name="provider_helm"></a> [helm](#provider\_helm) | 2.17.0 |
+| <a name="provider_kubernetes"></a> [kubernetes](#provider\_kubernetes) | 2.38.0 |
 
 ## Modules
 

@@ -7,6 +7,9 @@
 # - `terraform destroy` in this example only removes resources in `namespace` below (and Helm release).
 #
 # Replace placeholders before apply. Do not commit real secrets to git.
+#
+# RBAC note: if your Terraform identity cannot create namespaces (common in locked-down clusters),
+# set `create_namespace = false` and pre-create the namespace (e.g. `kubectl create ns keycloak`).
 
 module "keycloak" {
   source = "../.."

@@ -49,4 +49,3 @@ Represents module settings that influence operational visibility.
 Represents clustered cache discovery configuration.
 
 - `cache_stack` (default stack uses JDBC_PING via the database)
-

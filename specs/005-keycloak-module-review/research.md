@@ -46,4 +46,3 @@
 
 - Always require full `hostname_public_url` from consumers instead of deriving HTTPS defaults.
   - Rejected: derivation improves safety for common case while still allowing explicit override.
-

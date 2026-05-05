@@ -35,4 +35,3 @@ terraform apply
 - Prometheus targets show Keycloak metrics when scraping is configured.
 - Login failure rate can be derived from event metrics (when enabled).
 - `/health/ready` reports readiness after initialization.
-

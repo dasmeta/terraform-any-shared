@@ -32,4 +32,3 @@
 ## Notes
 
 - This spec is intended for Speckit consistency/coverage checks after tasks generation; it does not repeat implementation details already validated in the module branch.
-

@@ -23,3 +23,13 @@ output "gateway_api_resources_helm_metadata" {
   value       = try(var.configs.gateway.api_resources.enabled, true) ? helm_release.gateway_api_resources[0].metadata : null
   description = "Gateway API resources Helm release metadata"
 }
+
+output "kiali_operator_helm_metadata" {
+  value       = try(module.kiali[0].operator_helm_metadata, null)
+  description = "Kiali operator Helm release metadata"
+}
+
+output "kiali_manifest" {
+  value       = try(module.kiali[0].manifest, null)
+  description = "Kiali custom resource manifest"
+}

@@ -124,3 +124,26 @@ resource "helm_release" "gateway_api_resources" {
     helm_release.istiod,
   ]
 }
+
+module "kiali" {
+  count = try(var.configs.kiali.enabled, false) ? 1 : 0
+
+  source = "../kiali"
+  configs = merge(
+    var.configs.kiali,
+    {
+      cr = merge(
+        try(var.configs.kiali.cr, {}),
+        {
+          namespace = coalesce(try(var.configs.kiali.cr.namespace, null), var.configs.namespace)
+        }
+      )
+    }
+  )
+  chart_repository = var.kiali_chart_repository
+  image            = var.kiali_image
+
+  depends_on = [
+    helm_release.istiod,
+  ]
+}

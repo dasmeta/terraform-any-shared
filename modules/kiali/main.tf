@@ -2,7 +2,7 @@ resource "helm_release" "operator" {
   count = local.kiali_operator_enabled ? 1 : 0
 
   name             = var.configs.operator.name
-  repository       = var.chart_repository
+  repository       = var.configs.operator.chart_repository
   chart            = var.configs.operator.chart
   namespace        = var.configs.operator.namespace
   version          = var.configs.operator.chart_version
@@ -18,11 +18,23 @@ resource "helm_release" "operator" {
         }
       },
       (
-        var.image.repo != null ||
-        var.image.tag != null ||
-        var.image.digest != null ||
-        var.image.allow_ad_hoc_kiali_image != null
-      ) ? { image = var.image } : {},
+        var.configs.operator.image.repo != null ||
+        var.configs.operator.image.tag != null ||
+        var.configs.operator.image.digest != null
+        ) ? {
+        image = merge(
+          var.configs.operator.image.repo != null ? { repo = var.configs.operator.image.repo } : {},
+          var.configs.operator.image.tag != null ? { tag = var.configs.operator.image.tag } : {},
+          var.configs.operator.image.digest != null ? { digest = var.configs.operator.image.digest } : {}
+        )
+      } : {},
+      (
+        try(local.kiali_cr_spec.deployment.image_name, null) != null ||
+        try(local.kiali_cr_spec.deployment.image_version, null) != null
+        ) ? {
+        # Auto-enable ad-hoc image support when Kiali CR uses custom server image fields.
+        allowAdHocKialiImage = true
+      } : {},
       var.configs.operator.values
     )),
     jsonencode(var.configs.operator.extra_values),

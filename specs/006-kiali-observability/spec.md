@@ -5,6 +5,13 @@
 **Status**: Draft
 **Input**: User description: "Separate Kiali module which deploys Kiali and supports the Kiali kind with Prometheus and Grafana integration; Istio should have an option to call the Kiali module."
 
+## Clarifications
+
+### Session 2026-05-07
+
+- Q: Should Kiali customization be included in the Istio custom chart/image overrides example? → A: Yes, include Kiali in `modules/istio/examples/custom-chart-and-image-overrides`.
+- Q: Should Kiali chart/image settings be grouped under `configs.kiali.operator` instead of separate top-level Kiali fields? → A: Yes. Use `configs.kiali.operator` as the single context for Kiali operator chart/image configuration.
+
 ## Module Context
 
 - **Target Module Path**: `modules/kiali`
@@ -73,12 +80,15 @@ As a platform engineer, I want to enable Grafana links from Kiali so operators c
 - **FR-006**: The module MUST expose a raw Kiali CR `spec` overlay for advanced fields without converting the wrapper into a full pass-through interface.
 - **FR-007**: The Istio module MUST support optional delegation to `modules/kiali` through `configs.kiali`.
 - **FR-008**: README and examples MUST document both standalone and Istio-delegated Kiali configuration paths.
+- **FR-009**: The `modules/istio/examples/custom-chart-and-image-overrides` example MUST include `configs.kiali` customization to demonstrate Kiali usage alongside chart/image override workflows.
+- **FR-010**: Kiali operator chart and image configuration MUST be grouped under `configs.kiali.operator` (including chart source/version and operator image settings) instead of separate top-level Kiali chart/image fields.
 
 ### Compatibility & Delivery Requirements
 
 - **CDR-001**: Existing Istio behavior must remain unchanged when Kiali is omitted.
 - **CDR-002**: No provider version change is required unless validation proves the current `helm` and `kubectl` providers are insufficient.
 - **CDR-003**: Validation must include Terraform formatting and module/example validation where provider initialization is available.
+- **CDR-004**: Because interface grouping changes can affect existing consumers, migration notes MUST document how previous top-level Kiali chart/image fields map to `configs.kiali.operator`.
 
 ### Key Entities
 
@@ -91,6 +101,7 @@ As a platform engineer, I want to enable Grafana links from Kiali so operators c
 ### Measurable Outcomes
 
 - **SC-001**: Consumers can enable Kiali with a documented module example.
+- **SC-001a**: Consumers can enable Kiali from the `custom-chart-and-image-overrides` example without adding a separate example module.
 - **SC-002**: Consumers can configure Prometheus and Grafana integrations without writing raw YAML for the common case.
 - **SC-003**: Existing module consumers see no plan changes when `configs.kiali` is omitted.
 - **SC-004**: Terraform formatting succeeds for all changed Terraform files.

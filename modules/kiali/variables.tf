@@ -2,16 +2,26 @@ variable "configs" {
   type = object({
     enabled = optional(bool, true) # whether to deploy Kiali observability components
     operator = optional(object({
-      enabled          = optional(bool, true)               # whether to install the Kiali operator Helm chart
-      name             = optional(string, "kiali-operator") # the Kiali operator Helm release name
-      namespace        = optional(string, "kiali-operator") # the namespace where the Kiali operator will be installed
-      chart            = optional(string, "kiali-operator") # the Kiali operator chart name
-      chart_version    = optional(string, null)             # optional Kiali operator chart version
-      create_namespace = optional(bool, true)               # whether Helm should create the operator namespace
-      atomic           = optional(bool, false)              # whether Helm should roll back on failure
-      wait             = optional(bool, true)               # whether Helm should wait for resources to become ready
-      values           = optional(any, {})                  # Kiali operator chart values
-      extra_values     = optional(any, {})                  # extra Kiali operator chart values
+      enabled          = optional(bool, true)                              # whether to install the Kiali operator Helm chart
+      name             = optional(string, "kiali-operator")                # the Kiali operator Helm release name
+      namespace        = optional(string, "kiali-operator")                # the namespace where the Kiali operator will be installed
+      chart            = optional(string, "kiali-operator")                # the Kiali operator chart name
+      chart_repository = optional(string, "https://kiali.org/helm-charts") # Kiali operator Helm chart repository
+      chart_version    = optional(string, "2.25.0")                        # optional Kiali operator chart version
+      create_namespace = optional(bool, true)                              # whether Helm should create the operator namespace
+      atomic           = optional(bool, false)                             # whether Helm should roll back on failure
+      wait             = optional(bool, true)                              # whether Helm should wait for resources to become ready
+      image = optional(object({
+        # Kiali operator chart exposes image.repo/tag/digest for operator image itself.
+        # When Kiali server custom image is configured through Kiali CR deployment fields
+        # (`spec.deployment.image_name` / `image_version`), this module auto-enables
+        # chart value `allowAdHocKialiImage=true` internally; no explicit field is required.
+        repo   = optional(string) # operator image repository override
+        tag    = optional(string) # operator image tag override
+        digest = optional(string) # operator image digest override
+      }), {})
+      values       = optional(any, {}) # Kiali operator chart values
+      extra_values = optional(any, {}) # extra Kiali operator chart values
     }), {})
     cr = optional(object({
       enabled        = optional(bool, true)             # whether to create a Kiali custom resource
@@ -49,22 +59,5 @@ variable "configs" {
     }), {})
   })
   description = "Kiali operator and Kiali custom resource configuration"
-  default     = {}
-}
-
-variable "chart_repository" {
-  type        = string
-  description = "Kiali Helm chart repository"
-  default     = "https://kiali.org/helm-charts"
-}
-
-variable "image" {
-  type = object({
-    repo                     = optional(string) # operator image repository override
-    tag                      = optional(string) # operator image tag override
-    digest                   = optional(string) # operator image digest override
-    allow_ad_hoc_kiali_image = optional(bool)   # whether the operator may use ad hoc Kiali server images
-  })
-  description = "Kiali operator image parameters"
   default     = {}
 }

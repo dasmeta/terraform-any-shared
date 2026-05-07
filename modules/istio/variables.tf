@@ -1,20 +1,38 @@
 variable "configs" {
   type = object({
-    repository       = optional(string, "https://istio-release.storage.googleapis.com/charts") # The istio helm charts repository
-    chart_version    = optional(string, "1.29.1")                                              # the version of istio base/gateway/istiod charts
-    namespace        = optional(string, "istio-system")                                        # the namespace where istio and related components will be installed
-    create_namespace = optional(bool, true)                                                    # whether to create namespace or not
-    atomic           = optional(bool, false)                                                   # whether auto rollback if helm install fails
-    wait             = optional(bool, true)                                                    # whether wait to get the workload run successfully
-    base = optional(object({                                                                   # istio-base configuration
-      enabled      = optional(bool, true)                                                      # weather install istio-base helm chart
-      name         = optional(string, "istio-base")                                            # the name of istio-base helm release
-      values       = optional(any, {})                                                         # helm chart common default configs
-      extra_values = optional(any, {})                                                         # helm chart extra configs to pass and extend/use all available options
+    chart = optional(object({                                                                    # Global Helm chart defaults for Istio releases (repository/version/namespace and release behavior)
+      repository       = optional(string, "https://istio-release.storage.googleapis.com/charts") # global istio helm charts repository
+      version          = optional(string, "1.29.2")                                              # fallback version for istio base/gateway/istiod charts
+      namespace        = optional(string, "istio-system")                                        # the namespace where istio and related components will be installed
+      create_namespace = optional(bool, true)                                                    # whether to create namespace or not
+      atomic           = optional(bool, false)                                                   # whether auto rollback if helm install fails
+      wait             = optional(bool, true)                                                    # whether wait to get the workload run successfully
+      timeout          = optional(number, 300)                                                   # wait timeout in seconds (default 5 minutes)
+    }), {})
+    image = optional(object({      # global image settings used by Istio components
+      registry  = optional(string) # image registry host (for example: docker.io, ghcr.io), default is empty which means it points to "docker.io"
+      namespace = optional(string) # image namespace/org path used as hub (for example: istio), default is empty which means it points to "istio
+      tag       = optional(string) # image tag shared across Istio components, default is empty which means it points to version from helm chart which usually for istio is the same as the helm chart version
+      repository = optional(object({
+        istiod = optional(string) # istiod controller image name (helm value `image`), default from chart is usually `pilot` when not set
+        proxy  = optional(string) # istio data-plane proxy image name (helm value `global.proxy.image`), default from chart is usually `proxyv2` when not set
+      }), {})
+    }), {})
+    base = optional(object({                        # istio-base configuration
+      enabled      = optional(bool, true)           # weather install istio-base helm chart
+      name         = optional(string, "istio-base") # the name of istio-base helm release
+      chart        = optional(string, "base")       # optional per-component chart name override
+      repository   = optional(string)               # optional per-component chart repository override
+      version      = optional(string)               # optional per-component chart version override
+      values       = optional(any, {})              # helm chart common default configs
+      extra_values = optional(any, {})              # helm chart extra configs to pass and extend/use all available options
     }), {})
     istiod = optional(object({                   # istiod configuration
       enabled       = optional(bool, true)       # weather install istiod helm chart
       name          = optional(string, "istiod") # the name of istiod helm release
+      chart         = optional(string, "istiod") # optional per-component chart name override
+      repository    = optional(string)           # optional per-component chart repository override
+      version       = optional(string)           # optional per-component chart version override
       configs       = optional(any, {})          # helm chart common default configs
       extra_configs = optional(any, {})          # helm chart extra configs to pass and extend/use all available options
     }), {})
@@ -22,29 +40,29 @@ variable "configs" {
       crds = optional(object({         # k8s Gateway API CRDs configuration
         enabled = optional(bool, true) # whether install Gateway API CRDs, in case if they are not enabled already
       }), {})
-      ingress_gateway = optional(object({ # istio-gateway (ingress gateway) configuration
+      ingress_gateways = optional(list(object({ # istio-gateway (ingress gateway) configurations
         # NOTE: The istio-gateway helm chart is NOT required when using Kubernetes native Gateway API resources.
         # It is only needed when using Istio's custom Gateway API implementation/CRDs (e.g., VirtualService, Gateway CRDs).
         # When using Kubernetes native Gateway API (gateway.networking.k8s.io), the gateway is managed through
-        # Kubernetes Gateway resources and the istio-gateway helm chart can be disabled (enabled = false).
-        # Additionally, the istio-gateway helm chart is also used for Istio ingress creation and management.
-        # When enabled, it provides the ingress gateway service that can be used with Kubernetes Ingress resources
-        # (via IngressClass) to route traffic into the Istio service mesh.
-        enabled       = optional(bool, false)                    # whether install istio-gateway helm chart (default: false, not needed for native Gateway API)
-        name          = optional(string, "istio-ingressgateway") # the name of istio-gateway helm release
+        # Kubernetes Gateway resources and the istio-gateway helm chart can be omitted.
+        name          = optional(string, "istio-ingressgateway") # helm release name; when defining multiple ingress gateways this must be unique per item
+        chart         = optional(string, "gateway")              # optional per-component chart name override
+        repository    = optional(string)                         # optional per-component chart repository override
+        version       = optional(string)                         # optional per-component chart version override
         configs       = optional(any, {})                        # helm chart common default configs
         extra_configs = optional(any, {})                        # helm chart extra configs to pass and extend/use all available options
         ingress_class = optional(object({                        # Kubernetes IngressClass configuration for Istio ingress
           create = optional(bool, true)                          # whether to create IngressClass resource (default: true)
-          name   = optional(string, "istio")                     # the name of the IngressClass (default: "istio")
-        }), {})                                                  # This IngressClass allows Kubernetes Ingress resources to use Istio's ingress gateway
-      }), {})
+          name   = optional(string, "istio")                     # must be unique if multiple ingress gateways create ingress classes
+        }), {})
+      })), [])
       # Wrapper for all gateway-api helm chart objects (Gateways, HTTPRoutes, GRPCRoutes, etc.).
-      # Resources will be created in configs.namespace. If gateways list is empty, Gateway API resources release will not be created.
+      # Resources will be created in configs.chart.namespace. If gateways list is empty, Gateway API resources release will not be created.
       api_resources = optional(object({
+        name             = optional(string, "gateway-api-resources")          # name of the gateway-api resources helm release
         enabled          = optional(bool, true)                               # whether to create the gateway-api resources helm release
         chart            = optional(string, "gateway-api")                    # the gateway-api chart name
-        chart_version    = optional(string, "0.1.4")                          # the version of gateway-api chart
+        chart_version    = optional(string, "0.1.7")                          # the version of gateway-api chart
         chart_repository = optional(string, "https://dasmeta.github.io/helm") # the repository of gateway-api chart
         gateways         = optional(any, [])                                  # list (or single object) of Gateway resources to create (gateway.networking.k8s.io)
         # Example:
@@ -102,21 +120,32 @@ variable "configs" {
     kiali = optional(object({
       enabled = optional(bool, false) # whether to deploy Kiali observability components
       operator = optional(object({
-        enabled          = optional(bool, true)               # whether to install the Kiali operator Helm chart
-        name             = optional(string, "kiali-operator") # the Kiali operator Helm release name
-        namespace        = optional(string, "kiali-operator") # the namespace where the Kiali operator will be installed
-        chart            = optional(string, "kiali-operator") # the Kiali operator chart name
-        chart_version    = optional(string, null)             # optional Kiali operator chart version
-        create_namespace = optional(bool, true)               # whether Helm should create the operator namespace
-        atomic           = optional(bool, false)              # whether Helm should roll back on failure
-        wait             = optional(bool, true)               # whether Helm should wait for resources to become ready
-        values           = optional(any, {})                  # Kiali operator chart values
-        extra_values     = optional(any, {})                  # extra Kiali operator chart values
+        enabled          = optional(bool, true)                              # whether to install the Kiali operator Helm chart
+        name             = optional(string, "kiali-operator")                # the Kiali operator Helm release name
+        namespace        = optional(string, null)                            # the namespace where the Kiali operator will be installed; defaults to configs.chart.namespace
+        chart            = optional(string, "kiali-operator")                # the Kiali operator chart name
+        chart_repository = optional(string, "https://kiali.org/helm-charts") # Kiali operator Helm chart repository
+        chart_version    = optional(string, "2.25.0")                        # optional Kiali operator chart version
+        create_namespace = optional(bool, true)                              # whether Helm should create the operator namespace
+        atomic           = optional(bool, false)                             # whether Helm should roll back on failure
+        wait             = optional(bool, true)                              # whether Helm should wait for resources to become ready
+        image = optional(object({
+          registry  = optional(string) # shared image registry host for Kiali operator/server (example: quay.io, ghcr.io)
+          namespace = optional(string) # shared image namespace/org path for Kiali operator/server (example: kiali)
+          tag       = optional(string) # shared image tag used for both Kiali operator and server images
+          # `allowAdHocKialiImage` is auto-enabled internally when server image override is used.
+          repository = optional(object({
+            operator = optional(string) # operator image repository name/path (without registry/namespace)
+            server   = optional(string) # server image repository name/path (without registry/namespace)
+          }), {})
+        }), {})
+        values       = optional(any, {}) # Kiali operator chart values
+        extra_values = optional(any, {}) # extra Kiali operator chart values
       }), {})
       cr = optional(object({
         enabled        = optional(bool, true)          # whether to create a Kiali custom resource
         name           = optional(string, "kiali")     # the Kiali custom resource name
-        namespace      = optional(string, null)        # the Kiali custom resource namespace; defaults to configs.namespace when called through Istio
+        namespace      = optional(string, null)        # the Kiali custom resource namespace; defaults to configs.chart.namespace when called through Istio
         labels         = optional(map(string), {})     # labels applied to the Kiali custom resource
         annotations    = optional(map(string), {})     # annotations applied to the Kiali custom resource
         auth_strategy  = optional(string, "anonymous") # Kiali auth strategy
@@ -151,21 +180,15 @@ variable "configs" {
   })
   description = "The Istio setup configs"
   default     = {}
-}
 
-variable "kiali_chart_repository" {
-  type        = string
-  description = "Kiali Helm chart repository used when the Kiali submodule is enabled"
-  default     = "https://kiali.org/helm-charts"
-}
-
-variable "kiali_image" {
-  type = object({
-    repo                     = optional(string) # operator image repository override
-    tag                      = optional(string) # operator image tag override
-    digest                   = optional(string) # operator image digest override
-    allow_ad_hoc_kiali_image = optional(bool)   # whether the operator may use ad hoc Kiali server images
-  })
-  description = "Kiali operator image parameters used when the Kiali submodule is enabled"
-  default     = {}
+  validation {
+    condition = (
+      (try(var.configs.image.registry, null) == null || try(var.configs.image.registry, "") != "") &&
+      (try(var.configs.image.namespace, null) == null || try(var.configs.image.namespace, "") != "") &&
+      (try(var.configs.image.tag, null) == null || try(var.configs.image.tag, "") != "") &&
+      (try(var.configs.image.repository.istiod, null) == null || try(var.configs.image.repository.istiod, "") != "") &&
+      (try(var.configs.image.repository.proxy, null) == null || try(var.configs.image.repository.proxy, "") != "")
+    )
+    error_message = "Global image fields (registry/namespace/tag) are optional, but if set they must be non-empty strings."
+  }
 }

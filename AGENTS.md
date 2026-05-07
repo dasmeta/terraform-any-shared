@@ -29,4 +29,10 @@ Terraform ~> 1.3: Follow standard conventions
 - 001-standardize-module-housekeeping: Added Terraform ~> 1.3 + GitHub Actions, pre-commit, terraform-docs, tflint,
 
 <!-- MANUAL ADDITIONS START -->
+## Skill Enforcement For Module Development
+
+- For any Terraform module creation/extension/standardization work in this repository (for example changes in `modules/**`, module `README.md`, `examples/**`, `tests/**`, or module automation), the agent must use the `terraform-module-developer` skill when available.
+- Treat this as required process guidance, not optional preference.
+- Keep Speckit-first workflow for module-impacting changes and ensure related spec/plan/tasks artifacts are present or updated before substantial module interface/behavior edits.
+- If a requested change is breaking or materially widens module interface, stop and ask for explicit approval before implementing.
 <!-- MANUAL ADDITIONS END -->

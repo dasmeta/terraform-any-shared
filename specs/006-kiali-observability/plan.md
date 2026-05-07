@@ -1,98 +1,96 @@
 # Implementation Plan: Kiali Observability For Istio
 
-**Branch**: `006-kiali-observability` | **Date**: 2026-05-06 | **Spec**: `specs/006-kiali-observability/spec.md`
-**Input**: Feature specification from `specs/006-kiali-observability/spec.md`
+**Branch**: `006-kiali-observability` | **Date**: 2026-05-07 | **Spec**: `/Users/tmuradyan/projects/dasmeta/terraform-any-shared/specs/006-kiali-observability/spec.md`
+**Input**: Feature specification from `/specs/006-kiali-observability/spec.md`
 
 ## Summary
 
-Add a standalone `modules/kiali` module that installs the Kiali operator through Helm and renders a single Kiali custom resource through `kubectl_manifest`. Keep `modules/istio` as an orchestrator that can optionally call `modules/kiali` through `configs.kiali`.
+Deliver and finalize Kiali observability support through a dedicated `modules/kiali` module and optional delegation from `modules/istio`, including support for Prometheus and Grafana integration, Kiali server image override behavior, and documentation/examples that include both a dedicated Kiali example and Kiali usage inside the `custom-chart-and-image-overrides` Istio example.
 
-## Current State
+## Technical Context
 
-- Starting module path: `modules/kiali`, with `modules/istio` delegation in scope
-- Related submodules in scope: existing local `modules/gateway-api-crds`; no changes required.
-- Repository automation files in scope: none expected.
-- Existing standard files present: `main.tf`, `variables.tf`, `outputs.tf`, `versions.tf`, `README.md`, examples.
-- Existing gaps or inconsistencies: repository has no standalone Kiali module, and the Istio module has no option to delegate to one.
+**Terraform/OpenTofu Version**: Terraform `~> 1.3`  
+**Providers / Upstream Modules**: `hashicorp/helm (~> 2.0)`, `gavinbunney/kubectl (~> 1.14)`, Kiali operator chart from `https://kiali.org/helm-charts`  
+**Target Module Path**: `modules/kiali`, `modules/istio`  
+**Examples / Tests in Scope**: `modules/kiali/examples/basic`, `modules/istio/examples/kiali-observability`, `modules/istio/examples/custom-chart-and-image-overrides`  
+**Automation Gates**: `terraform fmt`, `pre-commit` (`terraform_fmt`, `terraform_docs`), affected-example `terraform validate` / `terraform plan` where provider initialization is available  
+**Target Platform**: Kubernetes clusters with Istio and Gateway API CRDs, where Kiali operator + Kiali CR are managed by Terraform  
+**Constraints**: Keep Istio defaults unchanged when Kiali is omitted; preserve opinionated wrapper interface; no breaking changes without explicit approval  
+**Scale/Scope**: Existing modules only (`modules/kiali` and `modules/istio`) plus related docs/examples/contracts under the active spec
 
-## Comparison Against Internal Standards
+## Constitution Check
 
-- Module design boundary: Kiali has its own module because it can be reused independently, while Istio can optionally orchestrate it.
-- Variable and output alignment: add a standalone grouped `configs` input in `modules/kiali`; add matching optional `configs.kiali` input in `modules/istio`.
-- Interface shaping:
-  - Grouping boundary: `configs.operator` owns the Helm operator release; `configs.cr` owns the Kiali custom resource; `configs.cr.external_services` owns Prometheus and Grafana integration.
-  - Required/optional contract preservation: no existing required input changes; all new fields are optional and disabled by default.
-- Optional grouped-attribute mapping:
-  - Optional fields include operator name/namespace/chart settings, CR name/namespace, auth strategy, view-only mode, deployment overrides, external service fields, and raw `spec`.
-  - Optional omission keeps previous module behavior and avoids forced Prometheus or Grafana overrides.
-- Documentation, examples, and tests alignment: add `modules/istio/examples/kiali-observability/` and update `README.md`.
-- Version and provider alignment: current Helm and kubectl providers are sufficient.
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-## New-Module Sourcing Assessment
+- [x] Change stays within one coherent module responsibility and the current repository scope.
+- [x] Consumer interface remains opinionated; any interface widening is explicitly documented and approved.
+- [x] `README.md`, `examples/`, and `tests/` updates are listed for every behavior or interface change.
+- [x] `versions.tf` or `version.tf` and `providers.tf` impacts are reviewed and made explicit when compatibility changes.
+- [x] Breaking changes, weakened defaults, or standards conflicts are recorded with approval status before implementation.
 
-- Not a new module. This is an extension to existing `modules/istio`.
-- Provider collection checked: not applicable; request targets Kubernetes/Helm resources rather than AWS/Azure/GCP provider modules.
-- Upstream baseline: official Kiali operator Helm chart and official Kiali CR schema.
-- Fallback required: no.
+Post-design re-check: PASS (planned outputs preserve default compatibility and keep interface additions bounded).
 
-## Speckit Evidence
+## Project Structure
 
-- Speckit package: `specs/006-kiali-observability/`
-- Required files: `spec.md`, `plan.md`, `tasks.md`
-- Module-change gate status: should pass after this package is present because it identifies the affected module and contains implementation tasks.
+### Documentation (this feature)
 
-## Proposed File Changes
+```text
+specs/006-kiali-observability/
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+├── contracts/
+│   └── module-interface.md
+└── tasks.md
+```
 
-- Files to create:
-  - `specs/006-kiali-observability/spec.md`
-  - `specs/006-kiali-observability/plan.md`
-  - `specs/006-kiali-observability/tasks.md`
-  - `modules/kiali/main.tf`
-  - `modules/kiali/variables.tf`
-  - `modules/kiali/outputs.tf`
-  - `modules/kiali/versions.tf`
-  - `modules/kiali/locals.tf`
-  - `modules/kiali/README.md`
-  - `modules/kiali/examples/basic/0-setup.tf`
-  - `modules/kiali/examples/basic/1-example.tf`
-  - `modules/istio/examples/kiali-observability/0-setup.tf`
-  - `modules/istio/examples/kiali-observability/1-example.tf`
-- Files to update:
-  - `modules/istio/main.tf`
-  - `modules/istio/variables.tf`
-  - `modules/istio/outputs.tf`
-  - `modules/istio/README.md`
-- Files to leave unchanged:
-  - repository automation
-  - `versions.tf`
+### Source Code (repository root)
 
-## Risks and Approvals
+```text
+modules/kiali/
+├── main.tf
+├── locals.tf
+├── variables.tf
+├── outputs.tf
+├── versions.tf
+├── README.md
+└── examples/basic/
 
-- Potential breaking changes: none; Kiali is disabled by default.
-- Conflicts requiring approval: none identified.
-- Interface widening: bounded. The raw `spec` overlay is intentionally scoped to the Kiali CR so consumers can use advanced Kiali fields without broadening the common-case interface.
-- Fallback sources needed: official Kiali docs for Helm installation, Kiali CR, Prometheus, and Grafana fields.
+modules/istio/
+├── main.tf
+├── variables.tf
+├── locals.tf
+├── outputs.tf
+├── versions.tf
+├── README.md
+└── examples/
+    ├── kiali-observability/
+    └── custom-chart-and-image-overrides/
 
-## Execution Notes
+.pre-commit-config.yaml
+```
 
-- Recommended order of edits:
-  1. Add the Speckit package.
-  2. Add standalone Kiali module input shape and render locals.
-  3. Add Kiali operator Helm release and Kiali CR manifest in `modules/kiali`.
-  4. Add Istio delegation to `modules/kiali`.
-  5. Add outputs, examples, and README updates.
-  5. Run `terraform fmt -recursive modules/istio specs/006-kiali-observability` and Terraform validation where provider initialization is available.
-- Validation after edits:
-  - `terraform fmt -recursive modules/istio modules/kiali`
-  - `terraform -chdir=modules/kiali init -backend=false`
-  - `terraform -chdir=modules/kiali validate`
-  - `terraform -chdir=modules/istio init -backend=false`
-  - `terraform -chdir=modules/istio validate`
-  - example validation if provider downloads are available.
+**Structure Decision**: Keep implementation inside existing `modules/kiali` and `modules/istio` boundaries, with feature design artifacts under `specs/006-kiali-observability`.
 
-## Official Source Notes
+## Phase 0: Research Plan
 
-- Kiali recommends installing the `kiali-operator` Helm chart and then creating a Kiali CR.
-- Kiali CR uses `apiVersion: kiali.io/v1alpha1` and `kind: Kiali`.
-- Kiali requires Prometheus for topology graph, metrics, and health.
-- Grafana integration is configured through `spec.external_services.grafana` and requires Istio dashboards in Grafana for links to appear.
+1. Confirm Kiali operator behaviors required for server image overrides (including ad-hoc image enablement) and map those requirements to wrapper inputs.
+2. Confirm wrapper-level defaulting strategy for Istio-to-Kiali delegation that keeps existing Istio consumer behavior unchanged.
+3. Define example and documentation strategy so Kiali appears both in dedicated Kiali example flow and in `custom-chart-and-image-overrides`.
+4. Define validation approach for Helm release + Kiali CR rendering across standalone and delegated paths.
+
+## Phase 1: Design Outputs
+
+- `research.md`: Decisions and alternatives for Kiali operator behavior mapping, override handling, and validation strategy.
+- `data-model.md`: Entities and validation expectations for Kiali operator settings, Kiali CR settings, and Istio delegation wrapper.
+- `contracts/module-interface.md`: Interface contract for `modules/kiali` and Istio `configs.kiali` delegation, including compatibility rules.
+- `quickstart.md`: Maintainer execution flow for implementing, validating, and documenting the feature.
+
+Agent context regeneration skipped (not explicitly requested).
+
+## Complexity Tracking
+
+| Violation | Why Needed | Simpler Alternative Rejected Because |
+|-----------|------------|-------------------------------------|
+| N/A | N/A | N/A |

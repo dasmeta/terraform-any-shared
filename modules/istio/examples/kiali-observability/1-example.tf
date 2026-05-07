@@ -1,17 +1,24 @@
 module "this" {
   source = "../.."
 
-  kiali_chart_repository = "https://kiali.org/helm-charts"
-
-  kiali_image = {
-    tag = "latest"
-  }
-
   configs = {
-    namespace = "istio-system"
+    chart = {
+      namespace = "istio-system"
+    }
 
     kiali = {
       enabled = true
+      operator = {
+        chart_repository = "https://kiali.org/helm-charts"
+        image = {
+          registry  = "quay.io"
+          namespace = "kiali"
+          tag       = "latest"
+          repository = {
+            operator = "kiali-operator"
+          }
+        }
+      }
 
       cr = {
         auth_strategy  = "anonymous"

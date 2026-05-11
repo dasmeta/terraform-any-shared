@@ -10,6 +10,7 @@ This module can:
 - create Gateway API resources (`Gateway`, `HTTPRoute`, and others) through the `gateway-api` Helm chart.
 - optionally call the `kiali` submodule to install the Kiali operator and manage a `Kiali` custom resource with Prometheus and Grafana integration.
 - configure chart repository/version and release behavior globally via `configs.chart`, with per-component repository/version overrides.
+- use direct HTTP(S) `.tgz` chart archive URLs in component chart fields; when a chart is a direct URL, the module omits repository/version for that Helm release.
 - configure global Istio image hub/tag via `configs.image.registry`, `configs.image.namespace`, and `configs.image.tag`.
 
 It is intended for setups where Istio is used as the Gateway API implementation (`gatewayClassName: istio`), including both gateway-only and service-mesh-enabled scenarios.
@@ -148,6 +149,7 @@ Kiali chart/image settings are configured inside `configs.kiali.operator` (`char
 - Istio chart fallback default is upgraded to `1.29.2`.
 - Gateway API resources chart default is upgraded to `0.1.7`.
 - Use `configs.chart` for global chart defaults and release behavior; use component `*.repository/version` to override per chart.
+- Use direct HTTP(S) `.tgz` chart URLs in component `chart` fields when consuming chart archives directly; repository/version are ignored for those direct URL releases.
 - Use `configs.image.registry`, `configs.image.namespace`, and `configs.image.tag` to set a shared image hub/tag for Istio control-plane and gateway chart workloads.
 
 <!-- BEGIN_TF_DOCS -->

@@ -4,14 +4,20 @@ module "gateway_api_crds" {
   source = "../gateway-api-crds"
 }
 
+locals {
+  istio_base_chart_is_url  = can(regex("^https?://", var.configs.base.chart))
+  istiod_chart_is_url      = can(regex("^https?://", var.configs.istiod.chart))
+  gateway_api_chart_is_url = can(regex("^https?://", var.configs.gateway.api_resources.chart))
+}
+
 resource "helm_release" "istio_base" {
   count = var.configs.base.enabled ? 1 : 0
 
   name             = var.configs.base.name
-  repository       = coalesce(try(var.configs.base.repository, null), var.configs.chart.repository)
+  repository       = local.istio_base_chart_is_url ? null : coalesce(try(var.configs.base.repository, null), var.configs.chart.repository)
   chart            = var.configs.base.chart
   namespace        = var.configs.chart.namespace
-  version          = coalesce(try(var.configs.base.version, null), var.configs.chart.version)
+  version          = local.istio_base_chart_is_url ? null : coalesce(try(var.configs.base.version, null), var.configs.chart.version)
   create_namespace = var.configs.chart.create_namespace
   atomic           = var.configs.chart.atomic
   wait             = var.configs.chart.wait
@@ -31,10 +37,10 @@ resource "helm_release" "istiod" {
   count = var.configs.istiod.enabled ? 1 : 0
 
   name             = var.configs.istiod.name
-  repository       = coalesce(try(var.configs.istiod.repository, null), var.configs.chart.repository)
+  repository       = local.istiod_chart_is_url ? null : coalesce(try(var.configs.istiod.repository, null), var.configs.chart.repository)
   chart            = var.configs.istiod.chart
   namespace        = var.configs.chart.namespace
-  version          = coalesce(try(var.configs.istiod.version, null), var.configs.chart.version)
+  version          = local.istiod_chart_is_url ? null : coalesce(try(var.configs.istiod.version, null), var.configs.chart.version)
   create_namespace = var.configs.chart.create_namespace
   atomic           = var.configs.chart.atomic
   wait             = var.configs.chart.wait
@@ -62,10 +68,10 @@ resource "helm_release" "gateway" {
   }
 
   name             = each.value.name
-  repository       = coalesce(try(each.value.repository, null), var.configs.chart.repository)
+  repository       = can(regex("^https?://", each.value.chart)) ? null : coalesce(try(each.value.repository, null), var.configs.chart.repository)
   chart            = each.value.chart
   namespace        = var.configs.chart.namespace
-  version          = coalesce(try(each.value.version, null), var.configs.chart.version)
+  version          = can(regex("^https?://", each.value.chart)) ? null : coalesce(try(each.value.version, null), var.configs.chart.version)
   create_namespace = var.configs.chart.create_namespace
   atomic           = var.configs.chart.atomic
   wait             = var.configs.chart.wait
@@ -107,8 +113,8 @@ resource "helm_release" "gateway_api_resources" {
 
   name       = var.configs.gateway.api_resources.name
   chart      = var.configs.gateway.api_resources.chart
-  repository = var.configs.gateway.api_resources.chart_repository
-  version    = var.configs.gateway.api_resources.chart_version
+  repository = local.gateway_api_chart_is_url ? null : var.configs.gateway.api_resources.chart_repository
+  version    = local.gateway_api_chart_is_url ? null : var.configs.gateway.api_resources.chart_version
   namespace  = var.configs.chart.namespace
   atomic     = var.configs.chart.atomic
   wait       = var.configs.chart.wait

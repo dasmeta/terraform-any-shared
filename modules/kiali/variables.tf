@@ -5,7 +5,7 @@ variable "configs" {
       enabled          = optional(bool, true)                              # whether to install the Kiali operator Helm chart
       name             = optional(string, "kiali-operator")                # the Kiali operator Helm release name
       namespace        = optional(string, "kiali-operator")                # the namespace where the Kiali operator will be installed
-      chart            = optional(string, "kiali-operator")                # the Kiali operator chart name
+      chart            = optional(string, "kiali-operator")                # the Kiali operator chart name or direct .tgz URL
       chart_repository = optional(string, "https://kiali.org/helm-charts") # Kiali operator Helm chart repository
       chart_version    = optional(string, "2.25.0")                        # optional Kiali operator chart version
       create_namespace = optional(bool, true)                              # whether Helm should create the operator namespace

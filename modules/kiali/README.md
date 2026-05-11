@@ -6,6 +6,10 @@ The module installs the `kiali-operator` Helm chart by default and creates a Kia
 
 When custom Kiali server image is set via Kiali CR deployment fields (`spec.deployment.image_name` and `spec.deployment.image_version`), the module automatically enables operator chart value `allowAdHocKialiImage=true`. This is handled internally and is not exposed as a user-facing input.
 
+The operator `configs.operator.chart` field accepts either a repository-backed chart name or a direct HTTP(S) `.tgz` chart archive URL. When a direct chart URL is used, the module omits `chart_repository` and `chart_version` for the Helm release.
+
+Kiali custom resource creation waits for readiness when `configs.cr.enabled` is true, so Terraform apply does not continue immediately after only submitting the CR manifest.
+
 ## Usage
 
 ```hcl

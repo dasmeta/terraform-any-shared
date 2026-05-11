@@ -21,7 +21,7 @@ variable "configs" {
     base = optional(object({                        # istio-base configuration
       enabled      = optional(bool, true)           # weather install istio-base helm chart
       name         = optional(string, "istio-base") # the name of istio-base helm release
-      chart        = optional(string, "base")       # optional per-component chart name override
+      chart        = optional(string, "base")       # optional per-component chart name or direct .tgz URL override
       repository   = optional(string)               # optional per-component chart repository override
       version      = optional(string)               # optional per-component chart version override
       values       = optional(any, {})              # helm chart common default configs
@@ -30,7 +30,7 @@ variable "configs" {
     istiod = optional(object({                   # istiod configuration
       enabled       = optional(bool, true)       # weather install istiod helm chart
       name          = optional(string, "istiod") # the name of istiod helm release
-      chart         = optional(string, "istiod") # optional per-component chart name override
+      chart         = optional(string, "istiod") # optional per-component chart name or direct .tgz URL override
       repository    = optional(string)           # optional per-component chart repository override
       version       = optional(string)           # optional per-component chart version override
       configs       = optional(any, {})          # helm chart common default configs
@@ -46,7 +46,7 @@ variable "configs" {
         # When using Kubernetes native Gateway API (gateway.networking.k8s.io), the gateway is managed through
         # Kubernetes Gateway resources and the istio-gateway helm chart can be omitted.
         name          = optional(string, "istio-ingressgateway") # helm release name; when defining multiple ingress gateways this must be unique per item
-        chart         = optional(string, "gateway")              # optional per-component chart name override
+        chart         = optional(string, "gateway")              # optional per-component chart name or direct .tgz URL override
         repository    = optional(string)                         # optional per-component chart repository override
         version       = optional(string)                         # optional per-component chart version override
         configs       = optional(any, {})                        # helm chart common default configs
@@ -61,7 +61,7 @@ variable "configs" {
       api_resources = optional(object({
         name             = optional(string, "gateway-api-resources")          # name of the gateway-api resources helm release
         enabled          = optional(bool, true)                               # whether to create the gateway-api resources helm release
-        chart            = optional(string, "gateway-api")                    # the gateway-api chart name
+        chart            = optional(string, "gateway-api")                    # the gateway-api chart name or direct .tgz URL
         chart_version    = optional(string, "0.1.7")                          # the version of gateway-api chart
         chart_repository = optional(string, "https://dasmeta.github.io/helm") # the repository of gateway-api chart
         gateways         = optional(any, [])                                  # list (or single object) of Gateway resources to create (gateway.networking.k8s.io)
@@ -123,7 +123,7 @@ variable "configs" {
         enabled          = optional(bool, true)                              # whether to install the Kiali operator Helm chart
         name             = optional(string, "kiali-operator")                # the Kiali operator Helm release name
         namespace        = optional(string, null)                            # the namespace where the Kiali operator will be installed; defaults to configs.chart.namespace
-        chart            = optional(string, "kiali-operator")                # the Kiali operator chart name
+        chart            = optional(string, "kiali-operator")                # the Kiali operator chart name or direct .tgz URL
         chart_repository = optional(string, "https://kiali.org/helm-charts") # Kiali operator Helm chart repository
         chart_version    = optional(string, "2.25.0")                        # optional Kiali operator chart version
         create_namespace = optional(bool, true)                              # whether Helm should create the operator namespace

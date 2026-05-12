@@ -1,11 +1,15 @@
+locals {
+  kiali_operator_chart_is_url = can(regex("^https?://", var.configs.operator.chart))
+}
+
 resource "helm_release" "operator" {
   count = local.kiali_operator_enabled ? 1 : 0
 
   name             = var.configs.operator.name
-  repository       = var.configs.operator.chart_repository
+  repository       = local.kiali_operator_chart_is_url ? null : var.configs.operator.chart_repository
   chart            = var.configs.operator.chart
   namespace        = var.configs.operator.namespace
-  version          = var.configs.operator.chart_version
+  version          = local.kiali_operator_chart_is_url ? null : var.configs.operator.chart_version
   create_namespace = var.configs.operator.create_namespace
   atomic           = var.configs.operator.atomic
   wait             = var.configs.operator.wait
@@ -43,6 +47,8 @@ resource "helm_release" "operator" {
 
 resource "kubectl_manifest" "this" {
   count = local.kiali_cr_enabled ? 1 : 0
+
+  wait = true
 
   yaml_body = yamlencode({
     apiVersion = "kiali.io/v1alpha1"

@@ -35,7 +35,7 @@ locals {
     },
     {
       apiGroups = ["networking.k8s.io", "extensions"]
-      resources = ["ingresses"]
+      resources = ["ingresses", "networkpolicies"]
       verbs     = ["get", "list", "watch", "delete", "deletecollection", "patch", "update"]
     },
     {

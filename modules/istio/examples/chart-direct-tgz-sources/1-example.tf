@@ -2,9 +2,9 @@
 # chart names. This demonstrates the module's direct chart archive handling.
 
 locals {
-  istio_version             = "1.29.2"
+  istio_version             = "1.30.3"
   gateway_api_chart_version = "0.1.7"
-  kiali_chart_version       = "2.25.0"
+  kiali_chart_version       = "2.29.0"
 
   chart_urls = {
     gateway_api    = "https://github.com/dasmeta/helm/releases/download/gateway-api-${local.gateway_api_chart_version}/gateway-api-${local.gateway_api_chart_version}.tgz"

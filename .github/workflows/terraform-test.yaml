@@ -26,6 +26,7 @@ jobs:
           - modules/kyverno
           - modules/loki
           - modules/mongodb-bi-connector
+          - modules/namespace
           - modules/onepassword
           - modules/onepassword_to_secret_manager
           - modules/qdrant

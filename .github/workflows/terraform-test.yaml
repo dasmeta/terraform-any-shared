@@ -16,6 +16,7 @@ jobs:
       matrix:
         path:
           - modules/defectdojo
+          - modules/authentik
           - modules/event-exporter
           - modules/gateway-api-crds
           - modules/gitlab-runner

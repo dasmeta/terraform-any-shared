@@ -22,12 +22,12 @@ jobs:
           - modules/gitlab-runner
           - modules/horizon-monitor
           - modules/istio
+          - modules/k8s/namespace
           - modules/keycloak
           - modules/keeper-reader
           - modules/kyverno
           - modules/loki
           - modules/mongodb-bi-connector
-          - modules/k8s/namespace
           - modules/onepassword
           - modules/onepassword_to_secret_manager
           - modules/qdrant

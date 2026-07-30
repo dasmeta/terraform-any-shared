@@ -18,6 +18,7 @@ jobs:
       matrix:
         path:
           - modules/defectdojo
+          - modules/authentik
           - modules/event-exporter
           - modules/gateway-api-crds
           - modules/github-actions-runner
@@ -25,6 +26,7 @@ jobs:
           - modules/goldilocks
           - modules/horizon-monitor
           - modules/istio
+          - modules/k8s/namespace
           - modules/kafka
           - modules/keycloak
           - modules/keeper-reader

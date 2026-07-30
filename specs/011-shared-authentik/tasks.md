@@ -46,6 +46,8 @@ needing an undocumented secret or ingress action.
 
 - [x] T012 [US3] Create `modules/authentik/README.md` with prerequisites, Secret keys, module interface, outputs, example use, upgrade note, and explicit non-goals.
 - [x] T013 [US3] Add `modules/authentik` to `.github/workflows/terraform-test.yaml`.
+- [X] T019 Register `modules/authentik` in the Checkov, TFLint, and pre-commit matrices.
+- [X] T020 Reject fractional database ports and add an executable invalid-input test.
 
 ## Phase 5: Validation and delivery evidence
 
@@ -75,5 +77,7 @@ needing an undocumented secret or ingress action.
   entries, and the supplied existing Secret reference with bundled PostgreSQL
   disabled.
 - `checkov -d modules/authentik --quiet`: passed.
+- `terraform -chdir=modules/authentik test`: passed; rejects a fractional
+  database port with a mocked Helm provider.
 - `pre-commit` and `tflint` are not installed locally; CI remains the
   repository-hook and lint gate.

@@ -46,6 +46,8 @@ against the local module without an external backend.
 - [X] T015 Review new Terraform and examples for customer-specific names, hostnames, secret values, and unsupported pass-through inputs.
 - [X] T016 Mark completed tasks and record validation evidence in `specs/010-shared-namespace/tasks.md`.
 - [X] T017 Move the module beneath `modules/k8s/`, document the retained dashboard asset, and update the Terraform validation matrix to the new path.
+- [X] T018 Register `modules/k8s/namespace` in the Checkov, TFLint, and pre-commit matrices alongside the Terraform validation matrix.
+- [X] T019 Validate `name` as a Kubernetes DNS-1123 label and add an executable invalid-input test.
 
 ## Dependencies and Execution Order
 
@@ -70,4 +72,6 @@ service accounts, or other shared capabilities in this feature.
   passed with `hashicorp/kubernetes v2.38.0`.
 - `terraform -chdir=modules/k8s/namespace/examples/basic validate`: passed.
 - `checkov -d modules/k8s/namespace --quiet`: passed.
+- `terraform -chdir=modules/k8s/namespace test`: passed; rejects a non-DNS-1123
+  namespace name with a mocked Kubernetes provider.
 - `pre-commit` is not installed locally; CI remains the repository-hook gate.

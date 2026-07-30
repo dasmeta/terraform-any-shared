@@ -3,7 +3,7 @@
 1. Use the standard database module to create the PostgreSQL database, user,
    and grants. This module does not create them.
 2. Ensure the deployment namespace already exists, normally through
-   `modules/namespace`.
+   `modules/k8s/namespace`.
 3. Have the approved secret-management mechanism create a Secret in that
    namespace with these keys (values never belong in Terraform):
 

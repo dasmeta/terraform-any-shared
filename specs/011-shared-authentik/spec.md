@@ -2,7 +2,7 @@
 
 **Feature Branch**: `011-shared-authentik`
 **Created**: 2026-07-29
-**Status**: Draft
+**Status**: In implementation
 **Input**: Implement the shared Authentik prerequisite for the reusable data
 analytics platform. It must use the official chart, an externally provisioned
 PostgreSQL database, and a pre-existing Kubernetes Secret. Namespace and

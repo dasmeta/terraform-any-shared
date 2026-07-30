@@ -19,7 +19,7 @@ do not require Redis, so this module does not provision or configure Redis.
 
 Before applying the module:
 
-1. Create the namespace, normally with the shared `namespace` module.
+1. Create the namespace, normally with the shared `k8s/namespace` module.
 2. Create an external PostgreSQL database, user, and grants through the
    standard database module.
 3. Have the approved secret-management mechanism create a Secret in the target

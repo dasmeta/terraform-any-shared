@@ -45,7 +45,7 @@ against the local module without an external backend.
 - [X] T014 Run repository-relevant formatting, documentation, and static checks for `modules/k8s/namespace/`.
 - [X] T015 Review new Terraform and examples for customer-specific names, hostnames, secret values, and unsupported pass-through inputs.
 - [X] T016 Mark completed tasks and record validation evidence in `specs/010-shared-namespace/tasks.md`.
-- [X] T017 Move the module beneath `modules/k8s/` and document the retained dashboard asset.
+- [X] T017 Move the module beneath `modules/k8s/`, document the retained dashboard asset, and update the Terraform validation matrix to the new path.
 
 ## Dependencies and Execution Order
 

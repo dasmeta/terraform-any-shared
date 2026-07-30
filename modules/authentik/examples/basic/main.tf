@@ -9,6 +9,12 @@ module "authentik" {
     name = "authentik"
     user = "authentik"
   }
+
+  extra_helm_config = {
+    server = {
+      replicas = 2
+    }
+  }
 }
 
 output "server_service_name" {

@@ -7,8 +7,10 @@
 
 Create `modules/authentik`, a narrow Helm wrapper for the official Authentik
 chart. It consumes a pre-existing namespace, PostgreSQL database/user/grants,
-and configuration Secret. It exposes only chart version, release identity,
-external database metadata, and deterministic internal endpoint outputs.
+and configuration Secret. It exposes chart version, release identity, external
+database metadata, deterministic internal endpoint outputs, and an optional
+typed extra Helm-values map for upstream settings that are not first-class
+module inputs.
 
 ## Technical Context
 
@@ -31,8 +33,9 @@ analysis and pre-commit when available.
 
 - [x] Single responsibility: deploy Authentik; no cluster foundation,
   ingress, database, Secret, or tenant/application lifecycle ownership.
-- [x] Narrow interface: no arbitrary Helm-value escape hatch, credentials,
-  SMTP, blueprints, outposts, or ingress configuration in v1.
+- [x] Narrow interface: a typed extra Helm-values map permits supported
+  chart-level extensions, while credentials, ingress, and required release,
+  database, and Secret settings remain owned and enforced by the module.
 - [x] Required module source, documentation, example, test, and CI matrix
   coverage are planned together.
 - [x] No breaking change: new module only.
@@ -85,6 +88,7 @@ future approved extension.
 | `chart_version` | Explicit approved chart version. |
 | `database` | Non-secret external PostgreSQL connection metadata. |
 | `configuration_secret_name` | Existing Secret holding Authentik's app key and DB password. |
+| `extra_helm_config` | Optional upstream chart values; cannot override required module-owned settings. |
 | `release_*` outputs | Helm release identity/status/version. |
 | `server_service_*` outputs | Internal HTTP endpoint for the separate ingress component. |
 
@@ -119,7 +123,8 @@ specs/011-shared-authentik/
 3. Publish release and server-Service outputs only.
 4. Add a neutral example and validate-only fixture; register the module in all
    primary CI matrices (Terraform test, Checkov, TFLint, and pre-commit).
-5. Document the prerequisite database/Secret contract and explicit non-goals.
+5. Document the prerequisite database/Secret contract, extra-values precedence,
+   and explicit non-goals.
 6. Run format, Terraform validation, Helm rendering, and available static
    checks; capture any unavailable local gate rather than bypassing it.
 7. Validate the optional database port is a TCP-port integer before rendering
@@ -133,5 +138,5 @@ specs/011-shared-authentik/
 - If a chart upgrade requires database migration strategy beyond Helm's normal
   release lifecycle, stop and define an explicit operational runbook.
 - If consumers require ingress, automatic Secret generation, database creation,
-  or arbitrary values to make v1 useful, stop for an explicit interface
-  widening decision; do not add an escape hatch silently.
+  or a way to override the enforced database/Secret/release settings, stop for
+  an explicit interface-widening decision.

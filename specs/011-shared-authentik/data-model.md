@@ -12,6 +12,7 @@
 | `database.name` | string | yes | Existing database name. |
 | `database.user` | string | yes | Existing database user. |
 | `database.port` | number | no | PostgreSQL port; defaults to 5432. |
+| `extra_helm_config` | any | no | Additional official-chart values. The module applies required values afterward, so its core contract wins. |
 
 ## Rendered chart contract
 
@@ -22,6 +23,8 @@ global.env AUTHENTIK_POSTGRESQL__*          = database
 fullnameOverride                            = name
 server.service.type                         = ClusterIP
 server.service.servicePortHttp              = 80
+
+extra_helm_config                            = applied first for all other chart values
 ```
 
 ## Outputs

@@ -48,6 +48,9 @@ needing an undocumented secret or ingress action.
 - [x] T013 [US3] Add `modules/authentik` to `.github/workflows/terraform-test.yaml`.
 - [X] T019 Register `modules/authentik` in the Checkov, TFLint, and pre-commit matrices.
 - [X] T020 Reject fractional database ports and add an executable invalid-input test.
+- [x] T021 Add a typed `extra_helm_config` pass-through for upstream chart
+  settings, preserving the module-owned database, Secret, release, and service
+  contracts through Helm values precedence.
 
 ## Phase 5: Validation and delivery evidence
 

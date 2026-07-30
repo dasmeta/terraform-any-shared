@@ -21,8 +21,11 @@ Authentik belong in `terraform-any-shared`; ingress and customer hosts do not.
   of a pre-existing Authentik configuration Secret. Outputs expose the release
   and internal HTTP service contract for a separately managed ingress module.
 - **Breaking Change / Interface Widening**: none; this is a new module. The
-  module intentionally does not expose arbitrary Helm values, ingress,
-  database provisioning, Secret creation, or Authentik tenant configuration.
+  module exposes a typed `extra_helm_config` value map for supported chart
+  settings that are not first-class module inputs. It still does not own
+  ingress, database provisioning, Secret creation, or Authentik tenant
+  configuration. The module's external database, existing Secret, stable
+  release identity, and ClusterIP service settings remain enforced.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -94,8 +97,12 @@ atomic, cleanup-on-failure, and wait behavior with a documented timeout.
   document the contract but must not create or read the Secret value.
 - A database endpoint is not reachable or its database/user/grants are absent:
   Authentik startup fails; remediation is with the external database owner.
-- An operator requests ingress, arbitrary Helm values, SMTP, blueprints,
-  outposts, or lifecycle customisation: those are deliberately out of v1 scope
+- An operator needs an upstream chart setting not exposed directly by the
+  module: they can supply it through `extra_helm_config`. Values that would
+  change the external database, configuration Secret, stable release identity,
+  or ClusterIP service contract are deliberately overridden by the module.
+- An operator requests ingress, database provisioning, Secret creation,
+  blueprints, outposts, or lifecycle customisation: those remain out of scope
   and require a separately reviewed module extension.
 - The release name is too long to form the chart's `-server` Service name: the
   module rejects it before apply.
@@ -124,6 +131,10 @@ atomic, cleanup-on-failure, and wait behavior with a documented timeout.
   providers, applications, users, groups, or tenant configuration.
 - **FR-008**: Module documentation, examples, tests, and the workflow matrix
   MUST match the implemented interface.
+- **FR-009**: The module MUST accept an optional `extra_helm_config` map for
+  upstream chart settings not otherwise represented by a module input. Its
+  values MUST be applied before the module's required database, Secret,
+  fullname, and service settings, so those contracts cannot be overridden.
 
 ### Compatibility & Delivery Requirements
 

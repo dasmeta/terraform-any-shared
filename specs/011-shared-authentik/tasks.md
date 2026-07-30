@@ -52,7 +52,7 @@ needing an undocumented secret or ingress action.
 - [x] T014 Run `terraform fmt -check -recursive modules/authentik`.
 - [x] T015 Run `terraform -chdir=modules/authentik/tests/basic init -backend=false` and `terraform validate`.
 - [x] T016 Run `helm template` against the reviewed official chart with values equivalent to the module contract; verify external PostgreSQL and existing Secret rendering.
-- [x] T017 Run available repository static checks; Checkov completed with its offline-guidelines warning, while pre-commit and tflint are not installed locally.
+- [x] T017 Run available repository static checks; Checkov passed, while pre-commit and tflint are not installed locally.
 - [x] T018 Update this file with completed tasks and report validation evidence in the Jira ticket progress comment.
 
 ## Dependencies and execution order
@@ -62,3 +62,18 @@ needing an undocumented secret or ingress action.
 - T012-T013 depend on the final interface and outputs.
 - T014-T017 run after source, examples, tests, docs, and CI matrix are present.
 - T018 is the evidence checkpoint before committing and pushing the feature branch.
+
+## Validation Evidence
+
+- `terraform fmt -check -recursive modules/authentik`: passed.
+- `terraform -chdir=modules/authentik/tests/basic init -backend=false` and
+  `terraform validate`: passed with `hashicorp/helm v3.2.0`.
+- `terraform -chdir=modules/authentik/examples/basic init -backend=false` and
+  `terraform validate`: passed with `hashicorp/helm v3.2.0`.
+- `helm template` against official chart `authentik 2026.5.6`: passed;
+  rendered the `authentik-server` Service, external PostgreSQL environment
+  entries, and the supplied existing Secret reference with bundled PostgreSQL
+  disabled.
+- `checkov -d modules/authentik --quiet`: passed.
+- `pre-commit` and `tflint` are not installed locally; CI remains the
+  repository-hook and lint gate.

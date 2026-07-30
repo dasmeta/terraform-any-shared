@@ -117,10 +117,14 @@ specs/011-shared-authentik/
 2. Render official chart values with external PostgreSQL and existing Secret
    semantics; use safe Helm lifecycle defaults.
 3. Publish release and server-Service outputs only.
-4. Add a neutral example and validate-only fixture; add the fixture to CI.
+4. Add a neutral example and validate-only fixture; register the module in all
+   primary CI matrices (Terraform test, Checkov, TFLint, and pre-commit).
 5. Document the prerequisite database/Secret contract and explicit non-goals.
 6. Run format, Terraform validation, Helm rendering, and available static
    checks; capture any unavailable local gate rather than bypassing it.
+7. Validate the optional database port is a TCP-port integer before rendering
+   the Helm environment variable; the object shape and optional default remain
+   unchanged.
 
 ## Risks and Stop Conditions
 

@@ -45,7 +45,7 @@ variable "database" {
     host = string                 # External PostgreSQL hostname or service name.
     name = string                 # Existing PostgreSQL database name.
     user = string                 # Existing PostgreSQL username.
-    port = optional(number, 5432) # External PostgreSQL TCP port.
+    port = optional(number, 5432) # External PostgreSQL TCP port (integer from 1 through 65535).
   })
   description = "Non-secret connection metadata for the externally provisioned Authentik PostgreSQL database."
 
@@ -54,8 +54,10 @@ variable "database" {
       length(trimspace(var.database.host)) > 0 &&
       length(trimspace(var.database.name)) > 0 &&
       length(trimspace(var.database.user)) > 0 &&
-      var.database.port >= 1 && var.database.port <= 65535
+      var.database.port >= 1 &&
+      var.database.port <= 65535 &&
+      floor(var.database.port) == var.database.port
     )
-    error_message = "database host, name, and user must not be empty, and port must be between 1 and 65535."
+    error_message = "database host, name, and user must not be empty, and port must be an integer between 1 and 65535."
   }
 }

@@ -18,8 +18,8 @@ does not own any workload, policy, secret, database, or ingress concern.
 **Examples / Tests in Scope**: `modules/k8s/namespace/examples/basic`,
 `modules/k8s/namespace/tests/basic`
 **Automation Gates**: `terraform fmt`, `terraform init -backend=false`,
-`terraform validate`, repository pre-commit / lint / security workflows where
-available  
+`terraform validate`, and all repository primary module matrices:
+`terraform-test`, Checkov, TFLint, and pre-commit.
 **Target Platform**: Existing Kubernetes cluster, configured by the caller  
 **Constraints**: No customer names/hostnames/secrets; no namespace creation in
 analytics modules; direct resource fallback only because no approved
@@ -95,7 +95,11 @@ maintained module patterns such as `modules/qdrant`.
 5. Verify the `modules/k8s/` routing documentation identifies the namespace
    module and the retained dashboard asset.
 6. Register `modules/k8s/namespace` in the repository Terraform validation
-   matrix so CI validates the moved module path rather than its former location.
+   matrix and the Checkov, TFLint, and pre-commit matrices so CI validates the
+   moved module path rather than its former location.
+7. Validate the namespace input as a Kubernetes DNS-1123 label before the
+   provider reaches the API; this preserves the input type and replacement
+   lifecycle while failing invalid names early.
 
 ## Delivery Dependency
 

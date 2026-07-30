@@ -1,10 +1,10 @@
 variable "name" {
-  description = "Stable name for the Kubernetes namespace. Changing it replaces the namespace."
+  description = "Stable Kubernetes DNS-1123 namespace label. Changing it replaces the namespace."
   type        = string
 
   validation {
-    condition     = length(trimspace(var.name)) > 0
-    error_message = "Namespace name must not be empty."
+    condition     = can(regex("^[a-z0-9]([-a-z0-9]*[a-z0-9])?$", var.name)) && length(var.name) <= 63
+    error_message = "Namespace name must be a lowercase Kubernetes DNS-1123 label of 1 to 63 characters."
   }
 }
 

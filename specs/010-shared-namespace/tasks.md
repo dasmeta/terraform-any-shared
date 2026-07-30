@@ -7,27 +7,27 @@
 ## Phase 1: Setup
 
 - [X] T001 Confirm the direct-provider fallback and supported resource in `specs/010-shared-namespace/research.md`.
-- [X] T002 Create the namespace module structure under `modules/namespace/`.
+- [X] T002 Create the namespace module structure under `modules/k8s/namespace/`.
 - [X] T003 [P] Verify repository ignore rules cover Terraform local state and provider download artifacts.
 
 ## Phase 2: Foundational Module Contract
 
-- [X] T004 Create explicit Terraform and Kubernetes provider constraints in `modules/namespace/versions.tf`.
-- [X] T005 Create typed namespace name and optional metadata inputs in `modules/namespace/variables.tf`.
-- [X] T006 Define documented namespace identity outputs in `modules/namespace/outputs.tf`.
+- [X] T004 Create explicit Terraform and Kubernetes provider constraints in `modules/k8s/namespace/versions.tf`.
+- [X] T005 Create typed namespace name and optional metadata inputs in `modules/k8s/namespace/variables.tf`.
+- [X] T006 Define documented namespace identity outputs in `modules/k8s/namespace/outputs.tf`.
 
 ## Phase 3: User Story 1 - Create a dedicated deployment boundary (Priority: P1)
 
 **Goal**: Create exactly one named namespace with optional caller-managed
 metadata.
 
-**Independent Test**: `modules/namespace/tests/basic` initializes and validates
+**Independent Test**: `modules/k8s/namespace/tests/basic` initializes and validates
 against the local module without an external backend.
 
-- [X] T007 [P] [US1] Add the baseline consumer example in `modules/namespace/examples/basic/main.tf`.
-- [X] T008 [P] [US1] Add the baseline validation fixture in `modules/namespace/tests/basic/main.tf`.
-- [X] T009 [US1] Implement the `kubernetes_namespace_v1` resource in `modules/namespace/main.tf`.
-- [X] T010 [US1] Run format, init, and validation for `modules/namespace/tests/basic`.
+- [X] T007 [P] [US1] Add the baseline consumer example in `modules/k8s/namespace/examples/basic/main.tf`.
+- [X] T008 [P] [US1] Add the baseline validation fixture in `modules/k8s/namespace/tests/basic/main.tf`.
+- [X] T009 [US1] Implement the `kubernetes_namespace_v1` resource in `modules/k8s/namespace/main.tf`.
+- [X] T010 [US1] Run format, init, and validation for `modules/k8s/namespace/tests/basic`.
 
 ## Phase 4: User Story 2 - Reuse the namespace safely (Priority: P2)
 
@@ -36,15 +36,16 @@ against the local module without an external backend.
 **Independent Test**: The basic configuration consumes `namespace_name` and
 `namespace_id` without requiring cluster-specific values.
 
-- [X] T011 [US2] Update `modules/namespace/tests/basic/main.tf` to consume identity outputs.
-- [X] T012 [US2] Document inputs, outputs, exclusions, and basic usage in `modules/namespace/README.md`.
-- [X] T013 [US2] Re-run format, init, and validation for `modules/namespace/tests/basic`.
+- [X] T011 [US2] Update `modules/k8s/namespace/tests/basic/main.tf` to consume identity outputs.
+- [X] T012 [US2] Document inputs, outputs, exclusions, and basic usage in `modules/k8s/namespace/README.md`.
+- [X] T013 [US2] Re-run format, init, and validation for `modules/k8s/namespace/tests/basic`.
 
 ## Phase 5: Polish and Validation
 
-- [ ] T014 Run repository-relevant formatting, documentation, and static checks for `modules/namespace/`.
+- [X] T014 Run repository-relevant formatting, documentation, and static checks for `modules/k8s/namespace/`.
 - [X] T015 Review new Terraform and examples for customer-specific names, hostnames, secret values, and unsupported pass-through inputs.
 - [X] T016 Mark completed tasks and record validation evidence in `specs/010-shared-namespace/tasks.md`.
+- [X] T017 Move the module beneath `modules/k8s/` and document the retained dashboard asset.
 
 ## Dependencies and Execution Order
 
@@ -61,12 +62,12 @@ service accounts, or other shared capabilities in this feature.
 
 ## Validation Evidence
 
-- `terraform fmt -check -recursive modules/namespace`: passed.
-- `terraform -chdir=modules/namespace/tests/basic init -backend=false`: passed
-  with `hashicorp/kubernetes v2.38.0`.
-- `terraform -chdir=modules/namespace/tests/basic validate`: passed.
-- `checkov -d modules/namespace --quiet`: completed locally; remote guideline
-  lookup was unavailable in the sandbox, so repository CI remains the final
-  static-analysis gate.
-- `pre-commit` is not installed locally; T014 remains for CI or a workstation
-  with the repository hooks available.
+- `terraform fmt -check -recursive modules/k8s/namespace`: passed.
+- `terraform -chdir=modules/k8s/namespace/tests/basic init -backend=false`:
+  passed with `hashicorp/kubernetes v2.38.0`.
+- `terraform -chdir=modules/k8s/namespace/tests/basic validate`: passed.
+- `terraform -chdir=modules/k8s/namespace/examples/basic init -backend=false`:
+  passed with `hashicorp/kubernetes v2.38.0`.
+- `terraform -chdir=modules/k8s/namespace/examples/basic validate`: passed.
+- `checkov -d modules/k8s/namespace --quiet`: passed.
+- `pre-commit` is not installed locally; CI remains the repository-hook gate.

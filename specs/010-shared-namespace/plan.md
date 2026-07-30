@@ -5,7 +5,7 @@
 
 ## Summary
 
-Create `modules/namespace`, a deliberately small Kubernetes-provider module
+Create `modules/k8s/namespace`, a deliberately small Kubernetes-provider module
 that creates exactly one pre-named namespace with optional labels and
 annotations. It is the shared deployment boundary for platform components; it
 does not own any workload, policy, secret, database, or ingress concern.
@@ -14,9 +14,9 @@ does not own any workload, policy, secret, database, or ingress concern.
 
 **Terraform Version**: `~> 1.3`  
 **Provider**: `hashicorp/kubernetes ~> 2.0`  
-**Target Module Path**: `modules/namespace`  
-**Examples / Tests in Scope**: `modules/namespace/examples/basic`,
-`modules/namespace/tests/basic`  
+**Target Module Path**: `modules/k8s/namespace`
+**Examples / Tests in Scope**: `modules/k8s/namespace/examples/basic`,
+`modules/k8s/namespace/tests/basic`
 **Automation Gates**: `terraform fmt`, `terraform init -backend=false`,
 `terraform validate`, repository pre-commit / lint / security workflows where
 available  
@@ -54,16 +54,19 @@ provider-maintained wrapper exists for this Kubernetes primitive.
 ## Project Structure
 
 ```text
-modules/namespace/
-├── main.tf
-├── variables.tf
-├── outputs.tf
-├── versions.tf
+modules/k8s/
+├── grafana-dashboard.json
 ├── README.md
-├── examples/basic/
-│   └── main.tf
-└── tests/basic/
-    └── main.tf
+└── namespace/
+    ├── main.tf
+    ├── variables.tf
+    ├── outputs.tf
+    ├── versions.tf
+    ├── README.md
+    ├── examples/basic/
+    │   └── main.tf
+    └── tests/basic/
+        └── main.tf
 
 specs/010-shared-namespace/
 ├── spec.md
@@ -74,9 +77,11 @@ specs/010-shared-namespace/
 └── tasks.md
 ```
 
-**Structure Decision**: Follow the repository's top-level `modules/<name>`
-layout. Keep `required_providers` in `versions.tf`, matching maintained module
-patterns such as `modules/qdrant`.
+**Structure Decision**: Group generic Kubernetes modules under `modules/k8s/`.
+The existing `modules/k8s/grafana-dashboard.json` remains at its stable path as
+a compatibility-preserving asset, while the namespace module is placed in its
+own child directory. Keep `required_providers` in `versions.tf`, matching
+maintained module patterns such as `modules/qdrant`.
 
 ## Validation Plan
 
@@ -87,6 +92,8 @@ patterns such as `modules/qdrant`.
    paths.
 4. Confirm the generated documentation and examples contain only neutral,
    non-secret values.
+5. Verify the `modules/k8s/` routing documentation identifies the namespace
+   module and the retained dashboard asset.
 
 ## Delivery Dependency
 

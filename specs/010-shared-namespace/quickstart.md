@@ -1,7 +1,7 @@
 # Quickstart: Shared Kubernetes Namespace Module
 
 1. Configure a Kubernetes provider in the consuming Terraform root.
-2. Reference `modules/namespace` with a neutral namespace name and optional
+2. Reference `modules/k8s/namespace` with a neutral namespace name and optional
    labels/annotations.
 3. Use `namespace_name` in dependent component modules.
 4. Run `terraform init -backend=false` and `terraform validate` in the basic

@@ -2,13 +2,13 @@
 
 **Feature Branch**: `010-shared-namespace`  
 **Created**: 2026-07-29  
-**Status**: Ready for planning  
+**Status**: In implementation
 **Input**: DMVP-10317 — provide a reusable namespace capability for customer
 platform deployments, including the data analytics platform.
 
 ## Module Context
 
-- **Target Module Path**: `modules/namespace`
+- **Target Module Path**: `modules/k8s/namespace`
 - **Related Files In Scope**: Module Terraform source, README, basic example,
   and executable validation test.
 - **Upstream Baseline**: HashiCorp Kubernetes provider

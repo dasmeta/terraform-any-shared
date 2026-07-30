@@ -12,7 +12,7 @@ accounts, quotas, network policies, secrets, databases, ingress, or DNS.
 
 ```hcl
 module "namespace" {
-  source = "dasmeta/shared/any//modules/namespace"
+  source = "dasmeta/shared/any//modules/k8s/namespace"
 
   name = "example-platform"
 

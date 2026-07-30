@@ -61,3 +61,9 @@ variable "database" {
     error_message = "database host, name, and user must not be empty, and port must be an integer between 1 and 65535."
   }
 }
+
+variable "extra_helm_config" {
+  type        = any
+  default     = {}
+  description = "Additional official Authentik chart values. Required module-owned database, Secret, release identity, and ClusterIP service values take precedence."
+}

@@ -55,5 +55,8 @@ resource "helm_release" "this" {
   wait            = true
   timeout         = 900
 
-  values = [yamlencode(local.values)]
+  values = [
+    yamlencode(var.extra_helm_config),
+    yamlencode(local.values),
+  ]
 }

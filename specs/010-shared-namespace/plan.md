@@ -94,6 +94,8 @@ maintained module patterns such as `modules/qdrant`.
    non-secret values.
 5. Verify the `modules/k8s/` routing documentation identifies the namespace
    module and the retained dashboard asset.
+6. Register `modules/k8s/namespace` in the repository Terraform validation
+   matrix so CI validates the moved module path rather than its former location.
 
 ## Delivery Dependency
 

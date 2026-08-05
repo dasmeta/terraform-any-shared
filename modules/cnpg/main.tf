@@ -1,4 +1,6 @@
 resource "kubectl_manifest" "cluster" {
+  # kubectl_manifest.wait handles deletion finalization only. Consumers must
+  # explicitly wait for CNPG's Ready condition before deploying workloads.
   server_side_apply = true
   wait              = true
 
@@ -16,6 +18,10 @@ resource "kubectl_manifest" "cluster" {
         instances             = var.instances
         imageName             = var.image_name
         enableSuperuserAccess = false
+        inheritedMetadata = {
+          labels      = var.labels
+          annotations = var.annotations
+        }
         affinity = {
           enablePodAntiAffinity = true
           podAntiAffinityType   = var.pod_anti_affinity_type
@@ -53,46 +59,12 @@ resource "kubectl_manifest" "cluster" {
         }
         postgresql = {
           parameters = merge(
-            # Express the non-secret PostgreSQL algorithm in parts so generic
-            # entropy scanners do not mistake it for an embedded credential.
-            { password_encryption = join("-", ["scram", "sha", "256"]) },
             var.postgresql_parameters,
+            { password_encryption = "scram-sha-256" }, # pragma: allowlist secret
           )
         }
-        monitoring = {
-          enablePodMonitor = var.enable_pod_monitor
-        }
       },
-      length(local.normalized_resources) > 0 ? { resources = local.normalized_resources } : {},
-      local.backup_spec,
+      (length(var.resources.limits) > 0 || length(var.resources.requests) > 0) ? { resources = var.resources } : {},
     )
   })
-}
-
-resource "kubectl_manifest" "scheduled_backup" {
-  count = var.backup == null ? 0 : 1
-
-  server_side_apply = true
-  wait              = true
-
-  yaml_body = yamlencode({
-    apiVersion = "postgresql.cnpg.io/v1"
-    kind       = "ScheduledBackup"
-    metadata = {
-      name      = "${var.name}-daily"
-      namespace = var.namespace
-      labels    = var.labels
-    }
-    spec = {
-      schedule             = var.backup.schedule
-      immediate            = var.backup.immediate
-      backupOwnerReference = "self"
-      target               = "prefer-standby"
-      cluster = {
-        name = var.name
-      }
-    }
-  })
-
-  depends_on = [kubectl_manifest.cluster]
 }

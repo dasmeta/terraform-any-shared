@@ -4,9 +4,11 @@ run "renders_cluster_without_credentials" {
   command = plan
 
   variables {
-    name      = "test-postgres"
-    namespace = "test-platform"
-    instances = 2
+    name        = "test-postgres"
+    namespace   = "test-platform"
+    instances   = 2
+    labels      = { "app.kubernetes.io/name" = "test-postgres" }
+    annotations = { "example.com/owner" = "platform" }
 
     storage = {
       class = "hcloud-volumes"
@@ -17,6 +19,10 @@ run "renders_cluster_without_credentials" {
       name                  = "application"
       owner                 = "application_owner"
       bootstrap_secret_name = "application-postgres-owner"
+    }
+
+    postgresql_parameters = {
+      password_encryption = "md5"
     }
   }
 
@@ -31,12 +37,29 @@ run "renders_cluster_without_credentials" {
   }
 
   assert {
-    condition     = output.rw_service_hostname == "test-postgres-rw.test-platform.svc"
-    error_message = "The read/write Service hostname must be deterministic."
+    condition     = yamldecode(kubectl_manifest.cluster.yaml_body).spec.postgresql.parameters.password_encryption == "scram-sha-256" # pragma: allowlist secret
+    error_message = "The module must enforce SCRAM password encryption."
+  }
+
+  assert {
+    condition = (
+      yamldecode(kubectl_manifest.cluster.yaml_body).spec.inheritedMetadata.labels["app.kubernetes.io/name"] == "test-postgres" &&
+      yamldecode(kubectl_manifest.cluster.yaml_body).spec.inheritedMetadata.annotations["example.com/owner"] == "platform"
+    )
+    error_message = "Labels and annotations must be inherited by CNPG-managed resources."
+  }
+
+  assert {
+    condition = (
+      output.rw_service_hostname == "test-postgres-rw.test-platform.svc" &&
+      output.ro_service_hostname == "test-postgres-ro.test-platform.svc" &&
+      output.r_service_hostname == "test-postgres-r.test-platform.svc"
+    )
+    error_message = "All CNPG Service hostnames must be deterministic."
   }
 }
 
-run "renders_backup_without_credential_values" {
+run "accepts_decimal_storage_size" {
   command = plan
 
   variables {
@@ -46,7 +69,7 @@ run "renders_backup_without_credential_values" {
 
     storage = {
       class = "hcloud-volumes"
-      size  = "10Gi"
+      size  = "1.5Gi"
     }
 
     database = {
@@ -54,26 +77,10 @@ run "renders_backup_without_credential_values" {
       owner                 = "application_owner"
       bootstrap_secret_name = "application-postgres-owner"
     }
-
-    backup = {
-      destination_path        = "s3://database-backups/test-postgres"
-      credentials_secret_name = "database-backup-credentials"
-      endpoint_url            = "https://object.example.internal"
-    }
-  }
-
-  assert {
-    condition     = yamldecode(kubectl_manifest.cluster.yaml_body).spec.backup.barmanObjectStore.s3Credentials.secretAccessKey.name == "database-backup-credentials"
-    error_message = "Backup configuration must render only the credential Secret reference."
-  }
-
-  assert {
-    condition     = yamldecode(kubectl_manifest.scheduled_backup[0].yaml_body).metadata.name == "test-postgres-daily"
-    error_message = "Backup configuration must create the daily ScheduledBackup."
   }
 }
 
-run "rejects_invalid_storage_size" {
+run "rejects_milli_byte_storage_size" {
   command = plan
 
   variables {
@@ -83,7 +90,7 @@ run "rejects_invalid_storage_size" {
 
     storage = {
       class = "hcloud-volumes"
-      size  = "0Gi"
+      size  = "400m"
     }
 
     database = {
@@ -96,7 +103,7 @@ run "rejects_invalid_storage_size" {
   expect_failures = [var.storage]
 }
 
-run "rejects_invalid_backup_schedule" {
+run "rejects_long_database_owner" {
   command = plan
 
   variables {
@@ -111,16 +118,10 @@ run "rejects_invalid_backup_schedule" {
 
     database = {
       name                  = "application"
-      owner                 = "application_owner"
+      owner                 = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
       bootstrap_secret_name = "application-postgres-owner"
-    }
-
-    backup = {
-      destination_path        = "s3://database-backups/test-postgres"
-      credentials_secret_name = "database-backup-credentials"
-      schedule                = "0 0 * * *"
     }
   }
 
-  expect_failures = [var.backup]
+  expect_failures = [var.database]
 }

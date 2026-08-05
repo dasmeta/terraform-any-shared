@@ -1,84 +1,113 @@
 # Implementation Plan: Shared CloudNativePG cluster module
 
 **Branch**: `012-add-cnpg-module` | **Date**: 2026-08-05 | **Spec**: [spec.md](spec.md)
-**Input**: Add a reusable CloudNativePG Cluster module for application workloads.
+**Input**: Address PR review feedback by making the new module cluster-only.
 
-## Summary
+## Current State and Review Gap
 
-Create `modules/cnpg`, a narrow wrapper for CloudNativePG's `Cluster` and,
-when backup is configured, its `ScheduledBackup` custom resources. The module
-assumes the cluster operator, namespace, bootstrap credentials, and optional
-object-store credentials already exist. It renders only resource references and
-never receives credentials themselves.
+`modules/cnpg` currently creates a Cluster plus an optional native Barman Cloud
+backup and ScheduledBackup. Review found missing grouped-field comments,
+incomplete planning evidence, incomplete pre-commit coverage, generated
+example/test README files, several input-validation gaps, and use of deprecated
+CNPG backup and PodMonitor capabilities.
+
+This revision narrows the module to one Cluster with one initial database and
+owner. It removes the unreleaseable backup, backup-schedule, and PodMonitor
+interfaces before the first release; therefore there is no downstream breaking
+change.
 
 ## Technical Context
 
-<!--
-  ACTION REQUIRED: Replace the content in this section with the technical details
-  for the project. The structure here is presented in advisory capacity to guide
-  the iteration process.
--->
+- **Terraform**: `~> 1.3`
+- **Provider**: `gavinbunney/kubectl ~> 1.14`
+- **Module path**: `modules/cnpg`
+- **Platform contract**: CNPG 1.26 or later serving `postgresql.cnpg.io/v1`.
+  CNPG 1.20 is EOL and outside the supported module baseline; its upgrade is a
+  cluster-owner concern.
+- **Scope**: Cluster, initial database/owner, storage, HA defaults, metadata
+  inheritance, and non-secret service outputs.
+- **Explicit exclusions**: operator lifecycle, Secret values, monitoring CRs,
+  backup plugin/ObjectStore/bucket/schedules, restores, extra roles/databases,
+  grants, and application configuration.
+- **Validation**: formatting, isolated init/validate, mocked Terraform tests,
+  Terraform docs, Checkov, repository pre-commit, TFLint, and CI matrices.
 
-**Terraform/OpenTofu Version**: Terraform `~> 1.3`
-**Providers / Upstream Modules**: `gavinbunney/kubectl ~> 1.14`; CloudNativePG
-`postgresql.cnpg.io/v1` CRD
-**Target Module Path**: `modules/cnpg`
-**Examples / Tests in Scope**: `examples/basic`, `tests/basic`,
-`tests/invalid_inputs.tftest.hcl`
-**Automation Gates**: `terraform fmt`, isolated `terraform init -backend=false`
-and `terraform validate`, `terraform test`, terraform-docs, Checkov, TFLint,
-and pre-commit where installed
-**Target Platform**: an existing Kubernetes cluster with the CNPG operator and
-the `postgresql.cnpg.io/v1` CRD
-**Constraints**: no credentials in Terraform; no namespace/operator/bucket
-ownership; no raw-manifest escape hatch; existing Secret references only
-**Scale/Scope**: one shared module plus aligned documentation, example, tests,
-and workflow matrices
+## Governance and Speckit Evidence
 
-## Constitution Check
+- **Shared governance source**: the constitution repository's
+  `terraform-module-developer` skill, internal module standards, and planning
+  checklist.
+- **Downstream evidence**: this active package contains `spec.md`, `plan.md`,
+  and `tasks.md`; the requested implementation is the `/speckit.implement`
+  continuation of feature `012-add-cnpg-module`.
+- **Module-change gate**: expected to pass after this plan, task list,
+  examples, tests, generated docs, and pre-commit matrix are aligned.
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+## Sourcing and Wrapper Preservation
 
-- [x] Scope is one database-cluster lifecycle boundary: Cluster and its
-      optional scheduled backup, but not the operator, namespace, credentials,
-      bucket, restore execution, or application configuration.
-- [x] The interface is intentionally narrow: a single database/owner, existing
-      Secret references, explicit storage, and one optional backup policy.
-- [x] `README.md`, `examples/basic`, `tests/basic`, invalid-input tests, and
-      all module CI matrices are in scope.
-- [x] `versions.tf` declares Terraform and the Kubectl provider explicitly.
-- [x] This is an additive module with no migration impact. Direct custom-
-      resource rendering is the documented fallback because no DasMeta or
-      provider-maintained Terraform module exists.
+- The approved AWS, Azure, and Google Terraform module collections contain no
+  Kubernetes CNPG Cluster module; no DasMeta CNPG module exists.
+- The upstream `cloudnative-pg/charts` `cluster` chart was considered and
+  rejected: it introduces Helm-chart version coupling and a broader values
+  surface than this provider-agnostic Cluster wrapper needs.
+- `kubectl_manifest` is the established repository fallback for custom
+  resources (`kiali`, `istio`, and `gateway-api-crds`) and avoids CRD OpenAPI
+  schema discovery during Terraform plan.
+- The module remains opinionated: required grouped `storage` and `database`
+  objects capture the unambiguous configuration boundary; optional resources,
+  labels, annotations, PostgreSQL parameters, and affinity policy retain safe
+  defaults. No raw manifest or arbitrary CNPG-field pass-through is exposed.
+- The fallback scratch-template source was reviewed for file coverage only;
+  the repository's established module layout, tests, and automation take
+  precedence.
 
-## Research Decisions
+## Modern Capabilities Classification
 
-1. **Module location**: place the capability in
-   `dasmeta/terraform-any-shared/modules/cnpg`, alongside generic Kubernetes
-   components. It must not be an Authentik or analytics submodule.
-2. **Provider**: use `kubectl_manifest`, matching the repository's existing
-   Kiali, Istio, and Gateway API CR patterns. `kubernetes_manifest` is avoided
-   because it requires the Cluster CRD schema during planning.
-3. **Cluster baseline**: use the installed `postgresql.cnpg.io/v1` API;
-   bootstrap one database and owner from an existing `kubernetes.io/basic-auth`
-   Secret with `username` and `password` keys. Manage the owner role from the
-   same Secret so an approved external secret controller can rotate it.
-4. **Safety defaults**: pin the currently deployed PostgreSQL 16.13 image,
-   disable superuser access, enable data checksums, use required hostname
-   anti-affinity, enable the PodMonitor, require storage class/size and
-   instance count, and make S3-compatible recovery optional but typed.
-5. **Backup lifecycle**: an optional Barman object-store configuration enables
-   continuous WAL archiving, retention, and one CNPG six-field daily
-   `ScheduledBackup`. Backup credentials are existing Secret references.
-6. **Readiness**: `kubectl_manifest` does not wait for CNPG's Ready condition;
-   the consuming rollout must explicitly wait for the Cluster Ready condition
-   before deploying an application.
+| Net-new ability | Classification | Evidence and decision |
+| --- | --- | --- |
+| CNPG Cluster, initdb, managed owner role, storage, and inherited metadata | supported | The stable `postgresql.cnpg.io/v1` Cluster API is used. |
+| Native `backup.barmanObjectStore`, retention, and ScheduledBackup | replaced / out of scope | CNPG 1.26 deprecates native Barman support and directs new deployments to the Barman Cloud plugin/ObjectStore. Plugin installation and ObjectStore ownership are separate platform scope, so this module omits backup rather than creating a deprecated contract. |
+| `monitoring.enablePodMonitor` | replaced / out of scope | CNPG 1.26 deprecates it; owning a manually created PodMonitor is a separate monitoring module responsibility. |
 
-## Project Structure
+Sources: [CNPG 1.26 release notes](https://cloudnative-pg.io/docs/1.26/release_notes/v1.26/), [Barman Cloud migration guide](https://cloudnative-pg.io/plugin-barman-cloud/docs/migration/), and [CNPG supported releases](https://cloudnative-pg.io/docs/1.26/supported_releases/).
 
-### Documentation (this feature)
+## Proposed File Changes
+
+- `modules/cnpg/{main,variables,outputs,README}.tf`: remove deprecated
+  interfaces, enforce SCRAM, use a published multi-architecture image digest,
+  propagate inherited metadata, add read-only Service outputs, and document
+  readiness/role limitations.
+- `modules/cnpg/locals.tf`: remove because backup composition is out of scope.
+- `modules/cnpg/examples/basic` and `modules/cnpg/tests/basic`: add generated
+  README files and align usage with the cluster-only interface.
+- `modules/cnpg/tests/invalid_inputs.tftest.hcl`: cover identifiers, storage
+  quantities, inherited metadata, and deterministic outputs.
+- `.github/workflows/pre-commit.yaml`: register `modules/cnpg`.
+- `AGENTS.md`: record the actual CNPG/Kubectl module technology and change.
+- Speckit evidence: synchronize spec, research, contract, data model,
+  quickstart, and task completion evidence.
+
+## Interface and Risk Assessment
+
+- **Breaking changes**: none. The removed backup and PodMonitor inputs are
+  unreleased and have no consumers.
+- **Interface widening**: read-only Service outputs are additive, deterministic
+  CNPG conventions, and do not broaden control of the underlying resource.
+- **Conflict requiring approval**: none. The user explicitly approved the
+  cluster-only scope after the review identified deprecated backup behavior.
+
+## Structure
 
 ```text
+modules/cnpg/
+├── main.tf
+├── variables.tf
+├── outputs.tf
+├── versions.tf
+├── README.md
+├── examples/basic/{0-setup.tf,1-example.tf,README.md}
+└── tests/{basic/{main.tf,providers.tf,README.md},invalid_inputs.tftest.hcl}
+
 specs/012-add-cnpg-module/
 ├── spec.md
 ├── plan.md
@@ -88,43 +117,3 @@ specs/012-add-cnpg-module/
 ├── contracts/module-interface.md
 └── tasks.md
 ```
-
-### Source Code (repository root)
-<!--
-  ACTION REQUIRED: Replace the placeholder tree below with the concrete module
-  layout for this feature. Delete unused entries and expand the chosen
-  structure with real paths. The delivered plan must not include placeholder
-  labels.
--->
-
-```text
-modules/cnpg/
-├── main.tf
-├── locals.tf
-├── variables.tf
-├── outputs.tf
-├── versions.tf
-├── README.md
-├── examples/basic/
-│   ├── 0-setup.tf
-│   └── 1-example.tf
-└── tests/
-    ├── basic/
-    │   ├── main.tf
-    │   └── providers.tf
-    └── invalid_inputs.tftest.hcl
-
-.github/workflows/{terraform-test,checkov,tflint}.yaml
-```
-
-**Structure Decision**: `modules/cnpg` follows the repository's generic
-Kubernetes custom-resource modules. The module produces the CNPG API manifest;
-the example and test fixture supply only neutral existing-Secret names.
-
-## Complexity Tracking
-
-> **Fill ONLY if Constitution Check has violations that must be justified**
-
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| Direct custom-resource rendering | No suitable DasMeta or provider-maintained Terraform module exists. | A generic Kubernetes manifest preserves a narrow typed interface without adding CRD schema discovery at plan time. |

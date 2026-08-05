@@ -15,8 +15,8 @@
 
 - [x] Functional requirements are testable and unambiguous.
 - [x] Credentials remain outside Terraform input, state, and output contracts.
-- [x] Recovery and storage expectations are bounded without assuming a
-      particular object store or retention policy.
+- [x] Storage expectations are bounded and deprecated backup/monitoring
+      capabilities are explicitly outside scope.
 - [x] Validation and documentation requirements are defined.
 
 ## Feature Readiness

@@ -2,8 +2,8 @@
 
 | Entity | Attributes | Rules |
 | --- | --- | --- |
-| Cluster identity | `name`, `namespace`, labels, annotations | DNS-1123 name; one Cluster per module invocation. |
-| Database bootstrap | database name, owner, existing Secret name | Secret is in the same namespace and has `username`/`password`; Terraform never accesses its values. |
-| Storage | instance count, class, capacity | all are explicit; count and capacity must be positive. |
-| Recovery | destination path, optional endpoint, existing S3 credentials Secret, retention, schedule | rendered only when configured; no credential values or bucket ownership. |
-| Connection output | read/write service hostname, port, database, owner | deterministic and non-secret. |
+| Cluster identity | `name`, `namespace`, labels, annotations | DNS-1123 labels; one Cluster per module invocation. |
+| Bootstrap identity | database name, owner, existing basic-auth Secret name | Database/owner are valid PostgreSQL identifiers of at most 63 bytes; Secret values never enter Terraform. |
+| Storage | instance count, class, capacity | Explicit, positive, whole-byte quantity; no milli-byte suffix. |
+| Runtime metadata | labels and annotations | Applied to Cluster metadata and `spec.inheritedMetadata`. |
+| Connection output | read/write, read-only, replica hostnames, port, database, owner | Deterministic and non-secret. |

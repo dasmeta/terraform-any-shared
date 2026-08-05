@@ -1,52 +1,43 @@
 # Research: Shared CloudNativePG cluster module
 
-## Decisions
+## Module location
 
-### Use the shared Terraform module catalog
+`dasmeta/terraform-any-shared/modules/cnpg` is the appropriate home: CNPG is
+generic Kubernetes database infrastructure used by multiple workloads, rather
+than an Authentik or analytics concern.
 
-**Decision**: Add `modules/cnpg` to `dasmeta/terraform-any-shared`.
+## Resource rendering
 
-**Rationale**: CNPG is generic Kubernetes database infrastructure. It is
-consumed by Authentik and data analytics, but neither application owns the
-database abstraction.
+The repository already uses `gavinbunney/kubectl` for custom resources. Its
+generic manifest does not require CRD OpenAPI schema discovery during planning,
+unlike `kubernetes_manifest`. The CloudNativePG Cluster CR remains the narrow
+provider-independent baseline.
 
-**Alternatives considered**: An Authentik-specific module would duplicate the
-same lifecycle for other workloads; raw manifests in the YAML consumer repo
-would bypass the shared module catalog.
+The upstream `cloudnative-pg/charts` cluster chart was considered but not
+selected. It adds Helm release/version coupling and a broad chart values
+surface; the module's purpose is one typed Cluster contract, not a second
+operator/chart lifecycle abstraction.
 
-### Use the repository's Kubectl custom-resource convention
+## Current capabilities
 
-**Decision**: Use `gavinbunney/kubectl` and `kubectl_manifest`.
+- Use Cluster `initdb`, managed owner role, storage, anti-affinity, and
+  `inheritedMetadata`: supported Cluster API capabilities.
+- Use a published multi-architecture PostgreSQL 16.13 image manifest digest:
+  `16.13-system-bookworm@sha256:98df8a04201d957af5975be2a2d52f357b8cfdc11f554a76be0321b0660ebfb6`.
+- Native `backup.barmanObjectStore`, retention, ScheduledBackup, and
+  `monitoring.enablePodMonitor` are not exposed. CNPG 1.26 deprecates these
+  paths for new deployments and directs Barman users to the plugin/ObjectStore
+  approach. That plugin is a separate cluster/platform concern.
 
-**Rationale**: Existing modules use this provider for CRDs. It can plan the
-generic manifest without discovering the CNPG CRD OpenAPI schema.
+## Compatibility boundary
 
-**Alternatives considered**: `kubernetes_manifest` is provider-maintained but
-requires CRD schema discovery during plan; no supported DasMeta CNPG module
-exists.
+CNPG 1.20 is EOL. This module supports CNPG 1.26 or later and does not present
+older releases as a supported baseline. Cluster operators upgrade their own
+operator before production adoption; the operator lifecycle is intentionally
+outside this module's privilege boundary.
 
-### Support the common application-database contract
+## Readiness
 
-**Decision**: One Cluster, one initial database, one owner role, one existing
-bootstrap Secret, explicit data storage, and optional S3-compatible recovery.
-
-**Rationale**: This matches CNPG's initdb and managed-role API while keeping
-credentials and application-level grants outside Terraform.
-
-**Alternatives considered**: arbitrary SQL, multiple roles/databases, Secret
-creation, or raw CR overrides would broaden the module beyond its safe common
-case.
-
-### Align with the installed operator baseline
-
-**Decision**: Use `postgresql.cnpg.io/v1`, compatible with the installed
-CloudNativePG 1.20.1 controller. Default image is the currently deployed,
-digest-pinned PostgreSQL 16.13 image.
-
-**Rationale**: The target Rancher cluster already has the CRD and controller,
-and current production clusters use PostgreSQL 16.13 with hostname
-anti-affinity, data checksums, monitoring, disabled superuser access, and
-Hetzner persistent volumes.
-
-**Alternatives considered**: Installing or upgrading the operator is a
-cluster-wide concern and out of scope.
+`kubectl_manifest.wait` is retained for repository convention and deletion
+finalization behavior. It does not wait for the CNPG Cluster Ready condition;
+dependent workloads must use `kubectl wait --for=condition=Ready`.

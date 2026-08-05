@@ -43,7 +43,7 @@
       corrected validation, metadata, encryption, and service output contract.
 - [x] T014 Run formatting, isolated init/validate, Terraform tests,
       terraform-docs, Checkov, pre-commit, TFLint, and diff checks.
-- [ ] T015 Commit, push, and update PR #70 with validation evidence.
+- [x] T015 Commit, push, and update PR #70 with validation evidence.
 
 ## Validation Evidence
 

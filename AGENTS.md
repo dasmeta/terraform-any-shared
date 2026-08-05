@@ -1,6 +1,6 @@
 # terraform-any-shared Development Guidelines
 
-Auto-generated from all feature plans. Last updated: 2026-03-26
+Auto-generated from all feature plans. Last updated: 2026-08-05
 
 ## Active Technologies
 - Terraform ~> 1.3 + Helm provider, Kubernetes provider, GitHub Actions, pre-commit, terraform-docs, tflint, checkov (002-keycloak-module)

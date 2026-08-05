@@ -28,12 +28,27 @@ output "rw_service_hostname" {
   description = "Cluster-local CNPG read/write Service hostname for application traffic."
 }
 
+output "ro_service_name" {
+  value       = "${var.name}-ro"
+  description = "CNPG read-only Service name for replicas only."
+}
+
+output "ro_service_hostname" {
+  value       = "${var.name}-ro.${var.namespace}.svc"
+  description = "Cluster-local CNPG read-only Service hostname for replicas only."
+}
+
+output "r_service_name" {
+  value       = "${var.name}-r"
+  description = "CNPG read Service name that can route to any ready instance."
+}
+
+output "r_service_hostname" {
+  value       = "${var.name}-r.${var.namespace}.svc"
+  description = "Cluster-local CNPG read Service hostname that can route to any ready instance."
+}
+
 output "port" {
   value       = 5432
   description = "PostgreSQL port exposed by the CNPG read/write Service."
-}
-
-output "scheduled_backup_name" {
-  value       = var.backup == null ? null : "${var.name}-daily"
-  description = "ScheduledBackup resource name, or null when backup is not configured."
 }

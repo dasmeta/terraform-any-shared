@@ -20,3 +20,7 @@ module "cnpg" {
 output "rw_service_hostname" {
   value = module.cnpg.rw_service_hostname
 }
+
+output "ro_service_hostname" {
+  value = module.cnpg.ro_service_hostname
+}

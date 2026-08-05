@@ -1,10 +1,10 @@
 variable "name" {
   type        = string
-  description = "CloudNativePG Cluster name. It also determines the read/write Service and optional ScheduledBackup name."
+  description = "CloudNativePG Cluster name. It determines the generated read/write and read-only Service names."
 
   validation {
     condition     = length(var.name) <= 57 && can(regex("^[a-z0-9]([-a-z0-9]*[a-z0-9])?$", var.name))
-    error_message = "name must be a lowercase DNS-1123 label of 57 characters or fewer."
+    error_message = "name must be a lowercase DNS-1123 label of 57 characters or fewer to keep generated CNPG Service names valid."
   }
 }
 
@@ -30,41 +30,43 @@ variable "instances" {
 
 variable "storage" {
   type = object({
-    class = string
-    size  = string
+    class = string # StorageClass used for each PostgreSQL instance volume.
+    size  = string # Positive whole-byte Kubernetes storage quantity, such as 10Gi.
   })
   description = "StorageClass and requested persistent-volume capacity for each CNPG instance."
 
   validation {
     condition = (
       length(trimspace(var.storage.class)) > 0 &&
-      can(regex("^[1-9][0-9]*([EPTGMK]i?|m)?$", var.storage.size))
+      can(regex("^[1-9][0-9]*(\\.[0-9]+)?([EPTGM]i?|Ki|[EPTGM]|k)?$", var.storage.size))
     )
-    error_message = "storage.class must not be empty and storage.size must be a positive Kubernetes quantity such as 10Gi."
+    error_message = "storage.class must not be empty and storage.size must be a positive whole-byte Kubernetes quantity such as 10Gi or 1.5Gi; milli-byte suffixes are not allowed."
   }
 }
 
 variable "database" {
   type = object({
-    name                  = string
-    owner                 = string
-    bootstrap_secret_name = string
+    name                  = string # Initial PostgreSQL database name.
+    owner                 = string # Initial PostgreSQL owner role name.
+    bootstrap_secret_name = string # Existing same-namespace basic-auth Secret name.
   })
   description = "Initial application database and owner. bootstrap_secret_name is an existing same-namespace kubernetes.io/basic-auth Secret with username and password keys; its values are never read by Terraform."
 
   validation {
     condition = (
+      length(var.database.name) <= 63 &&
+      length(var.database.owner) <= 63 &&
       can(regex("^[a-z_][a-z0-9_]*$", var.database.name)) &&
       can(regex("^[a-z_][a-z0-9_]*$", var.database.owner)) &&
       can(regex("^[a-z0-9]([-a-z0-9.]*[a-z0-9])?$", var.database.bootstrap_secret_name))
     )
-    error_message = "database.name and database.owner must be lowercase PostgreSQL identifiers, and database.bootstrap_secret_name must be a lowercase Kubernetes Secret name."
+    error_message = "database.name and database.owner must be lowercase PostgreSQL identifiers of at most 63 characters, and database.bootstrap_secret_name must be a lowercase Kubernetes Secret name."
   }
 }
 
 variable "image_name" {
   type        = string
-  default     = "ghcr.io/cloudnative-pg/postgresql:16.13@sha256:425e365273a0519c9cc1deb199a69c226734041a9a59a1f8250fecb06f6dcbb5"
+  default     = "ghcr.io/cloudnative-pg/postgresql:16.13-system-bookworm@sha256:98df8a04201d957af5975be2a2d52f357b8cfdc11f554a76be0321b0660ebfb6"
   description = "Pinned CloudNativePG PostgreSQL image. Override only after reviewing the operator and PostgreSQL upgrade path."
 
   validation {
@@ -87,8 +89,8 @@ variable "annotations" {
 
 variable "resources" {
   type = object({
-    limits   = optional(map(string), {})
-    requests = optional(map(string), {})
+    limits   = optional(map(string), {}) # Optional resource limits for each PostgreSQL instance.
+    requests = optional(map(string), {}) # Optional resource requests for each PostgreSQL instance.
   })
   default     = {}
   description = "Optional CPU and memory requests and limits for each PostgreSQL instance."
@@ -100,12 +102,6 @@ variable "postgresql_parameters" {
   description = "Additional PostgreSQL parameters merged with the enforced SCRAM password encryption setting."
 }
 
-variable "enable_pod_monitor" {
-  type        = bool
-  default     = true
-  description = "Whether CNPG should create a PodMonitor. Set false when the Prometheus Operator CRDs are unavailable."
-}
-
 variable "pod_anti_affinity_type" {
   type        = string
   default     = "required"
@@ -114,37 +110,5 @@ variable "pod_anti_affinity_type" {
   validation {
     condition     = contains(["required", "preferred"], var.pod_anti_affinity_type)
     error_message = "pod_anti_affinity_type must be either required or preferred."
-  }
-}
-
-variable "backup" {
-  type = object({
-    destination_path        = string
-    credentials_secret_name = string
-    access_key_id_key       = optional(string, "access-key-id")
-    secret_access_key_key   = optional(string, "secret-access-key")
-    endpoint_url            = optional(string)
-    region_key              = optional(string)
-    session_token_key       = optional(string)
-    retention_policy        = optional(string, "30d")
-    schedule                = optional(string, "0 0 0 * * *")
-    immediate               = optional(bool, true)
-  })
-  default     = null
-  description = "Optional S3-compatible Barman recovery configuration. credentials_secret_name is an existing same-namespace Secret; Terraform only renders key references. schedule uses CNPG's six-field cron format including seconds."
-
-  validation {
-    condition = var.backup == null || (
-      can(regex("^s3://[^/]+/.+", var.backup.destination_path)) &&
-      can(regex("^[a-z0-9]([-a-z0-9.]*[a-z0-9])?$", var.backup.credentials_secret_name)) &&
-      length(trimspace(var.backup.access_key_id_key)) > 0 &&
-      length(trimspace(var.backup.secret_access_key_key)) > 0 &&
-      (var.backup.endpoint_url == null || can(regex("^https?://", var.backup.endpoint_url))) &&
-      (var.backup.region_key == null || length(trimspace(var.backup.region_key)) > 0) &&
-      (var.backup.session_token_key == null || length(trimspace(var.backup.session_token_key)) > 0) &&
-      can(regex("^[1-9][0-9]*[dwm]$", var.backup.retention_policy)) &&
-      length(split(" ", var.backup.schedule)) == 6
-    )
-    error_message = "backup requires an s3:// destination path, valid existing Secret reference and keys, optional HTTP(S) endpoint, positive d/w/m retention, and a six-field CNPG schedule."
   }
 }

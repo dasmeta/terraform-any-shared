@@ -11,17 +11,18 @@
 
 ## Optional inputs
 
-- metadata labels and annotations.
-- PostgreSQL 16 image override.
-- pod resource requests/limits.
-- PostgreSQL parameter map.
-- backup object-store configuration, its existing credentials Secret reference,
-  retention, and six-field CNPG schedule.
+- labels and annotations.
+- published PostgreSQL image override.
+- Pod resource requests/limits.
+- PostgreSQL parameter map, except the module-enforced SCRAM password setting.
+- hostname anti-affinity policy.
 
 ## Outputs
 
-- `cluster_name`, `namespace`, `database_name`, and `database_owner`.
-- `rw_service_name`, `rw_service_hostname`, and `port`.
-- `scheduled_backup_name`, or null if recovery is not configured.
+- `cluster_name`, `namespace`, `database_name`, `database_owner`, and `port`.
+- `rw_service_name` / `rw_service_hostname`.
+- `ro_service_name` / `ro_service_hostname`.
+- `r_service_name` / `r_service_hostname`.
 
-No input or output contains credential values.
+No input or output contains credential values. Backup, ObjectStore, monitoring,
+and restore interfaces are deliberately outside this module.

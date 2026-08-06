@@ -26,6 +26,38 @@ module's external database, existing Secret, release identity and ClusterIP
 service values remain enforced.
 **Scale/Scope**: one shared Helm-wrapper module with docs, example and tests.
 
+## Pre-change standards assessment
+
+- **Current module state**: an opinionated wrapper around the official
+  Authentik chart. It fixes release naming, the external PostgreSQL contract,
+  existing Secret use, bundled PostgreSQL disablement and ClusterIP service.
+- **Wrapper preservation**: the ingress capability extends the existing chart
+  wrapper rather than exposing the chart's complete ingress/route surface. It
+  supports one NGINX hostname and TLS certificate, with only additional
+  annotations as an extension point.
+- **Grouped interface decision**: `ingress` is an unambiguous grouping of the
+  optional public-route settings. Every field is optional to preserve the
+  existing contract, and every grouped field has an inline end-of-line
+  description in `variables.tf`.
+- **Provider and layout review**: `versions.tf` already declares Terraform
+  `~> 1.3` and Helm `~> 3.0`; the repository convention keeps provider
+  requirements there and does not need a `providers.tf` change. Existing
+  single-file basic examples/tests are preserved rather than imposing another
+  layout.
+- **Modern capability classification**: **supported**. The official Authentik
+  chart `2026.5.6` supports `server.ingress` values (enabled, annotations,
+  hosts, TLS and IngressClass), and Helm provider `~> 3.0` supports the existing
+  values-based release interface. No deprecated capability is introduced.
+- **Upstream / fallback review**: this is an extension of the existing direct
+  official-chart wrapper, not new-module creation; provider-maintained module
+  collection or scratch-template selection is therefore not applicable.
+- **Governance source**: the constitution repository's
+  `terraform-module-developer` skill and its internal standards, Speckit
+  workflow and planning checklist govern this change.
+- **Speckit gate**: active package `specs/016-authentik-ingress/` contains
+  `spec.md`, `plan.md` and `tasks.md`; no emergency or bootstrap exemption is
+  used, so the downstream module-change gate is expected to pass.
+
 ## Constitution Check
 
 - [x] The ingress is a common chart capability and remains part of the single
@@ -37,6 +69,8 @@ service values remain enforced.
       required.
 - [x] The backward-compatible interface widening was explicitly approved by
       the requester; ingress remains disabled by default.
+- [x] The grouped ingress fields are optional, inline documented and preserve
+      omission/null compatibility with existing extra Helm values.
 
 ## Research Decisions
 

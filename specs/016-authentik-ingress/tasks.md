@@ -27,6 +27,11 @@
 - [X] T011 Restrict the typed ingress implementation to NGINX and accept a null ingress input in `modules/authentik/variables.tf`.
 - [X] T012 Add compatibility and Kubernetes-name validation coverage in `modules/authentik/tests/invalid_inputs.tftest.hcl`.
 
+## Module standards follow-up
+
+- [X] T013 Record wrapper, version, modern-capability and module-change-gate evidence in `specs/016-authentik-ingress/plan.md`.
+- [X] T014 Add inline descriptions to every grouped ingress field in `modules/authentik/variables.tf`.
+
 ## Validation Evidence
 
 - `terraform fmt -recursive modules/authentik`: passed.

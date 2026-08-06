@@ -64,11 +64,11 @@ variable "database" {
 
 variable "ingress" {
   type = object({
-    enabled         = optional(bool, false)
-    hostname        = optional(string, "")
-    tls_secret_name = optional(string, "")
-    cluster_issuer  = optional(string, "")
-    annotations     = optional(map(string), {})
+    enabled         = optional(bool, false)     # Creates the NGINX Ingress when true.
+    hostname        = optional(string, "")      # Public DNS hostname routed to Authentik.
+    tls_secret_name = optional(string, "")      # Same-namespace TLS Secret populated by cert-manager.
+    cluster_issuer  = optional(string, "")      # cert-manager ClusterIssuer that requests the certificate.
+    annotations     = optional(map(string), {}) # Additional non-reserved NGINX Ingress annotations.
   })
   default     = null
   description = "Optional NGINX HTTPS ingress configuration. When enabled, hostname, tls_secret_name and cluster_issuer are required. DNS remains externally managed. Omit or set null to preserve any ingress values supplied through extra_helm_config."

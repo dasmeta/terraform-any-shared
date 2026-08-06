@@ -157,7 +157,7 @@ terraform destroy
 ## Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | ~> 1.3 |
 | <a name="requirement_kubectl"></a> [kubectl](#requirement\_kubectl) | ~> 1.14 |
 
@@ -168,7 +168,7 @@ No providers.
 ## Modules
 
 | Name | Source | Version |
-|------|--------|---------|
+| ---- | ------ | ------- |
 | <a name="module_this"></a> [this](#module\_this) | ../.. | n/a |
 
 ## Resources
@@ -178,12 +178,12 @@ No resources.
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_configs"></a> [configs](#input\_configs) | The configs for the module. This is for the example to show the crds\_keys output | `any` | `{}` | no |
 
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_crds_keys"></a> [crds\_keys](#output\_crds\_keys) | n/a |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

@@ -44,7 +44,7 @@ No providers.
 ## Modules
 
 | Name | Source | Version |
-|------|--------|---------|
+| ---- | ------ | ------- |
 | <a name="module_kafka"></a> [kafka](#module\_kafka) | terraform-module/release/helm | 2.7.0 |
 | <a name="module_kafka_ui"></a> [kafka\_ui](#module\_kafka\_ui) | terraform-module/release/helm | 2.7.0 |
 
@@ -55,7 +55,7 @@ No resources.
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_chart_version"></a> [chart\_version](#input\_chart\_version) | Bitnami Kafka chart version | `string` | `"21.4.6"` | no |
 | <a name="input_create_namespace"></a> [create\_namespace](#input\_create\_namespace) | Create Namespace | `bool` | `true` | no |
 | <a name="input_deploy"></a> [deploy](#input\_deploy) | Deploy | `number` | `1` | no |

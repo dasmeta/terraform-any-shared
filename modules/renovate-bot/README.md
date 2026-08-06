@@ -38,14 +38,14 @@ module "renovate-bot" {
 ## Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | ~> 1.3 |
 | <a name="requirement_helm"></a> [helm](#requirement\_helm) | ~> 2.0 |
 
 ## Providers
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="provider_helm"></a> [helm](#provider\_helm) | ~> 2.0 |
 
 ## Modules
@@ -55,13 +55,13 @@ No modules.
 ## Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [helm_release.this](https://registry.terraform.io/providers/hashicorp/helm/latest/docs/resources/release) | resource |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_atomic"></a> [atomic](#input\_atomic) | If set, the installation process will be rolled back on failure. | `bool` | `false` | no |
 | <a name="input_chart_version"></a> [chart\_version](#input\_chart\_version) | The Renovate Helm chart version to use. | `string` | `"46.52.2"` | no |
 | <a name="input_create_namespace"></a> [create\_namespace](#input\_create\_namespace) | Create the namespace if it does not exist. | `bool` | `true` | no |
@@ -75,6 +75,6 @@ No modules.
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_helm_metadata"></a> [helm\_metadata](#output\_helm\_metadata) | Renovate Helm release metadata |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

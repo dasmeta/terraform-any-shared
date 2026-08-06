@@ -151,7 +151,7 @@ No modules.
 ## Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | ~> 1.3 |
 | <a name="requirement_helm"></a> [helm](#requirement\_helm) | ~> 2.0 |
 | <a name="requirement_kubernetes"></a> [kubernetes](#requirement\_kubernetes) | ~> 2.0 |
@@ -160,7 +160,7 @@ No modules.
 ## Providers
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="provider_helm"></a> [helm](#provider\_helm) | ~> 2.0 |
 | <a name="provider_kubernetes"></a> [kubernetes](#provider\_kubernetes) | ~> 2.0 |
 | <a name="provider_random"></a> [random](#provider\_random) | ~> 3.5 |
@@ -172,7 +172,7 @@ No modules.
 ## Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [helm_release.this](https://registry.terraform.io/providers/hashicorp/helm/latest/docs/resources/release) | resource |
 | [kubernetes_namespace_v1.this](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs/resources/namespace_v1) | resource |
 | [random_password.micronaut_jwt](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/password) | resource |
@@ -180,7 +180,7 @@ No modules.
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_chart_version"></a> [chart\_version](#input\_chart\_version) | Version of the tchiotludo/akhq Helm chart (repo https://akhq.io/). | `string` | `"0.27.0"` | no |
 | <a name="input_create_namespace"></a> [create\_namespace](#input\_create\_namespace) | Create the namespace with the Kubernetes provider before the Helm release. | `bool` | `true` | no |
 | <a name="input_existing_secrets"></a> [existing\_secrets](#input\_existing\_secrets) | If set, chart uses this Secret name for application-secrets.yml instead of chart-created secrets (you manage content). | `string` | `null` | no |
@@ -203,7 +203,7 @@ No modules.
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_helm_metadata"></a> [helm\_metadata](#output\_helm\_metadata) | Helm release metadata. |
 | <a name="output_ingress_hostnames"></a> [ingress\_hostnames](#output\_ingress\_hostnames) | Ingress hostnames when ingress is enabled. |
 | <a name="output_release_chart_version"></a> [release\_chart\_version](#output\_release\_chart\_version) | Chart version applied. |

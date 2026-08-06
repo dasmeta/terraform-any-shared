@@ -82,7 +82,7 @@ No requirements.
 ## Providers
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="provider_helm"></a> [helm](#provider\_helm) | n/a |
 
 ## Modules
@@ -92,13 +92,13 @@ No modules.
 ## Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [helm_release.supabase](https://registry.terraform.io/providers/hashicorp/helm/latest/docs/resources/release) | resource |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_ANON_KEY"></a> [ANON\_KEY](#input\_ANON\_KEY) | n/a | `string` | `"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlhdCI6MTY0MDMwMDQwMCwiZXhwIjoxNzk4MDY2ODAwfQ.JaEiRNdyxX3Pk6XupxauDazXeadLTgTHz5cV7joUrQE"` | no |
 | <a name="input_DB_PASSWORD"></a> [DB\_PASSWORD](#input\_DB\_PASSWORD) | n/a | `string` | `"yXmwewewddjijdFfPLMEvhXaQH"` | no |
 | <a name="input_JWT_SECRET"></a> [JWT\_SECRET](#input\_JWT\_SECRET) | n/a | `string` | `"your-super-secret-jwt-token-with-at-least-32-characters-long"` | no |

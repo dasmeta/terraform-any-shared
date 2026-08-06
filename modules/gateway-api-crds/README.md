@@ -86,14 +86,14 @@ module "gateway_api_crds" {
 ## Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | ~> 1.3 |
 | <a name="requirement_kubectl"></a> [kubectl](#requirement\_kubectl) | ~> 1.14 |
 
 ## Providers
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="provider_kubectl"></a> [kubectl](#provider\_kubectl) | ~> 1.14 |
 
 ## Modules
@@ -103,20 +103,20 @@ No modules.
 ## Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [kubectl_manifest.gateway_api_crds](https://registry.terraform.io/providers/gavinbunney/kubectl/latest/docs/resources/manifest) | resource |
 | [kubectl_file_documents.gateway_api_crds](https://registry.terraform.io/providers/gavinbunney/kubectl/latest/docs/data-sources/file_documents) | data source |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_configs"></a> [configs](#input\_configs) | The version of the Gateway API CRDs and the list of CRDs to install. NOTE: This config supposed to be changed when we want to upgrade the Gateway API CRDs version. | <pre>object({<br/>    version = optional(string, "v1.6.1")<br/>    crdsList = optional(list(string), [<br/>      "/apis/apiextensions.k8s.io/v1/customresourcedefinitions/backendtlspolicies.gateway.networking.k8s.io",<br/>      "/apis/apiextensions.k8s.io/v1/customresourcedefinitions/gatewayclasses.gateway.networking.k8s.io",<br/>      "/apis/apiextensions.k8s.io/v1/customresourcedefinitions/gateways.gateway.networking.k8s.io",<br/>      "/apis/apiextensions.k8s.io/v1/customresourcedefinitions/grpcroutes.gateway.networking.k8s.io",<br/>      "/apis/apiextensions.k8s.io/v1/customresourcedefinitions/httproutes.gateway.networking.k8s.io",<br/>      "/apis/apiextensions.k8s.io/v1/customresourcedefinitions/listenersets.gateway.networking.k8s.io",<br/>      "/apis/apiextensions.k8s.io/v1/customresourcedefinitions/referencegrants.gateway.networking.k8s.io",<br/>      # tcproutes and udproutes graduated to GA in the standard channel as of Gateway API v1.6.0<br/>      "/apis/apiextensions.k8s.io/v1/customresourcedefinitions/tcproutes.gateway.networking.k8s.io",<br/>      "/apis/apiextensions.k8s.io/v1/customresourcedefinitions/tlsroutes.gateway.networking.k8s.io",<br/>      "/apis/apiextensions.k8s.io/v1/customresourcedefinitions/udproutes.gateway.networking.k8s.io",<br/>      "/apis/admissionregistration.k8s.io/v1/validatingadmissionpolicys/safe-upgrades.gateway.networking.k8s.io",<br/>      "/apis/admissionregistration.k8s.io/v1/validatingadmissionpolicybindings/safe-upgrades.gateway.networking.k8s.io",<br/>    ])<br/>  })</pre> | `{}` | no |
 
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_crds_keys"></a> [crds\_keys](#output\_crds\_keys) | Map of dependencies for Gateway API CRDs, can be used to identify which CRDs are included in the manifest |
 | <a name="output_manifests"></a> [manifests](#output\_manifests) | Map of kubectl\_manifest resources for Gateway API CRDs |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

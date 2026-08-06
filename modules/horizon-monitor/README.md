@@ -49,7 +49,7 @@ module "this" {
 ## Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | ~> 1.3 |
 | <a name="requirement_helm"></a> [helm](#requirement\_helm) | ~> 2.0 |
 | <a name="requirement_kubernetes"></a> [kubernetes](#requirement\_kubernetes) | ~> 2.23 |
@@ -57,7 +57,7 @@ module "this" {
 ## Providers
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="provider_helm"></a> [helm](#provider\_helm) | ~> 2.0 |
 
 ## Modules
@@ -67,13 +67,13 @@ No modules.
 ## Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [helm_release.this](https://registry.terraform.io/providers/hashicorp/helm/latest/docs/resources/release) | resource |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_affinity"></a> [affinity](#input\_affinity) | Affinity rules for pod placement | `map(any)` | `{}` | no |
 | <a name="input_chart"></a> [chart](#input\_chart) | Path to the base Helm chart | `string` | `"base"` | no |
 | <a name="input_chart_version"></a> [chart\_version](#input\_chart\_version) | Version of the base Helm chart | `string` | `"0.3.14"` | no |
@@ -101,7 +101,7 @@ No modules.
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_deployment_name"></a> [deployment\_name](#output\_deployment\_name) | Name of the Kubernetes deployment |
 | <a name="output_ingress_hosts"></a> [ingress\_hosts](#output\_ingress\_hosts) | List of ingress hosts |
 | <a name="output_release_name"></a> [release\_name](#output\_release\_name) | Name of the Helm release |

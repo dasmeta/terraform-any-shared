@@ -45,7 +45,7 @@ terraform destroy -var="kubeconfig_path=$(echo "$KUBECONFIG" | cut -d: -f1)"
 ## Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | ~> 1.3 |
 | <a name="requirement_helm"></a> [helm](#requirement\_helm) | ~> 2.0 |
 | <a name="requirement_kubernetes"></a> [kubernetes](#requirement\_kubernetes) | ~> 2.0 |
@@ -58,7 +58,7 @@ No providers.
 ## Modules
 
 | Name | Source | Version |
-|------|--------|---------|
+| ---- | ------ | ------- |
 | <a name="module_akhq"></a> [akhq](#module\_akhq) | ../../ | n/a |
 
 ## Resources
@@ -68,7 +68,7 @@ No resources.
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_kafka_scram_password"></a> [kafka\_scram\_password](#input\_kafka\_scram\_password) | MSK SCRAM-SHA-512 password. Never commit; use terraform.tfvars or TFC variables. | `string` | `""` | no |
 | <a name="input_kafka_scram_username"></a> [kafka\_scram\_username](#input\_kafka\_scram\_username) | MSK SCRAM-SHA-512 username (passed through to the module). For real apply, set via terraform.tfvars (gitignored). | `string` | `""` | no |
 | <a name="input_kubeconfig_path"></a> [kubeconfig\_path](#input\_kubeconfig\_path) | Path to kubeconfig. Leave empty to use ~/.kube/config. Set when your shell only sets KUBECONFIG to a non-default file (e.g. after meta exec). | `string` | `""` | no |

@@ -125,14 +125,14 @@ No modules.
 ## Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | ~> 1.3 |
 | <a name="requirement_helm"></a> [helm](#requirement\_helm) | ~> 2.0 |
 
 ## Providers
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="provider_helm"></a> [helm](#provider\_helm) | ~> 2.0 |
 
 ## Modules
@@ -142,13 +142,13 @@ No modules.
 ## Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [helm_release.this](https://registry.terraform.io/providers/hashicorp/helm/latest/docs/resources/release) | resource |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_admin_password_bcrypt"></a> [admin\_password\_bcrypt](#input\_admin\_password\_bcrypt) | Bcrypt hash for the Argo CD admin password (not plaintext). Stored in Terraform state as a sensitive value when set. | `string` | `null` | no |
 | <a name="input_atomic"></a> [atomic](#input\_atomic) | Whether to roll back changes made in case of failed release (helm\_release.atomic). | `bool` | `true` | no |
 | <a name="input_autoscaling"></a> [autoscaling](#input\_autoscaling) | Argo CD server HPA settings (maps to server.autoscaling in the Helm chart). When enabled, server.replicas is typically ignored by the chart. | <pre>object({<br/>    enabled                              = optional(bool, false)<br/>    min_replicas                         = optional(number, 1)<br/>    max_replicas                         = optional(number, 5)<br/>    target_cpu_utilization_percentage    = optional(number, 50)<br/>    target_memory_utilization_percentage = optional(number, 50)<br/>    behavior                             = optional(any, {})<br/>    metrics                              = optional(any, [])<br/>  })</pre> | `{}` | no |
@@ -169,7 +169,7 @@ No modules.
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_admin_password_secret_name"></a> [admin\_password\_secret\_name](#output\_admin\_password\_secret\_name) | The Kubernetes Secret name used for Argo CD sensitive settings and (optionally) the admin password. |
 | <a name="output_helm_metadata"></a> [helm\_metadata](#output\_helm\_metadata) | Helm release metadata for the deployed Argo CD release. |
 | <a name="output_ingress_hostnames"></a> [ingress\_hostnames](#output\_ingress\_hostnames) | Ingress hostnames configured for Argo CD. |

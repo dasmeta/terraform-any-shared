@@ -45,7 +45,7 @@ No providers.
 ## Modules
 
 | Name | Source | Version |
-|------|--------|---------|
+| ---- | ------ | ------- |
 | <a name="module_mongodb"></a> [mongodb](#module\_mongodb) | terraform-module/release/helm | 2.7.0 |
 
 ## Resources
@@ -55,7 +55,7 @@ No resources.
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_architecture"></a> [architecture](#input\_architecture) | architecture can be replicaset or standalone | `string` | `"replicaset"` | no |
 | <a name="input_existing_secret"></a> [existing\_secret](#input\_existing\_secret) | Existing secret with MongoDB(®) credentials (keys: mongodb-password, mongodb-root-password, mongodb-replica-set-key) | `string` | `""` | no |
 | <a name="input_name"></a> [name](#input\_name) | mongodb helm release name | `string` | `"mongodb"` | no |

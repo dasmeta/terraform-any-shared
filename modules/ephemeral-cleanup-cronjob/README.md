@@ -125,14 +125,14 @@ The job uses cluster-wide RBAC by default because Helm release cleanup may delet
 ## Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | ~> 1.3 |
 | <a name="requirement_helm"></a> [helm](#requirement\_helm) | ~> 2.13 |
 
 ## Providers
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="provider_helm"></a> [helm](#provider\_helm) | ~> 2.13 |
 
 ## Modules
@@ -142,13 +142,13 @@ No modules.
 ## Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [helm_release.this](https://registry.terraform.io/providers/hashicorp/helm/latest/docs/resources/release) | resource |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_atomic"></a> [atomic](#input\_atomic) | Whether Helm should roll back failed installs or upgrades. | `bool` | `true` | no |
 | <a name="input_chart_name"></a> [chart\_name](#input\_chart\_name) | Helm chart name, or a local path to the base-cronjob chart. | `string` | `"base-cronjob"` | no |
 | <a name="input_chart_repository"></a> [chart\_repository](#input\_chart\_repository) | Helm repository containing the base-cronjob chart. Set to null when chart\_name is a local chart path. | `string` | `"https://dasmeta.github.io/helm"` | no |
@@ -184,7 +184,7 @@ No modules.
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_helm_values"></a> [helm\_values](#output\_helm\_values) | Rendered values passed to the base-cronjob Helm chart. |
 | <a name="output_job_name"></a> [job\_name](#output\_job\_name) | CronJob name configured through base-cronjob. |
 | <a name="output_release_name"></a> [release\_name](#output\_release\_name) | Helm release name. |

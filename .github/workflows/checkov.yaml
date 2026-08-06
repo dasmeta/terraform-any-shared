@@ -19,6 +19,7 @@ jobs:
           - modules/defectdojo
           - modules/authentik
           - modules/cnpg
+          - modules/external-secret
           - modules/event-exporter
           - modules/gateway-api-crds
           - modules/github-actions-runner

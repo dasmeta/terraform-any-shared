@@ -21,6 +21,12 @@
 - [X] T008 Render the official chart with enabled ingress values and confirm the Ingress/TLS manifest.
 - [X] T009 Mark completed tasks and record validation evidence in this file.
 
+## Review follow-up
+
+- [X] T010 Preserve legacy `extra_helm_config.server.ingress` values when the typed ingress input is omitted in `modules/authentik/main.tf`.
+- [X] T011 Restrict the typed ingress implementation to NGINX and accept a null ingress input in `modules/authentik/variables.tf`.
+- [X] T012 Add compatibility and Kubernetes-name validation coverage in `modules/authentik/tests/invalid_inputs.tftest.hcl`.
+
 ## Validation Evidence
 
 - `terraform fmt -recursive modules/authentik`: passed.

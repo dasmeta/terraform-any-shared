@@ -14,7 +14,7 @@
   supports a server Ingress with hosts, TLS and annotations.
 - **Requested Interface Change**: an optional typed ingress configuration that
   creates the chart-managed ingress, configures a hostname and TLS secret,
-  selects an ingress class, and adds cert-manager issuer and HTTPS redirect
+  uses the cluster-standard NGINX ingress class and adds cert-manager issuer and HTTPS redirect
   annotations.
 - **Breaking Change / Interface Widening**: backward-compatible widening;
   explicitly approved by the requester. Ingress remains disabled by default.
@@ -37,7 +37,7 @@ cert-manager issuer annotation.
 
 1. **Given** ingress is enabled with a hostname, TLS secret and cluster issuer,
    **When** the module is planned, **Then** it renders a server ingress for that
-   hostname, class and TLS secret.
+   hostname and TLS secret.
 2. **Given** ingress is enabled, **When** the chart creates the ingress,
    **Then** it requests its certificate from the configured issuer and redirects
    HTTP traffic to HTTPS.
@@ -78,8 +78,8 @@ ingress disabled.
   keep ingress disabled by default.
 - **FR-002**: When ingress is enabled, the module MUST require a non-empty
   hostname, TLS Secret name and cert-manager ClusterIssuer name.
-- **FR-003**: When enabled, the module MUST render one server ingress using the
-  configured ingress class, hostname and TLS Secret.
+- **FR-003**: When enabled, the module MUST render one NGINX server ingress
+  using the configured hostname and TLS Secret.
 - **FR-004**: The rendered ingress MUST include the configured
   `cert-manager.io/cluster-issuer` annotation and force HTTPS redirects.
 - **FR-005**: The module MAY accept additional ingress annotations, but its
@@ -88,6 +88,8 @@ ingress disabled.
   Secret, release identity and ClusterIP service guarantees.
 - **FR-007**: Documentation, examples and Terraform tests MUST cover enabled
   ingress and the default disabled behavior.
+- **FR-008**: Omitting or explicitly setting the ingress input to `null` MUST
+  preserve ingress configuration supplied through `extra_helm_config`.
 
 ### Compatibility & Delivery Requirements
 
@@ -101,7 +103,7 @@ ingress disabled.
 ### Key Entities
 
 - **Ingress configuration**: opt-in public-routing settings comprising enabled
-  state, hostname, ingress class, TLS Secret name, certificate issuer, and
+  state, hostname, TLS Secret name, certificate issuer, and
   optional non-reserved annotations.
 - **Chart ingress values**: the official chart's server ingress configuration
   generated from the module input.

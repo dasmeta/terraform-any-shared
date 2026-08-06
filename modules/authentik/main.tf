@@ -1,7 +1,9 @@
 locals {
+  ingress_enabled = var.ingress != null && var.ingress.enabled
+
   ingress_annotations = merge(
-    var.ingress.annotations,
-    var.ingress.enabled ? {
+    var.ingress == null ? {} : var.ingress.annotations,
+    local.ingress_enabled ? {
       "cert-manager.io/cluster-issuer"                 = var.ingress.cluster_issuer
       "nginx.ingress.kubernetes.io/force-ssl-redirect" = "true"
     } : {},
@@ -41,23 +43,25 @@ locals {
       enabled = false
     }
 
-    server = {
+    server = merge({
       service = {
         type            = "ClusterIP"
         servicePortHttp = 80
       }
-
-      ingress = {
-        enabled          = var.ingress.enabled
-        annotations      = local.ingress_annotations
-        ingressClassName = var.ingress.class_name
-        hosts            = var.ingress.enabled ? [var.ingress.hostname] : []
-        tls = var.ingress.enabled ? [{
-          secretName = var.ingress.tls_secret_name
-          hosts      = [var.ingress.hostname]
-        }] : []
-      }
-    }
+      },
+      var.ingress == null ? {} : {
+        ingress = {
+          enabled          = local.ingress_enabled
+          annotations      = local.ingress_annotations
+          ingressClassName = "nginx"
+          hosts            = local.ingress_enabled ? [var.ingress.hostname] : []
+          tls = local.ingress_enabled ? [{
+            secretName = var.ingress.tls_secret_name
+            hosts      = [var.ingress.hostname]
+          }] : []
+        }
+      },
+    )
   }
 }
 

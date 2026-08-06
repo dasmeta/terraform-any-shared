@@ -4,7 +4,6 @@
 ingress = {
   enabled         = true
   hostname        = "auth.example.com"
-  class_name      = "nginx"
   tls_secret_name = "auth-example-com-tls"
   cluster_issuer  = "letsencrypt-prod"
 }

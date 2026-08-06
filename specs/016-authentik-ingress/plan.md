@@ -7,7 +7,8 @@
 Extend `modules/authentik` with a narrow opt-in ingress object. It renders the
 official chart's server ingress values, requires hostname/TLS/issuer settings
 when enabled, and leaves DNS ownership external. Existing module consumers keep
-the ClusterIP-only deployment by default.
+their current behavior because the module emits no ingress values until the
+typed input is supplied.
 
 ## Technical Context
 
@@ -45,17 +46,21 @@ service values remain enforced.
 2. **TLS**: require a cert-manager ClusterIssuer and TLS Secret whenever
    ingress is enabled. Render the issuer annotation and a force-HTTPS redirect
    annotation as module-owned values.
-3. **DNS boundary**: the module does not create DNS. Consumers use the separate
+3. **Controller boundary**: use the cluster-standard NGINX IngressClass. The
+   HTTPS redirect annotation is NGINX-specific, so allowing arbitrary
+   controllers would not preserve the module's HTTPS-only guarantee.
+4. **DNS boundary**: the module does not create DNS. Consumers use the separate
    DasMeta Cloudflare records module after its zone is adopted and credentials
    are supplied through a sensitive TFC variable set.
-4. **Defaults**: `enabled=false` and ingress class `nginx`. A hostname, TLS
-   Secret and issuer have no safe universal default and must be supplied for an
-   enabled ingress.
+5. **Compatibility**: `ingress=null` is the default. This preserves existing
+   `extra_helm_config.server.ingress` values. A hostname, TLS Secret and issuer
+   have no safe universal default and must be supplied for an enabled typed
+   ingress.
 
 ## Interface Design
 
-`ingress` is an optional object with `enabled`, `hostname`, `class_name`,
-`tls_secret_name`, `cluster_issuer` and additional annotations. The module
+`ingress` is an optional object with `enabled`, `hostname`, `tls_secret_name`,
+`cluster_issuer` and additional annotations. The module
 derives all official-chart ingress values from it. Reserved certificate and
 HTTPS redirect annotations win over supplied annotations.
 

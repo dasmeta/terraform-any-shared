@@ -13,7 +13,7 @@ No providers.
 
 | Name | Source | Version |
 | ---- | ------ | ------- |
-| <a name="module_renovate"></a> [renovate](#module\_renovate) | ../.. | n/a |
+| <a name="module_namespace"></a> [namespace](#module\_namespace) | ../.. | n/a |
 
 ## Resources
 

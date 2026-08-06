@@ -42,7 +42,7 @@ No providers.
 ## Modules
 
 | Name | Source | Version |
-|------|--------|---------|
+| ---- | ------ | ------- |
 | <a name="module_onepassword"></a> [onepassword](#module\_onepassword) | ./module/get-data | n/a |
 
 ## Resources
@@ -52,7 +52,7 @@ No resources.
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_data"></a> [data](#input\_data) | OnePassword vault name and item name object. The Item should be in Vault | `list(any)` | n/a | yes |
 | <a name="input_op_account_address"></a> [op\_account\_address](#input\_op\_account\_address) | OnePassword account address | `string` | `"https://my.1password.com"` | no |
 | <a name="input_op_email"></a> [op\_email](#input\_op\_email) | OnePassword user email | `string` | n/a | yes |
@@ -62,6 +62,6 @@ No resources.
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_pass"></a> [pass](#output\_pass) | n/a |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

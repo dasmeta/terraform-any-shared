@@ -15,7 +15,7 @@ No providers.
 ## Modules
 
 | Name | Source | Version |
-|------|--------|---------|
+| ---- | ------ | ------- |
 | <a name="module_mongodb_bi_connector"></a> [mongodb\_bi\_connector](#module\_mongodb\_bi\_connector) | ../../ | n/a |
 
 ## Resources

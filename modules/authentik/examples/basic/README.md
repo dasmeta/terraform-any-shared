@@ -13,7 +13,7 @@ No providers.
 
 | Name | Source | Version |
 | ---- | ------ | ------- |
-| <a name="module_renovate"></a> [renovate](#module\_renovate) | ../.. | n/a |
+| <a name="module_authentik"></a> [authentik](#module\_authentik) | ../.. | n/a |
 
 ## Resources
 
@@ -25,5 +25,7 @@ No inputs.
 
 ## Outputs
 
-No outputs.
+| Name | Description |
+| ---- | ----------- |
+| <a name="output_server_service_name"></a> [server\_service\_name](#output\_server\_service\_name) | n/a |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

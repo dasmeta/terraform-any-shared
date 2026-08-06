@@ -12,7 +12,7 @@ No providers.
 ## Modules
 
 | Name | Source | Version |
-|------|--------|---------|
+| ---- | ------ | ------- |
 | <a name="module_loki"></a> [loki](#module\_loki) | ../../ | n/a |
 
 ## Resources

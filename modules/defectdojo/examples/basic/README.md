@@ -12,7 +12,7 @@ No providers.
 ## Modules
 
 | Name | Source | Version |
-|------|--------|---------|
+| ---- | ------ | ------- |
 | <a name="module_defectdojo"></a> [defectdojo](#module\_defectdojo) | ../.. | n/a |
 
 ## Resources

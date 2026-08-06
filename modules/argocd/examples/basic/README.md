@@ -49,7 +49,7 @@ No outputs.
 ## Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | ~> 1.3 |
 | <a name="requirement_helm"></a> [helm](#requirement\_helm) | ~> 2.0 |
 
@@ -60,7 +60,7 @@ No providers.
 ## Modules
 
 | Name | Source | Version |
-|------|--------|---------|
+| ---- | ------ | ------- |
 | <a name="module_argocd"></a> [argocd](#module\_argocd) | ../.. | n/a |
 
 ## Resources
@@ -74,7 +74,7 @@ No inputs.
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_admin_password_secret_name"></a> [admin\_password\_secret\_name](#output\_admin\_password\_secret\_name) | n/a |
 | <a name="output_ingress_hostnames"></a> [ingress\_hostnames](#output\_ingress\_hostnames) | n/a |
 | <a name="output_release_name"></a> [release\_name](#output\_release\_name) | n/a |

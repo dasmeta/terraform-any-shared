@@ -15,7 +15,7 @@ No providers.
 ## Modules
 
 | Name | Source | Version |
-|------|--------|---------|
+| ---- | ------ | ------- |
 | <a name="module_onepassword_to_secret_manager"></a> [onepassword\_to\_secret\_manager](#module\_onepassword\_to\_secret\_manager) | dasmeta/shared/any//modules/onepassword_to_secret_manager | n/a |
 
 ## Resources

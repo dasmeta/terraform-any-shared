@@ -54,7 +54,7 @@ No requirements.
 ## Providers
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="provider_helm"></a> [helm](#provider\_helm) | n/a |
 | <a name="provider_kubernetes"></a> [kubernetes](#provider\_kubernetes) | n/a |
 | <a name="provider_null"></a> [null](#provider\_null) | n/a |
@@ -66,7 +66,7 @@ No modules.
 ## Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [helm_release.goldilocks_deploy](https://registry.terraform.io/providers/hashicorp/helm/latest/docs/resources/release) | resource |
 | [helm_release.metric_server](https://registry.terraform.io/providers/hashicorp/helm/latest/docs/resources/release) | resource |
 | [helm_release.vpa](https://registry.terraform.io/providers/hashicorp/helm/latest/docs/resources/release) | resource |
@@ -76,7 +76,7 @@ No modules.
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_create_metric_server"></a> [create\_metric\_server](#input\_create\_metric\_server) | Create metric server | `bool` | `true` | no |
 | <a name="input_create_vpa_server"></a> [create\_vpa\_server](#input\_create\_vpa\_server) | VPA configure in the cluster | `bool` | `true` | no |
 | <a name="input_namespaces"></a> [namespaces](#input\_namespaces) | Goldilocks labels on your namespaces | `set(string)` | <pre>[<br/>  "default"<br/>]</pre> | no |

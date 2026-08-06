@@ -62,6 +62,29 @@ variable "database" {
   }
 }
 
+variable "ingress" {
+  type = object({
+    enabled         = optional(bool, false)
+    hostname        = optional(string, "")
+    class_name      = optional(string, "nginx")
+    tls_secret_name = optional(string, "")
+    cluster_issuer  = optional(string, "")
+    annotations     = optional(map(string), {})
+  })
+  default     = {}
+  description = "Optional HTTPS ingress configuration. When enabled, hostname, tls_secret_name and cluster_issuer are required. DNS remains externally managed."
+
+  validation {
+    condition = !var.ingress.enabled || (
+      length(trimspace(var.ingress.hostname)) > 0 &&
+      length(trimspace(var.ingress.class_name)) > 0 &&
+      can(regex("^[a-z0-9]([-a-z0-9.]*[a-z0-9])?$", var.ingress.tls_secret_name)) &&
+      can(regex("^[a-z0-9]([-a-z0-9.]*[a-z0-9])?$", var.ingress.cluster_issuer))
+    )
+    error_message = "Enabled ingress requires a hostname, class_name, valid tls_secret_name and valid cluster_issuer."
+  }
+}
+
 variable "extra_helm_config" {
   type        = any
   default     = {}

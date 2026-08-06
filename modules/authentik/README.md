@@ -6,11 +6,11 @@ component for platform deployments.
 
 ## Scope
 
-This module owns one Authentik Helm release only. It does not create a
-namespace, database instance, database, database user, grants, Kubernetes
-Secret, ingress, DNS record, Authentik provider, application, user, group, or
-flow. Those concerns remain with their dedicated modules or Authentik-native
-configuration.
+This module owns one Authentik Helm release and, when explicitly enabled, its
+HTTPS Kubernetes Ingress. It does not create a namespace, database instance,
+database, database user, grants, Kubernetes Secret, DNS record, Authentik
+provider, application, user, group, or flow. Those concerns remain with their
+dedicated modules or Authentik-native configuration.
 
 The chart's bundled PostgreSQL is always disabled. Current Authentik releases
 do not require Redis, so this module does not provision or configure Redis.
@@ -45,12 +45,29 @@ module "authentik" {
     name = "authentik"
     user = "authentik"
   }
+
+  ingress = {
+    enabled         = true
+    hostname        = "auth.example.com"
+    class_name      = "nginx"
+    tls_secret_name = "auth-example-com-tls"
+    cluster_issuer  = "letsencrypt-prod"
+  }
 }
 ```
 
-Use `server_service_name` and `server_service_http_port` as the backend of a
-separately managed ingress. The module deliberately has no hostname or ingress
-input.
+### HTTPS ingress
+
+Ingress is disabled by default. Enabling it requires `hostname`,
+`tls_secret_name` and `cluster_issuer`; the module renders the official chart's
+server Ingress, `cert-manager.io/cluster-issuer`, and an NGINX HTTPS redirect.
+Additional annotations can be supplied, but those two security annotations are
+module-owned and cannot be overridden.
+
+DNS remains separate: create the hostname's record using the approved
+Cloudflare module and point it to the cluster ingress controller before
+enabling a production hostname. Do not assign a hostname already served by
+another Authentik release until its migration/cutover is approved.
 
 ### Additional chart settings
 
@@ -110,6 +127,7 @@ No modules.
 | <a name="input_configuration_secret_name"></a> [configuration\_secret\_name](#input\_configuration\_secret\_name) | Existing Secret name containing AUTHENTIK\_SECRET\_KEY and AUTHENTIK\_POSTGRESQL\_\_PASSWORD. | `string` | n/a | yes |
 | <a name="input_database"></a> [database](#input\_database) | Non-secret connection metadata for the externally provisioned Authentik PostgreSQL database. | <pre>object({<br/>    host = string                 # External PostgreSQL hostname or service name.<br/>    name = string                 # Existing PostgreSQL database name.<br/>    user = string                 # Existing PostgreSQL username.<br/>    port = optional(number, 5432) # External PostgreSQL TCP port (integer from 1 through 65535).<br/>  })</pre> | n/a | yes |
 | <a name="input_extra_helm_config"></a> [extra\_helm\_config](#input\_extra\_helm\_config) | Additional official Authentik chart values. Required module-owned database, Secret, release identity, and ClusterIP service values take precedence. | `any` | `{}` | no |
+| <a name="input_ingress"></a> [ingress](#input\_ingress) | Optional HTTPS ingress configuration. When enabled, hostname, tls\_secret\_name and cluster\_issuer are required. DNS remains externally managed. | <pre>object({<br/>    enabled         = optional(bool, false)<br/>    hostname        = optional(string, "")<br/>    class_name      = optional(string, "nginx")<br/>    tls_secret_name = optional(string, "")<br/>    cluster_issuer  = optional(string, "")<br/>    annotations     = optional(map(string), {})<br/>  })</pre> | `{}` | no |
 | <a name="input_name"></a> [name](#input\_name) | Helm release name and stable Authentik resource prefix. | `string` | `"authentik"` | no |
 | <a name="input_namespace"></a> [namespace](#input\_namespace) | Existing Kubernetes namespace where Authentik is deployed. | `string` | n/a | yes |
 

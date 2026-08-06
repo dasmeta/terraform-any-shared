@@ -36,4 +36,4 @@
 - [x] T012 Register `modules/external-secret` in Terraform test, Checkov, TFLint, and pre-commit workflow matrices.
 - [x] T013 Update `AGENTS.md` through the repository context script.
 - [x] T014 Run formatting, validation, Terraform tests, terraform-docs, Checkov, and diff checks.
-- [ ] T015 Commit, push, and open the module PR with validation evidence.
+- [x] T015 Commit, push, and open the module PR with validation evidence.

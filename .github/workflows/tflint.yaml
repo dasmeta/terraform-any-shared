@@ -40,6 +40,7 @@ jobs:
           - modules/onepassword
           - modules/onepassword_to_secret_manager
           - modules/qdrant
+          - modules/random-secret-values
           - modules/renovate-bot
           - modules/sentry
           - modules/service

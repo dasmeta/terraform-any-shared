@@ -59,9 +59,10 @@ run "renders_typed_basic_auth_secret" {
       yamldecode(kubectl_manifest.external_secret.yaml_body).spec.data[0].secretKey == "username" &&
       yamldecode(kubectl_manifest.external_secret.yaml_body).spec.data[0].remoteRef.property == "database_username" &&
       yamldecode(kubectl_manifest.external_secret.yaml_body).spec.data[1].secretKey == "password" &&
-      yamldecode(kubectl_manifest.external_secret.yaml_body).spec.data[1].remoteRef.property == "database_password"
+      yamldecode(kubectl_manifest.external_secret.yaml_body).spec.data[1].remoteRef.property == "database_password" &&
+      !contains(keys(yamldecode(kubectl_manifest.external_secret.yaml_body).spec), "dataFrom")
     )
-    error_message = "The ExternalSecret must map only configured provider properties to target keys."
+    error_message = "The ExternalSecret must map only configured provider properties to target keys and must not emit spec.dataFrom in list sync mode."
   }
 
   assert {

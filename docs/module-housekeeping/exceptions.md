@@ -19,7 +19,6 @@
 
 | Target | Type | Reason | Impact | Review Trigger | Approval Required |
 |--------|------|--------|--------|----------------|-------------------|
-| `modules/github-actions-runner/` | missing-example | No standardized example consumer exists yet | Excluded from `terraform-test` until example or dedicated tests are added | When `examples/` or `tests/` are introduced | no |
 | `modules/goldilocks/` | missing-example | No standardized example consumer exists yet | Excluded from `terraform-test` until example or dedicated tests are added | When `examples/` or `tests/` are introduced | no |
 | `modules/kafka/` | missing-example | No standardized example consumer exists yet | Excluded from `terraform-test` until example or dedicated tests are added | When `examples/` or `tests/` are introduced | no |
 | `modules/minio/` | missing-example | No standardized example consumer exists yet | Excluded from `terraform-test` until example or dedicated tests are added | When `examples/` or `tests/` are introduced | no |
@@ -31,4 +30,4 @@
 
 | Target | Type | Reason | Impact | Review Trigger | Approval Required |
 |--------|------|--------|--------|----------------|-------------------|
-| `terraform-test` coverage for `modules/github-actions-runner/`, `modules/goldilocks/`, `modules/kafka/`, `modules/minio/`, `modules/mongodb/`, and `modules/supabase/` | validation-exclusion | These modules do not yet expose standardized example or test scaffolding suitable for the current `terraform-test` workflow | They remain covered by `checkov`, `tflint`, `pre-commit`, and `tfsec` while `terraform-test` is intentionally partial | When example or test scaffolding is added | no |
+| `terraform-test` coverage for `modules/goldilocks/`, `modules/kafka/`, `modules/minio/`, `modules/mongodb/`, and `modules/supabase/` | validation-exclusion | These modules do not yet expose standardized example or test scaffolding suitable for the current `terraform-test` workflow | They remain covered by `checkov`, `tflint`, `pre-commit`, and `tfsec` while `terraform-test` is intentionally partial | When example or test scaffolding is added | no |

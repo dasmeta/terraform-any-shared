@@ -7,7 +7,7 @@
 | `modules/defectdojo/` | maintained | normalized | `examples/basic` | exception | covered | aligned | Helm module with documented example path |
 | `modules/event-exporter/` | maintained | normalized | `examples/` | exception | covered | aligned | Example README normalized |
 | `modules/gateway-api-crds/` | maintained | normalized | `examples/basic` | exception | covered | excepted | Keeps `locales.tf` pending explicit approval |
-| `modules/github-actions-runner/` | maintained | normalized | exception | exception | covered | excepted | No standardized example or test harness yet |
+| `modules/github-actions-runner/` | maintained | normalized | `examples/basic` | `tests/runner_modes.tftest.hcl` | covered | aligned | Legacy, multi-repository, organization, and external-Secret modes covered |
 | `modules/gitlab-runner/` | maintained | existing | `examples/cache-pvc` | exception | covered | excepted | Keeps `config.tf` pending explicit approval |
 | `modules/goldilocks/` | maintained | normalized | exception | exception | covered | excepted | Example/test scaffolding still documented as an exception |
 | `modules/horizon-monitor/` | maintained | existing | `examples/basic` | exception | covered | aligned | Example scaffold already present |
@@ -40,5 +40,5 @@
 
 - Maintained top-level module paths: 23
 - Support-only top-level paths: 1
-- Explicitly excepted maintained modules: 9
-- Fully aligned maintained modules: 14
+- Explicitly excepted maintained modules: 8
+- Fully aligned maintained modules: 15

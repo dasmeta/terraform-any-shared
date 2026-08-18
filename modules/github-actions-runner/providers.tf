@@ -1,11 +1,3 @@
-terraform {
-  required_providers {
-    kubectl = {
-      source = "gavinbunney/kubectl"
-    }
-  }
-}
-
 provider "kubectl" {
-  config_path = pathexpand("~/.kube/config")
+  config_path = var.kubectl_config_path == null ? null : pathexpand(var.kubectl_config_path)
 }

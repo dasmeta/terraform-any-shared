@@ -7,7 +7,7 @@
 | `.github/workflows/checkov.yaml` | 23 maintained top-level modules | aligned | Support-only `modules/k8s/` excluded |
 | `.github/workflows/tflint.yaml` | 23 maintained top-level modules | aligned | Support-only `modules/k8s/` excluded |
 | `.github/workflows/pre-commit.yaml` | 23 maintained top-level modules | aligned | Matrix handling repaired and path scope normalized |
-| `.github/workflows/terraform-test.yaml` | 16 maintained modules with standardized example/test scaffolding | partial | Six modules remain excluded pending example/test support |
+| `.github/workflows/terraform-test.yaml` | 17 maintained modules with standardized example/test scaffolding | partial | Five modules remain excluded pending example/test support |
 | `.github/workflows/tfsec.yaml` | repo-wide Terraform files | aligned | Complements module-scoped workflows |
 | `.pre-commit-config.yaml` | repo-wide formatting and terraform-docs expectations | aligned | Local validation baseline retained and clarified |
 
@@ -48,6 +48,7 @@ example or test scaffolding:
 - `modules/defectdojo`
 - `modules/event-exporter`
 - `modules/gateway-api-crds`
+- `modules/github-actions-runner`
 - `modules/gitlab-runner`
 - `modules/horizon-monitor`
 - `modules/istio`

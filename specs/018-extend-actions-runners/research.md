@@ -22,8 +22,9 @@ added without changing controller families or resource semantics.
 
 **Rationale**: Repository collections and an organization are mutually exclusive
 forms of one target-selection concern. A grouped optional object makes that
-boundary explicit while the existing `repo_name` remains the fallback for
-backward compatibility.
+boundary explicit while the existing `repo_name` input remains the explicit
+fallback for backward compatibility. Its customer-specific default is removed
+so omission cannot register against an unrelated repository.
 
 **Alternatives considered**:
 
@@ -63,7 +64,9 @@ while allowing a Terraform Cloud variable set to configure the provider.
   Terraform Cloud variable-set behavior.
 - Remove the internal provider configuration immediately: rejected because it
   would make the existing `kubectl_config_path` input ineffective for historical
-  consumers.
+  consumers and would change provider-state ownership. The retained legacy
+  pattern and its module-level `count`, `for_each`, and `depends_on` limitation
+  are documented pending a future major-version migration.
 
 ## Decision: Keep historical state addresses
 

@@ -9,7 +9,8 @@ historical single-repository contract.
 
 Extend the existing legacy Actions Runner Controller wrapper rather than
 migrating it. Preserve the historical Helm release resource, runner manifest
-resource address, flat inputs, defaults, and token behavior. Add a grouped
+resource address, flat input names, safe defaults, and token behavior while
+removing the approved customer-specific repository default. Add a grouped
 `runner_scope` object for new multi-repository or organization targeting, an
 externally managed authentication Secret option, configurable namespace and
 chart version, deterministic multi-target names, and non-sensitive diagnostic
@@ -25,7 +26,7 @@ Cloud `KUBE_*` environment credentials.
 **Examples / Tests in Scope**: `modules/github-actions-runner/examples/basic`, `modules/github-actions-runner/tests/runner_modes.tftest.hcl`
 **Automation Gates**: `terraform fmt`, `terraform init`, `terraform validate`, `terraform test`, `terraform-docs`, pre-commit, tflint, Checkov, tfsec, module-change gate, and `.github/workflows/terraform-test.yaml` coverage
 **Target Platform**: legacy ARC on Kubernetes; Terraform Cloud workspaces with Kubernetes credentials supplied through environment variables
-**Constraints**: retain legacy ARC and existing resource addresses where possible; do not commit credentials; preserve existing input names/defaults; use generic names in reusable artifacts; do not add an unreleased consumer Setup
+**Constraints**: retain legacy ARC and existing resource addresses where possible; do not commit credentials; preserve existing input names; remove the unsafe customer-specific target default with explicit approval; use generic names in reusable artifacts; do not add an unreleased consumer Setup
 **Scale/Scope**: one existing shared module, one executable example, one test suite, its README, explicit compatibility files, validation coverage metadata, and this Speckit package
 
 ## Pre-change Assessment
@@ -76,7 +77,9 @@ will be optional and documented inline in `variables.tf`.
 - Speckit evidence is `specs/018-extend-actions-runners/{spec.md,plan.md,tasks.md}`;
   once tasks exist, the module-change gate should pass without exemption.
 - Interface widening for multiple repositories and organization scope is
-  explicitly requested and approved. No breaking change is approved.
+  explicitly requested and approved. The requester also explicitly approved
+  removing the customer-specific `repo_name` default after review identified
+  that an omitted target can register a runner against the wrong repository.
 
 ## Constitution Check
 
@@ -86,7 +89,9 @@ will be optional and documented inline in `variables.tf`.
 - [x] Consumer interface remains opinionated; multiple repositories and one organization are the approved bounded widening.
 - [x] `README.md`, a basic example, a dedicated test suite, and validation coverage updates are in scope.
 - [x] `versions.tf` and `providers.tf` impacts are explicit; established provider families remain compatible with Terraform `~> 1.3`.
-- [x] Existing input names/defaults and the historical runner resource address are preserved; no breaking change is planned.
+- [x] Existing input names and the historical runner resource address are
+  preserved. The reviewed removal of the unsafe repository default is the only
+  approved breaking contract change.
 
 ## Modern Capabilities Classification
 
@@ -104,15 +109,18 @@ Primary platform direction: [GitHub ARC overview](https://docs.github.com/en/act
 ### Interface
 
 - Preserve `runner_name`, `repo_name`, `personal_access_token`, and
-  `kubectl_config_path`.
+  `kubectl_config_path` input names. Make `repo_name` nullable with no default
+  target and require it explicitly when `runner_scope` is empty.
 - Make `personal_access_token` nullable and sensitive; legacy callers passing a
   value remain valid.
 - Add `github_auth_secret_name` as a nullable alternative. Exactly one token or
   Secret name is required.
 - Add `runner_scope` with optional `repositories` and `organization` fields.
-  Both omitted means historical `repo_name`; both populated is invalid.
+  Both omitted requires an explicit historical `repo_name`; both populated is
+  invalid.
 - Add `namespace` defaulting to `actions-runner-system` and `chart_version`
-  defaulting to `null` so historical behavior remains unchanged.
+  defaulting to `null`; pin the executable example to the reviewed legacy chart
+  version so the documented path is reproducible.
 - Expose effective target mode and runner resource names only; never output
   credentials.
 
@@ -124,7 +132,8 @@ Primary platform direction: [GitHub ARC overview](https://docs.github.com/en/act
 - Use a separate `for_each` manifest resource only for new multi-repository or
   organization modes.
 - Normalize new resource names to lowercase Kubernetes-compatible values and add
-  a short target hash, preventing owner/name collisions and truncation ambiguity.
+  a short hash over the full runner name, scope, and target, preventing both
+  owner/name collisions and truncated runner-prefix collisions.
 - Keep `helm_release.test` to preserve its resource address. Add optional chart
   version, namespace reuse, sensitive token handling, and existing-Secret values.
 - Add an explicit Helm dependency to every runner manifest.
@@ -139,12 +148,17 @@ Primary platform direction: [GitHub ARC overview](https://docs.github.com/en/act
   Cloud variable set to take effect.
 - Helm remains inherited from the consumer and can use the same Terraform Cloud
   Kubernetes credential environment.
+- Retain the historical internal kubectl provider for this release to avoid
+  silently breaking consumers that rely on it. Document that this legacy
+  pattern prevents module-level `count`, `for_each`, and `depends_on`; removing
+  it requires a future major-version migration to caller-supplied providers.
 
 ### Verification
 
 - A mock-provider Terraform test asserts legacy token mode, external Secret
   mode, multiple repository documents/names, organization scope, output
-  contracts, and invalid mixed scope/authentication.
+  contracts, invalid mixed scope/authentication, rejection of a missing target,
+  and collision resistance for truncated runner-name prefixes.
 - The basic example uses generic targets and an existing Secret reference.
 - Adding the standardized example closes the documented Terraform Test coverage
   exception and adds this module to the matrix.

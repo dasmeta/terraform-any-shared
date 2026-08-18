@@ -14,4 +14,3 @@ terraform {
 }
 
 provider "helm" {}
-provider "kubectl" {}

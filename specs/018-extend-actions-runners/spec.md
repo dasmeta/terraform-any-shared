@@ -130,8 +130,8 @@ current contract.
   cluster.
 - **FR-002**: The module MUST preserve the existing `runner_name`, `repo_name`,
   `personal_access_token`, and `kubectl_config_path` consumer inputs.
-- **FR-003**: When no new scope input is supplied, the module MUST use the
-  existing repository input and produce one repository-scoped runner.
+- **FR-003**: When no new scope input is supplied, the module MUST require an
+  explicit, non-empty `repo_name` and produce one repository-scoped runner.
 - **FR-004**: The module MUST accept a deduplicated collection of repository
   targets and create one stable runner registration per target.
 - **FR-005**: The module MUST accept one organization target and create one
@@ -164,6 +164,16 @@ current contract.
   targeting mode for operator verification.
 - **FR-018**: Documentation and examples MUST use only generic or DasMeta-safe
   identifiers and MUST NOT include real credentials.
+- **FR-019**: Scoped runner names MUST remain unique when two module instances
+  use different full runner names that share the same truncated prefix and
+  target the same repository or organization.
+- **FR-020**: Documentation MUST state that the retained internal kubectl
+  provider makes the legacy module incompatible with module-level `count`,
+  `for_each`, and `depends_on`.
+- **FR-021**: Documentation MUST explain that migrating from `repo_name` to
+  `runner_scope.repositories` replaces the historical Runner resource.
+- **FR-022**: The executable example MUST pin the legacy controller chart to a
+  known version.
 
 ### Compatibility & Delivery Requirements
 
@@ -185,6 +195,12 @@ current contract.
   reusable module, examples, tests, or documentation.
 - **CDR-007**: A consumer Setup in another repository remains a separate delivery
   step and MUST use a released module version rather than an unreleased source.
+- **CDR-008**: Removing the customer-specific `repo_name` default is an approved
+  safety-breaking change. The input name and explicit legacy behavior remain,
+  but configurations that relied on the implicit target must now set one.
+- **CDR-009**: Removing the internal kubectl provider is deferred to a future
+  major release because it would break consumers that rely on the module-owned
+  provider configuration. This change documents the resulting limitation.
 
 ### Key Entities
 

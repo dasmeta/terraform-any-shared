@@ -45,6 +45,11 @@ resource "helm_release" "test" {
 
   lifecycle {
     precondition {
+      condition     = !local.uses_legacy_scope || local.legacy_repository_target != ""
+      error_message = "repo_name must be provided when runner_scope is empty."
+    }
+
+    precondition {
       condition     = local.has_personal_access_token != local.has_existing_auth_secret
       error_message = "Exactly one of personal_access_token or github_auth_secret_name must be provided."
     }

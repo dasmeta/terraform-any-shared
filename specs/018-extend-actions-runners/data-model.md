@@ -6,7 +6,8 @@
   targets.
 - `organization`: optional single organization identifier without `/`.
 - Invariant: repository and organization targets cannot coexist.
-- Fallback: when both are omitted, the historical `repo_name` is effective.
+- Fallback: when both are omitted, an explicit non-empty historical `repo_name`
+  is required; there is no default target.
 
 ## Authentication source
 
@@ -20,7 +21,8 @@
 ## Runner registration
 
 - `name`: historical `runner_name` for legacy mode; normalized target-derived
-  name plus short hash for new multi-target mode.
+  name plus a short hash of full runner name, scope, and target for new
+  multi-target mode.
 - `namespace`: configurable namespace shared with the controller release.
 - `scope_kind`: `repository` or `organization`.
 - `scope_target`: one repository or one organization.

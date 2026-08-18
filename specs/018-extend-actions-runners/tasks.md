@@ -162,10 +162,33 @@ scopes.
 
 - `terraform fmt -check -recursive modules/github-actions-runner`: passed.
 - Module `terraform init -backend=false` and `terraform validate`: passed.
-- `terraform test`: passed, 7 runs and 0 failures.
+- `terraform test`: passed, 9 runs and 0 failures after review resolution.
 - Basic example `terraform init -backend=false` and `terraform validate`: passed.
 - Checkov: passed locally; its optional Prisma guideline lookup was unavailable
   in the restricted network environment.
 - tfsec: passed with no detected problems.
 - `pre-commit` and `tflint`: not installed in the local environment; their CI
   workflows remain applicable to the changed module.
+
+## Phase 7: Pull Request Review Resolution
+
+**Purpose**: Resolve the approved safety, determinism, and documentation findings
+from the first human review without removing the legacy internal provider.
+
+- [x] T028 Add failing tests for missing explicit targets and same-prefix scoped
+  runner-name collisions in `modules/github-actions-runner/tests/runner_modes.tftest.hcl`
+- [x] T029 Remove the customer-specific `repo_name` default, validate explicit
+  legacy targets, and add the target precondition in
+  `modules/github-actions-runner/variables.tf`, `locals.tf`, and `main.tf`
+- [x] T030 Include the full runner name in scoped runner hashes in
+  `modules/github-actions-runner/locals.tf`
+- [x] T031 Document the internal-provider module-meta-argument limitation and
+  the `repo_name` to `runner_scope.repositories` replacement behavior in
+  `modules/github-actions-runner/README.md`
+- [x] T032 Pin `chart_version` in the executable example and align generated
+  README input documentation
+- [x] T033 Update the interface contract and quickstart with the approved
+  explicit-target requirement and deferred provider migration
+- [x] T034 Run formatting, validation, module tests, example validation,
+  terraform-docs, Checkov, and tfsec; verify no customer-specific identifier
+  remains in module artifacts

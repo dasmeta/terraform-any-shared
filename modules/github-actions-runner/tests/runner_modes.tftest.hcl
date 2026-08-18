@@ -53,6 +53,40 @@ run "rejects_mixed_authentication" {
   expect_failures = [helm_release.test]
 }
 
+run "includes_full_runner_name_in_scoped_name_hash" {
+  command = plan
+
+  variables {
+    runner_name             = "very-long-runner-name-alpha"
+    personal_access_token   = null
+    github_auth_secret_name = "controller-manager"
+
+    runner_scope = {
+      organization = "example"
+    }
+  }
+
+  assert {
+    condition = endswith(
+      output.runner_resource_names[0],
+      substr(sha1("very-long-runner-name-alpha:organization:example"), 0, 8),
+    )
+    error_message = "Scoped runner hashes must include the full runner name to prevent truncated-prefix collisions."
+  }
+}
+
+run "rejects_missing_runner_target" {
+  command = plan
+
+  variables {
+    personal_access_token   = null
+    github_auth_secret_name = "controller-manager"
+    repo_name               = null
+  }
+
+  expect_failures = [helm_release.test]
+}
+
 run "renders_multiple_repository_runners" {
   command = plan
 

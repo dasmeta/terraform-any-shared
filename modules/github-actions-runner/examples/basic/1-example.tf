@@ -5,6 +5,7 @@ module "runner" {
   personal_access_token   = null
   github_auth_secret_name = "controller-manager"
   kubectl_config_path     = null
+  chart_version           = "0.23.7"
 
   runner_scope = {
     organization = "example"

@@ -2,8 +2,8 @@
 
 ## Historical consumer
 
-1. Keep the existing runner name, repository, personal access token, and
-   kubeconfig-path inputs.
+1. Keep the existing runner name, explicit repository, personal access token,
+   and kubeconfig-path inputs. No default repository is selected.
 2. Upgrade to the released module version after validation.
 3. Confirm the plan retains one repository-scoped runner and the existing
    namespace.
@@ -17,9 +17,15 @@
 3. Set `kubectl_config_path` to `null` and attach the Terraform Cloud variable set
    that already provides Kubernetes provider credentials.
 4. Select either an explicit repository collection or one organization.
-5. Use only a released module version in the infrastructure Setup.
-6. Run `meta validate-yaml`, generate the Terraform Cloud workspace, and review
+5. Pin `chart_version` to the reviewed legacy chart release.
+6. Use only a released module version in the infrastructure Setup.
+7. Run `meta validate-yaml`, generate the Terraform Cloud workspace, and review
    the remote plan before apply.
+
+The retained internal kubectl provider prevents module-level `count`,
+`for_each`, and `depends_on`. Use the grouped repository scope within one module
+instance rather than repeating the module. Moving a live legacy `repo_name`
+deployment to `runner_scope.repositories` replaces and re-registers its Runner.
 
 ## Module verification
 

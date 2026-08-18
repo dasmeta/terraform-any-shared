@@ -19,8 +19,17 @@ variable "personal_access_token" {
 
 variable "repo_name" {
   type        = string
-  description = "Repository Name"
-  default     = "tutor-platform/ncet-infrastructure"
+  default     = null
+  description = "GitHub repository in owner/name form for the legacy single-repository mode. Required when runner_scope is empty."
+  nullable    = true
+
+  validation {
+    condition = (
+      var.repo_name == null ||
+      can(regex("^[^/[:space:]]+/[^/[:space:]]+$", var.repo_name))
+    )
+    error_message = "repo_name must be null or use non-empty owner/name form without whitespace."
+  }
 }
 
 variable "kubectl_config_path" {

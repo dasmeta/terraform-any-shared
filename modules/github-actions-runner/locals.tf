@@ -4,9 +4,10 @@ locals {
   )
   has_existing_auth_secret = var.github_auth_secret_name != null && try(trimspace(var.github_auth_secret_name) != "", false)
 
-  repository_targets  = sort(tolist(var.runner_scope.repositories))
-  organization_target = try(trimspace(var.runner_scope.organization), "")
-  uses_legacy_scope   = length(local.repository_targets) == 0 && local.organization_target == ""
+  repository_targets       = sort(tolist(var.runner_scope.repositories))
+  organization_target      = try(trimspace(var.runner_scope.organization), "")
+  legacy_repository_target = var.repo_name == null ? "" : trimspace(var.repo_name)
+  uses_legacy_scope        = length(local.repository_targets) == 0 && local.organization_target == ""
 
   runner_scope_mode = local.uses_legacy_scope ? "legacy_repository" : (
     local.organization_target != "" ? "organization" : "repositories"
@@ -26,7 +27,7 @@ locals {
       "%s-%s-%s",
       substr(local.runner_name_prefix, 0, min(length(local.runner_name_prefix), 20)),
       substr(trim(replace(lower(target), "/[^a-z0-9-]/", "-"), "-"), 0, min(length(trim(replace(lower(target), "/[^a-z0-9-]/", "-"), "-")), 25)),
-      substr(sha1("${scope}:${target}"), 0, 8),
+      substr(sha1("${var.runner_name}:${scope}:${target}"), 0, 8),
     )
   }
 
@@ -34,7 +35,7 @@ locals {
     namespace   = var.namespace
     runner_name = var.runner_name
     scope       = "repository"
-    target      = var.repo_name
+    target      = local.legacy_repository_target
   })
 
   scoped_runner_documents = {
@@ -46,6 +47,6 @@ locals {
     })
   }
 
-  effective_runner_targets = local.uses_legacy_scope ? [var.repo_name] : sort(keys(local.scoped_targets))
+  effective_runner_targets = local.uses_legacy_scope ? [local.legacy_repository_target] : sort(keys(local.scoped_targets))
   effective_runner_names   = local.uses_legacy_scope ? [var.runner_name] : [for target in sort(keys(local.scoped_runner_names)) : local.scoped_runner_names[target]]
 }

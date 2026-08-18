@@ -24,6 +24,23 @@ When Terraform Cloud supplies `KUBE_HOST`, `KUBE_TOKEN`, and the related
 `KUBE_*` provider variables, set `kubectl_config_path = null`. Existing local
 consumers can continue using the default `~/.kube/config` path.
 
+## Legacy provider limitation
+
+For backward compatibility, this version retains the module's internal
+`kubectl` provider configuration. Terraform therefore treats it as a legacy
+module: callers cannot put the module block behind `count` or `for_each`, and
+cannot add module-level `depends_on`. A caller-defined `kubectl` provider block
+does not replace the module's internal configuration; use
+`kubectl_config_path = null` to let that internal provider consume Terraform
+Cloud `KUBE_*` environment credentials.
+
+Use `runner_scope.repositories` when one module instance must serve several
+repositories. Moving to caller-supplied providers requires a future major
+module release because it changes how existing resources retain their provider
+configuration in state. Destroy the module-managed resources before removing
+the module block from a configuration; otherwise Terraform can report that the
+module-owned provider configuration is no longer present.
+
 ## Organization runner with an existing Secret
 
 ```hcl
@@ -35,6 +52,7 @@ module "action_runner" {
   runner_name             = "shared-runner"
   github_auth_secret_name = "controller-manager"
   kubectl_config_path     = null
+  chart_version           = "0.23.7"
 
   runner_scope = {
     organization = "example"
@@ -57,6 +75,7 @@ module "action_runner" {
   namespace               = "github-actions-runner"
   github_auth_secret_name = "controller-manager"
   kubectl_config_path     = null
+  chart_version           = "0.23.7"
 
   runner_scope = {
     repositories = [
@@ -69,6 +88,15 @@ module "action_runner" {
 
 The module creates one deterministically named Runner resource per unique
 repository. `repositories` and `organization` are mutually exclusive.
+
+### Migrating an existing repository runner
+
+Changing an existing deployment from `repo_name` to
+`runner_scope.repositories` is a resource replacement, not a state-preserving
+rename. Terraform destroys `kubectl_manifest.pv_mongo_main[0]` and creates a
+keyed `kubectl_manifest.scoped_runner[...]`; GitHub consequently deregisters the
+old Runner and registers a newly named one. Schedule that transition like a
+runner replacement and review the plan before applying it.
 
 ## Backward-compatible single repository
 
@@ -86,8 +114,9 @@ module "action_runner" {
 }
 ```
 
-Leaving `runner_scope` empty continues to use `repo_name` and preserves
-`kubectl_manifest.pv_mongo_main[0]` and `helm_release.test`.
+Leaving `runner_scope` empty requires an explicit `repo_name` and preserves
+`kubectl_manifest.pv_mongo_main[0]` and `helm_release.test`. There is no implicit
+repository target.
 
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
@@ -126,7 +155,7 @@ No modules.
 | <a name="input_kubectl_config_path"></a> [kubectl\_config\_path](#input\_kubectl\_config\_path) | Kubernetes config path. Set to null to let the kubectl provider use KUBE\_* environment credentials, as in Terraform Cloud. | `string` | `"~/.kube/config"` | no |
 | <a name="input_namespace"></a> [namespace](#input\_namespace) | Kubernetes namespace in which the legacy runner controller and Runner resources are installed. | `string` | `"actions-runner-system"` | no |
 | <a name="input_personal_access_token"></a> [personal\_access\_token](#input\_personal\_access\_token) | GitHub personal access token used by the controller. Set to null when github\_auth\_secret\_name is provided. | `string` | `null` | no |
-| <a name="input_repo_name"></a> [repo\_name](#input\_repo\_name) | Repository Name | `string` | `"tutor-platform/ncet-infrastructure"` | no |
+| <a name="input_repo_name"></a> [repo\_name](#input\_repo\_name) | GitHub repository in owner/name form for the legacy single-repository mode. Required when runner\_scope is empty. | `string` | `null` | no |
 | <a name="input_runner_name"></a> [runner\_name](#input\_runner\_name) | Runner Name | `string` | `"runner"` | no |
 | <a name="input_runner_scope"></a> [runner\_scope](#input\_runner\_scope) | Optional runner target selection. Set repositories or organization, but not both. An empty object preserves repo\_name behavior. | <pre>object({<br/>    repositories = optional(set(string), []) # Explicit GitHub repositories in owner/name form.<br/>    organization = optional(string)          # GitHub organization name for organization-wide runners.<br/>  })</pre> | `{}` | no |
 

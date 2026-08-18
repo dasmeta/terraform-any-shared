@@ -2,7 +2,7 @@ apiVersion: actions.summerwind.dev/v1alpha1
 kind: Runner
 metadata:
   name: ${runner_name}
-  namespace: actions-runner-system
+  namespace: ${namespace}
 spec:
-  repository: ${repository}
+  ${scope}: ${target}
   env: []

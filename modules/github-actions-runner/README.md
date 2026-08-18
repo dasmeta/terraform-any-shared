@@ -1,32 +1,109 @@
 # GitHub Actions Runner
 
-Use this module to deploy a GitHub Actions runner into Kubernetes using the
-repository's shared runner baseline. By default, the underlying controller
-expects cert-manager for admission webhook certificates.
+Deploy the legacy `actions.summerwind.dev/v1alpha1` GitHub Actions Runner
+Controller and one or more self-hosted Runner resources into Kubernetes. This
+module is intended for existing clusters that still use the legacy controller;
+new installations should evaluate GitHub's current runner scale-set controller.
 
+The chart expects cert-manager to be available for its admission webhook. The
+controller and Runner resources share `namespace`, which defaults to the
+historical `actions-runner-system` namespace.
 
-# Example 1
+## Authentication
 
-```
-module "action-runner" {
-  source                = "dasmeta/shared/any//modules/github-actions-runner"
-  personal_access_token = "ghp_ZhJoqzL******M6FCk"
-  kubectl_config_path   = "~/.kube/config"
-  repo_name             = "tutor-platform/action-runner"
-  runner_name           = "runner"
+Choose exactly one authentication source:
+
+- `github_auth_secret_name`: recommended for Terraform Cloud. The named Secret
+  must already exist in `namespace` and contain a `github_token` key. The module
+  references it without reading or storing the token.
+- `personal_access_token`: backward-compatible mode in which the Helm chart
+  creates the controller Secret. The input is sensitive, but its value remains
+  part of Terraform state.
+
+When Terraform Cloud supplies `KUBE_HOST`, `KUBE_TOKEN`, and the related
+`KUBE_*` provider variables, set `kubectl_config_path = null`. Existing local
+consumers can continue using the default `~/.kube/config` path.
+
+## Organization runner with an existing Secret
+
+```hcl
+module "action_runner" {
+  source  = "dasmeta/shared/any//modules/github-actions-runner"
+  version = "<released-version>"
+
+  namespace               = "github-actions-runner"
+  runner_name             = "shared-runner"
+  github_auth_secret_name = "controller-manager"
+  kubectl_config_path     = null
+
+  runner_scope = {
+    organization = "example"
+  }
 }
 ```
-<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+
+In YAML-managed infrastructure, map the same inputs into the module Setup and
+attach the Terraform Cloud variable set that supplies the cluster credentials.
+Keep the Secret value in the approved secret-management workflow, not in YAML.
+Use a released module version before generating or planning the workspace.
+
+## Multiple repository runners
+
+```hcl
+module "action_runner" {
+  source  = "dasmeta/shared/any//modules/github-actions-runner"
+  version = "<released-version>"
+
+  namespace               = "github-actions-runner"
+  github_auth_secret_name = "controller-manager"
+  kubectl_config_path     = null
+
+  runner_scope = {
+    repositories = [
+      "example/api",
+      "example/web",
+    ]
+  }
+}
+```
+
+The module creates one deterministically named Runner resource per unique
+repository. `repositories` and `organization` are mutually exclusive.
+
+## Backward-compatible single repository
+
+Existing consumers can retain their current input shape and resource addresses:
+
+```hcl
+module "action_runner" {
+  source  = "dasmeta/shared/any//modules/github-actions-runner"
+  version = "<released-version>"
+
+  runner_name           = "runner"
+  repo_name             = "example/application"
+  personal_access_token = var.github_runner_token
+  kubectl_config_path   = "~/.kube/config"
+}
+```
+
+Leaving `runner_scope` empty continues to use `repo_name` and preserves
+`kubectl_manifest.pv_mongo_main[0]` and `helm_release.test`.
+
+<!-- BEGIN_TF_DOCS -->
 ## Requirements
 
-No requirements.
+| Name | Version |
+| ---- | ------- |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | ~> 1.3 |
+| <a name="requirement_helm"></a> [helm](#requirement\_helm) | ~> 2.0 |
+| <a name="requirement_kubectl"></a> [kubectl](#requirement\_kubectl) | ~> 1.14 |
 
 ## Providers
 
 | Name | Version |
-|------|---------|
-| <a name="provider_helm"></a> [helm](#provider\_helm) | n/a |
-| <a name="provider_kubectl"></a> [kubectl](#provider\_kubectl) | n/a |
+| ---- | ------- |
+| <a name="provider_helm"></a> [helm](#provider\_helm) | 2.17.0 |
+| <a name="provider_kubectl"></a> [kubectl](#provider\_kubectl) | 1.19.0 |
 
 ## Modules
 
@@ -35,21 +112,29 @@ No modules.
 ## Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [helm_release.test](https://registry.terraform.io/providers/hashicorp/helm/latest/docs/resources/release) | resource |
 | [kubectl_manifest.pv_mongo_main](https://registry.terraform.io/providers/gavinbunney/kubectl/latest/docs/resources/manifest) | resource |
-| [kubectl_path_documents.docs](https://registry.terraform.io/providers/gavinbunney/kubectl/latest/docs/data-sources/path_documents) | data source |
+| [kubectl_manifest.scoped_runner](https://registry.terraform.io/providers/gavinbunney/kubectl/latest/docs/resources/manifest) | resource |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
-| <a name="input_kubectl_config_path"></a> [kubectl\_config\_path](#input\_kubectl\_config\_path) | K8s config path | `string` | `"~/.kube/config"` | no |
-| <a name="input_personal_access_token"></a> [personal\_access\_token](#input\_personal\_access\_token) | personal access token | `string` | n/a | yes |
+| ---- | ----------- | ---- | ------- | :------: |
+| <a name="input_chart_version"></a> [chart\_version](#input\_chart\_version) | Optional legacy actions-runner-controller Helm chart version. Null preserves the historical latest-compatible selection. | `string` | `null` | no |
+| <a name="input_github_auth_secret_name"></a> [github\_auth\_secret\_name](#input\_github\_auth\_secret\_name) | Name of an existing Secret in namespace containing the controller github\_token key. Mutually exclusive with personal\_access\_token. | `string` | `null` | no |
+| <a name="input_kubectl_config_path"></a> [kubectl\_config\_path](#input\_kubectl\_config\_path) | Kubernetes config path. Set to null to let the kubectl provider use KUBE\_* environment credentials, as in Terraform Cloud. | `string` | `"~/.kube/config"` | no |
+| <a name="input_namespace"></a> [namespace](#input\_namespace) | Kubernetes namespace in which the legacy runner controller and Runner resources are installed. | `string` | `"actions-runner-system"` | no |
+| <a name="input_personal_access_token"></a> [personal\_access\_token](#input\_personal\_access\_token) | GitHub personal access token used by the controller. Set to null when github\_auth\_secret\_name is provided. | `string` | `null` | no |
 | <a name="input_repo_name"></a> [repo\_name](#input\_repo\_name) | Repository Name | `string` | `"tutor-platform/ncet-infrastructure"` | no |
 | <a name="input_runner_name"></a> [runner\_name](#input\_runner\_name) | Runner Name | `string` | `"runner"` | no |
+| <a name="input_runner_scope"></a> [runner\_scope](#input\_runner\_scope) | Optional runner target selection. Set repositories or organization, but not both. An empty object preserves repo\_name behavior. | <pre>object({<br/>    repositories = optional(set(string), []) # Explicit GitHub repositories in owner/name form.<br/>    organization = optional(string)          # GitHub organization name for organization-wide runners.<br/>  })</pre> | `{}` | no |
 
 ## Outputs
 
-No outputs.
-<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+| Name | Description |
+| ---- | ----------- |
+| <a name="output_runner_resource_names"></a> [runner\_resource\_names](#output\_runner\_resource\_names) | Kubernetes Runner resource names created by this module. |
+| <a name="output_runner_scope_mode"></a> [runner\_scope\_mode](#output\_runner\_scope\_mode) | Effective runner target mode: legacy\_repository, repositories, or organization. |
+| <a name="output_runner_targets"></a> [runner\_targets](#output\_runner\_targets) | Effective repository or organization targets. |
+<!-- END_TF_DOCS -->

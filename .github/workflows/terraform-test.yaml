@@ -21,6 +21,7 @@ jobs:
           - modules/external-secret
           - modules/event-exporter
           - modules/gateway-api-crds
+          - modules/github-actions-runner
           - modules/gitlab-runner
           - modules/horizon-monitor
           - modules/istio

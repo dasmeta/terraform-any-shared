@@ -1,31 +1,52 @@
-data "kubectl_path_documents" "docs" {
-  pattern = "${path.module}/runner.yaml"
-  vars = {
-    repository  = "${var.repo_name}"
-    runner_name = "${var.runner_name}"
-  }
+resource "kubectl_manifest" "pv_mongo_main" {
+  count     = local.uses_legacy_scope ? 1 : 0
+  yaml_body = local.legacy_runner_document
+
+  depends_on = [helm_release.test]
 }
 
-resource "kubectl_manifest" "pv_mongo_main" {
-  count     = length(data.kubectl_path_documents.docs.documents)
-  yaml_body = element(data.kubectl_path_documents.docs.documents, count.index)
+resource "kubectl_manifest" "scoped_runner" {
+  for_each  = local.scoped_runner_documents
+  yaml_body = each.value
+
+  depends_on = [helm_release.test]
 }
 
 resource "helm_release" "test" {
-
-  namespace        = "actions-runner-system"
+  namespace        = var.namespace
   repository       = "https://actions-runner-controller.github.io/actions-runner-controller"
   chart            = "actions-runner-controller"
   name             = "actions-runner-controller"
+  version          = var.chart_version
   create_namespace = true
 
   set {
     name  = "authSecret.create"
-    value = true
-  }
-  set {
-    name  = "authSecret.github_token"
-    value = var.personal_access_token
+    value = tostring(local.has_personal_access_token)
   }
 
+  dynamic "set" {
+    for_each = local.has_existing_auth_secret ? [var.github_auth_secret_name] : []
+
+    content {
+      name  = "authSecret.name"
+      value = set.value
+    }
+  }
+
+  dynamic "set_sensitive" {
+    for_each = local.has_personal_access_token ? [var.personal_access_token] : []
+
+    content {
+      name  = "authSecret.github_token"
+      value = set_sensitive.value
+    }
+  }
+
+  lifecycle {
+    precondition {
+      condition     = local.has_personal_access_token != local.has_existing_auth_secret
+      error_message = "Exactly one of personal_access_token or github_auth_secret_name must be provided."
+    }
+  }
 }

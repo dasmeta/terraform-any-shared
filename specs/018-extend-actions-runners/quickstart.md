@@ -15,7 +15,9 @@
 2. Configure the runner module Setup with `github_auth_secret_name` and omit the
    personal access token.
 3. Set `kubectl_config_path` to `null` and attach the Terraform Cloud variable set
-   that already provides Kubernetes provider credentials.
+   that already provides Kubernetes provider credentials. Null disables local
+   kubeconfig loading so `KUBE_HOST`, `KUBE_TOKEN`, and related environment
+   values are used directly.
 4. Select either an explicit repository collection or one organization.
 5. Pin `chart_version` to the reviewed legacy chart release.
 6. Use only a released module version in the infrastructure Setup.

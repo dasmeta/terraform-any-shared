@@ -22,7 +22,9 @@ Choose exactly one authentication source:
 
 When Terraform Cloud supplies `KUBE_HOST`, `KUBE_TOKEN`, and the related
 `KUBE_*` provider variables, set `kubectl_config_path = null`. Existing local
-consumers can continue using the default `~/.kube/config` path.
+consumers can continue using the default `~/.kube/config` path. A null path also
+disables local kubeconfig loading, preventing remote runs from falling back to
+`localhost` when no file exists on the worker.
 
 ## Legacy provider limitation
 

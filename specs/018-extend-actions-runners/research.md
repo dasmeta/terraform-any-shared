@@ -50,12 +50,15 @@ lifecycle outside this module.
 - GitHub App fields: deferred because broadening all authentication modes is not
   required for the current common case.
 
-## Decision: Reuse kubectl provider environment defaults
+## Decision: Reuse kubectl provider environment defaults and disable file loading
 
 **Rationale**: Kubectl provider `~> 1.14` reads host, token, CA data, kubeconfig
 path, and load-file behavior from `KUBE_*` environment variables. Replacing the
-hardcoded path with the existing nullable module input preserves local consumers
-while allowing a Terraform Cloud variable set to configure the provider.
+hardcoded path with the existing nullable module input preserves local consumers.
+For the null path, the module must also set `load_config_file = false`; a live
+Terraform Cloud apply showed that leaving file loading enabled can yield an empty
+REST configuration and a localhost fallback even though the workspace injects
+direct API credentials.
 
 **Alternatives considered**:
 

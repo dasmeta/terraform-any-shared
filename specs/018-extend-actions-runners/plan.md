@@ -15,8 +15,9 @@ removing the approved customer-specific repository default. Add a grouped
 externally managed authentication Secret option, configurable namespace and
 chart version, deterministic multi-target names, and non-sensitive diagnostic
 outputs. Make the existing kubeconfig-path input nullable: a supplied path keeps
-the old local behavior, while `null` lets the kubectl provider consume Terraform
-Cloud `KUBE_*` environment credentials.
+the old local behavior, while `null` explicitly disables local kubeconfig loading
+and lets the kubectl provider consume Terraform Cloud `KUBE_*` environment
+credentials.
 
 ## Technical Context
 
@@ -143,9 +144,10 @@ Primary platform direction: [GitHub ARC overview](https://docs.github.com/en/act
 - Move required version declarations into `versions.tf` while retaining actual
   kubectl configuration in `providers.tf`, matching modern repository modules.
 - Change the provider from a hardcoded path to the existing variable. The
-  historical default remains `~/.kube/config`; a YAML consumer passes `null`,
-  allowing the provider's environment defaults from its attached Terraform
-  Cloud variable set to take effect.
+  historical default remains `~/.kube/config`; a YAML consumer passes `null`.
+  In null mode, explicitly disable kubeconfig loading so the provider's
+  environment defaults from its attached Terraform Cloud variable set take
+  effect during both remote plan and remote apply.
 - Helm remains inherited from the consumer and can use the same Terraform Cloud
   Kubernetes credential environment.
 - Retain the historical internal kubectl provider for this release to avoid

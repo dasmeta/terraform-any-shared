@@ -151,7 +151,9 @@ current contract.
   managed; the module MUST only reference it and document the expected namespace
   and key contract.
 - **FR-012**: The module MUST allow local kubeconfig-path use to be disabled so
-  Kubernetes credentials supplied by the execution environment can take effect.
+  Kubernetes credentials supplied by the execution environment can take effect;
+  disabling the path MUST also disable local kubeconfig loading so the provider
+  does not fall back to an unavailable default file during remote apply.
 - **FR-013**: Existing consumers that pass a kubeconfig path MUST retain that
   behavior.
 - **FR-014**: The module MUST allow the deployment namespace to be overridden

@@ -192,3 +192,19 @@ from the first human review without removing the legacy internal provider.
 - [x] T034 Run formatting, validation, module tests, example validation,
   terraform-docs, Checkov, and tfsec; verify no customer-specific identifier
   remains in module artifacts
+
+## Phase 8: Terraform Cloud Apply Correction
+
+**Purpose**: Correct the environment-credential path after a live remote apply
+proved that a null config path alone did not prevent kubectl from falling back to
+an unavailable local configuration.
+
+- [x] T035 Record the live Terraform Cloud failure and refine the null-path
+  contract in `spec.md`, `plan.md`, and `research.md`
+- [x] T036 Explicitly disable kubeconfig loading when `kubectl_config_path` is
+  null while preserving historical file loading for non-null paths in
+  `modules/github-actions-runner/providers.tf`
+- [x] T037 Align the module README and quickstart with the corrected provider
+  behavior
+- [x] T038 Run formatting, module tests, example validation, and an
+  environment-credential diagnostic plan

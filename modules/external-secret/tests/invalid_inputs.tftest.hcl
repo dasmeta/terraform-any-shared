@@ -59,9 +59,10 @@ run "renders_typed_basic_auth_secret" {
       yamldecode(kubectl_manifest.external_secret.yaml_body).spec.data[0].secretKey == "username" &&
       yamldecode(kubectl_manifest.external_secret.yaml_body).spec.data[0].remoteRef.property == "database_username" &&
       yamldecode(kubectl_manifest.external_secret.yaml_body).spec.data[1].secretKey == "password" &&
-      yamldecode(kubectl_manifest.external_secret.yaml_body).spec.data[1].remoteRef.property == "database_password"
+      yamldecode(kubectl_manifest.external_secret.yaml_body).spec.data[1].remoteRef.property == "database_password" &&
+      !contains(keys(yamldecode(kubectl_manifest.external_secret.yaml_body).spec), "dataFrom")
     )
-    error_message = "The ExternalSecret must map only configured provider properties to target keys."
+    error_message = "The ExternalSecret must map only configured provider properties to target keys and must not emit spec.dataFrom in list sync mode."
   }
 
   assert {
@@ -115,4 +116,71 @@ run "rejects_invalid_target_policy" {
   }
 
   expect_failures = [var.target]
+}
+
+run "renders_full_sync_extract_all" {
+  command = plan
+
+  variables {
+    name       = "test-full-sync"
+    namespace  = "test-platform"
+    remote_key = "test/database"
+    sync_all   = true
+    secret_store = {
+      name = "test-store"
+    }
+    target = {
+      name = "test-full-sync"
+    }
+  }
+
+  assert {
+    condition = (
+      yamldecode(kubectl_manifest.external_secret.yaml_body).spec.dataFrom[0].extract.key == "test/database" &&
+      !contains(keys(yamldecode(kubectl_manifest.external_secret.yaml_body).spec), "data")
+    )
+    error_message = "sync_all must emit spec.dataFrom[].extract.key for full sync and must not emit spec.data."
+  }
+}
+
+run "rejects_sync_all_with_mappings" {
+  command = plan
+
+  variables {
+    name       = "test-full-sync"
+    namespace  = "test-platform"
+    remote_key = "test/database"
+    sync_all   = true
+    secret_store = {
+      name = "test-store"
+    }
+    target = {
+      name = "test-full-sync"
+    }
+    mappings = [
+      { secret_key = "username", remote_property = "username" },
+    ]
+  }
+
+  expect_failures = [kubectl_manifest.external_secret]
+}
+
+run "rejects_list_sync_without_mappings" {
+  command = plan
+
+  variables {
+    name       = "test-configuration"
+    namespace  = "test-platform"
+    remote_key = "test/configuration"
+    sync_all   = false
+    secret_store = {
+      name = "test-store"
+    }
+    target = {
+      name = "test-configuration"
+    }
+    mappings = []
+  }
+
+  expect_failures = [kubectl_manifest.external_secret]
 }

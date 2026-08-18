@@ -66,20 +66,26 @@ variable "target" {
   }
 }
 
+variable "sync_all" {
+  type        = bool
+  default     = false
+  description = "Full sync: extract EVERY property from remote_key into the target Secret via spec.dataFrom[].extract, instead of the explicit mappings list. When true, mappings must be empty; when false (default), mappings define the explicit spec.data[] list sync."
+}
+
 variable "mappings" {
   type = list(object({
     secret_key      = string # Key written to the target Kubernetes Secret.
     remote_property = string # Property read from the common provider-side remote key.
   }))
-  description = "Explicit provider-property to Kubernetes Secret-key mappings."
+  default     = []
+  description = "Explicit provider-property to Kubernetes Secret-key mappings (spec.data[] list sync). Leave empty and set sync_all = true to extract all properties from remote_key."
 
   validation {
     condition = (
-      length(var.mappings) > 0 &&
       alltrue([for mapping in var.mappings : length(trimspace(mapping.secret_key)) > 0 && length(trimspace(mapping.remote_property)) > 0]) &&
       length(distinct([for mapping in var.mappings : mapping.secret_key])) == length(var.mappings)
     )
-    error_message = "mappings must contain one or more non-empty unique secret_key values and non-empty remote_property values."
+    error_message = "mappings must contain non-empty unique secret_key values and non-empty remote_property values."
   }
 }
 

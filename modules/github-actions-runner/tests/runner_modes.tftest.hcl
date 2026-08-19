@@ -203,10 +203,10 @@ run "renders_official_scale_set_with_existing_auth_secret" {
   command = plan
 
   variables {
-    deployment_mode        = "scale_set"
-    personal_access_token  = null
+    deployment_mode         = "scale_set"
+    personal_access_token   = null
     github_auth_secret_name = "controller-manager"
-    kubectl_config_path    = null
+    kubectl_config_path     = null
 
     scale_set = {
       github_config_url        = "https://github.com/example"

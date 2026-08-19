@@ -184,3 +184,35 @@ the module is already in the Terraform test matrix.
 |---|---|---|
 | Bounded interface widening | Consumers need an official scalable path without a separate module. | A full Helm-values pass-through would create an unsupported interface; a separate module would duplicate authentication/provider behavior. |
 | Conditional legacy resource address | Official mode must not install legacy ARC. | Leaving the legacy release unconditional installs two controllers; a moved block avoids replacement for legacy callers. |
+
+## Revised Module-Standard Audit (2026-08-19)
+
+The updated `terraform-module-developer` standard was applied after the initial
+implementation. This is still module-impacting continuation work under the
+existing `specs/019-github-scale-set/` package; no new feature package is
+needed.
+
+### Module surfaces
+
+| Axis | Result | Evidence |
+|---|---|---|
+| Documentation | Updated in this PR | `README.md` has copy-pasteable legacy and scale-set usage, generated input/output documentation, and now documents local verification. |
+| Examples | Pass | `examples/basic` and `examples/scale-set` each use `0-setup.tf` and `1-example.tf`; neither contains tests or assertions. |
+| Tests | Pass | `tests/runner_modes.tftest.hcl` is directly discoverable by `terraform test`, independently expresses the scale-set use case, and contains assertions or expected failures in every run. |
+| Test execution | Pass locally | Terraform `1.15.4` discovered and passed all 13 native tests. The module `~> 1.3` constraint permits Terraform 1.6+ and is unchanged. |
+| Test working files | Pass | `.gitignore` excludes `.terraform/`, state, and lock files; no Terraform working files are tracked. |
+
+### Existing repository baseline gaps (out of this module PR scope)
+
+- CI workflows reference shared actions by `@main` and use
+  `continue-on-error: true`, so format, validation, lint, and test signals are
+  not currently immutable or PR-blocking. The shared Terraform test action also
+  does not declare a Terraform `>= 1.6` version in this repository.
+- `commitlint.yaml` and `semantic-release.yaml` both publish releases, which is
+  an automation-ownership conflict.
+- The current pre-commit configuration relies on remote hook environments and
+  does not provide the updated standard's explicit missing-tool guidance.
+
+These are repository-governance follow-ups, not safe incidental changes to a
+runner-module feature. This PR records them for review but does not modify
+automation, release behavior, or unrelated module paths.

@@ -175,6 +175,28 @@ the legacy Helm release when upgrading to the conditional implementation, so a
 normal legacy upgrade does not replace the controller. There is no implicit
 repository target.
 
+## Local verification
+
+From `modules/github-actions-runner`, initialize before running validation or
+native tests:
+
+```sh
+terraform fmt -check -recursive .
+terraform init -backend=false
+terraform validate
+terraform test
+tflint --chdir=.
+checkov -d .
+tfsec .
+terraform-docs markdown table --output-file README.md --output-mode inject .
+```
+
+The repository also emits Terraform validation/test, pre-commit, Checkov,
+TFLint, and tfsec workflow signals for pull requests. Those existing signals
+are currently informational rather than merge-blocking because their shared
+workflow steps use `continue-on-error`; this module change does not alter
+repository-wide automation or release ownership.
+
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 

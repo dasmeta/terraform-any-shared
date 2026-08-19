@@ -84,3 +84,14 @@ Helm releases, examples, and state migration behavior.
 - Checkov and tfsec passed with no reported findings.
 - `pre-commit` and `tflint` are unavailable locally; repository CI remains the
   enforcement point for those checks.
+
+## Revised Standard Audit (2026-08-19)
+
+- [x] T021 Re-audit `modules/github-actions-runner` against the revised module
+  standard: verify independent example/test surfaces, native test discovery,
+  Terraform 1.6+ compatibility, and ignored working files.
+- [x] T022 Add local verification commands and accurate CI-signal status to
+  `modules/github-actions-runner/README.md`.
+- [x] T023 Record repository-level workflow and pre-commit baseline gaps in
+  `specs/019-github-scale-set/plan.md` without expanding this module PR into an
+  unrelated automation migration.

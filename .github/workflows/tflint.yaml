@@ -39,6 +39,7 @@ jobs:
           - modules/renovate-bot
           - modules/sentry
           - modules/service
+          - modules/sftpgo
           - modules/supabase
 
     steps:

@@ -1,8 +1,9 @@
 # terraform-any-shared Development Guidelines
 
-Auto-generated from all feature plans. Last updated: 2026-03-26
+Auto-generated from all feature plans. Last updated: 2026-07-03
 
 ## Active Technologies
+- Terraform ~> 1.3 + Helm provider, SFTPGo Helm chart, Kubernetes via Helm, Speckit, terraform fmt/validate (009-sftpgo-module)
 - Terraform ~> 1.3 + Helm provider, Kubernetes provider, GitHub Actions, pre-commit, terraform-docs, tflint, checkov (002-keycloak-module)
 - Consumer-managed external database; Kubernetes Secret-backed bootstrap credentials (002-keycloak-module)
 
@@ -24,6 +25,8 @@ tests/
 Terraform ~> 1.3: Follow standard conventions
 
 ## Recent Changes
+- 009-sftpgo-module: Added reusable SFTPGo Helm deployment module with S3-backed user bootstrap, sensitive Terraform variable inputs, examples, tests, and Speckit evidence
+
 - 002-keycloak-module: Added Terraform ~> 1.3 + Helm provider, Kubernetes provider, GitHub Actions, pre-commit, terraform-docs, tflint, checkov
 
 - 001-standardize-module-housekeeping: Added Terraform ~> 1.3 + GitHub Actions, pre-commit, terraform-docs, tflint,

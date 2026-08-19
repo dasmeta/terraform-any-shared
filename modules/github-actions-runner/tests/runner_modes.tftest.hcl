@@ -241,7 +241,8 @@ run "renders_official_scale_set_with_existing_auth_secret" {
       one([for setting in helm_release.arc_scale_set[0].set : setting.value if setting.name == "maxRunners"]) == "3" &&
       one([for setting in helm_release.arc_scale_set[0].set : setting.value if setting.name == "containerMode.type"]) == "dind" &&
       one([for setting in helm_release.arc_scale_set[0].set : setting.value if setting.name == "controllerServiceAccount.namespace"]) == "actions-runner-system" &&
-      one([for setting in helm_release.arc_scale_set[0].set : setting.value if setting.name == "controllerServiceAccount.name"]) == "arc-example-runners-${substr(sha1("actions-runner-system:example-runners:controller"), 0, 8)}-gha-rs-controller"
+      one([for setting in helm_release.arc_scale_set[0].set : setting.value if setting.name == "controllerServiceAccount.name"]) == "arc-example-runners-${substr(sha1("actions-runner-system:example-runners:controller"), 0, 8)}-gha-rs-controller" &&
+      one([for setting in helm_release.arc_scale_set_controller[0].set : setting.value if setting.name == "flags.watchSingleNamespace"]) == "actions-runner-system"
     )
     error_message = "Scale-set mode must pass official scope, authentication, capacity, dind, and controller-account values."
   }
@@ -252,6 +253,29 @@ run "renders_official_scale_set_with_existing_auth_secret" {
       output.runner_scale_set_name == "example-runners"
     )
     error_message = "Scale-set outputs must identify the selected workflow runner label."
+  }
+}
+
+run "matches_official_controller_service_account_truncation" {
+  command = plan
+
+  variables {
+    deployment_mode         = "scale_set"
+    personal_access_token   = null
+    github_auth_secret_name = "controller-manager"
+
+    scale_set = {
+      github_config_url     = "https://github.com/example"
+      runner_scale_set_name = "example-runners-with-a-rather-long-name"
+    }
+  }
+
+  assert {
+    condition = one([
+      for setting in helm_release.arc_scale_set[0].set : setting.value
+      if setting.name == "controllerServiceAccount.name"
+    ]) == "arc-example-runners-with-a-rather-long-name-767f83ef-gha-rs-con"
+    error_message = "The scale-set RoleBinding must reference the ServiceAccount name rendered by the official controller chart for long release names."
   }
 }
 

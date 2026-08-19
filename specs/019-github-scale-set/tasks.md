@@ -95,3 +95,16 @@ Helm releases, examples, and state migration behavior.
 - [x] T023 Record repository-level workflow and pre-commit baseline gaps in
   `specs/019-github-scale-set/plan.md` without expanding this module PR into an
   unrelated automation migration.
+
+## Review Remediation (2026-08-19)
+
+- [x] T024 Derive the official controller ServiceAccount name with the chart's
+  truncation rule in `modules/github-actions-runner/locals.tf` and cover a
+  long scale-set name in native tests.
+- [x] T025 Restrict each official controller to the existing module namespace
+  in `modules/github-actions-runner/main.tf`, and document the one-instance per
+  namespace guidance.
+- [x] T026 Move and document legacy Helm state migration in
+  `modules/github-actions-runner/moved.tf`.
+- [x] T027 Run module and example validation, native tests, chart rendering,
+  and the available static checks; update the PR for re-review.

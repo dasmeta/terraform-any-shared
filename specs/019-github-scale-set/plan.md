@@ -216,3 +216,39 @@ needed.
 These are repository-governance follow-ups, not safe incidental changes to a
 runner-module feature. This PR records them for review but does not modify
 automation, release behavior, or unrelated module paths.
+
+## Review Remediation (2026-08-19)
+
+Tigran's review identified three implementation defects in the official ARC
+path. The approved remediation preserves the existing consumer inputs,
+defaults, runner label behavior, and legacy mode.
+
+- Derive `controllerServiceAccount.name` with the controller chart's exact
+  `trunc 63 | trimSuffix "-"` behavior after appending
+  `-gha-rs-controller`. Add a long-name test with the chart-rendered expected
+  ServiceAccount name rather than asserting only the module's own formula.
+- Set the controller chart's supported `flags.watchSingleNamespace` value to
+  the existing `namespace` input. This isolates separate module instances in
+  separate namespaces without adding a shared-controller abstraction or a new
+  consumer input.
+- Relocate the historical Helm state move to a documented `moved.tf`, matching
+  repository convention and protecting legacy upgrades from accidental move
+  removal.
+
+The review's suggestion to reject legacy-only inputs in scale-set mode is
+deferred: it would turn previously accepted configurations into plan failures
+and conflicts with the approved compatibility-first scope. Container mode and
+the idle baseline remain the established opinionated defaults.
+
+### Review remediation verification
+
+- `terraform fmt -check -recursive .`, `terraform validate`, and `terraform
+  test` passed in `modules/github-actions-runner`; the native suite reports 14
+  passing runs.
+- The scale-set example initialized with `-backend=false` and validated.
+- Official controller and scale-set Helm 0.14.2 templates rendered with the
+  long-name ServiceAccount `arc-example-runners-with-a-rather-long-name-767f83ef-gha-rs-con`.
+  The scale-set RoleBinding subject matches the controller chart's rendered
+  ServiceAccount, and the controller renders `--watch-single-namespace`.
+- Checkov and tfsec completed with no findings; terraform-docs regenerated the
+  README block.

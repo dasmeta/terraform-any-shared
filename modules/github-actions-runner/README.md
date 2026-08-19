@@ -48,7 +48,9 @@ module "runner" {
 
 `github_config_url` can target one organization or one repository. An
 organization URL serves repositories that GitHub allows the runner group to
-access. Use separate module instances for separate repository-only scale sets.
+access. Use separate module instances and namespaces for separate
+repository-only scale sets: each module-managed controller watches only its
+own namespace.
 
 Update a workflow to request the scale-set label rather than generic runner
 labels:

@@ -13,7 +13,10 @@ locals {
     substr(var.scale_set.runner_scale_set_name, 0, min(length(var.scale_set.runner_scale_set_name), 44)),
     substr(sha1("${var.namespace}:${var.scale_set.runner_scale_set_name}:controller"), 0, 8),
   )
-  scale_set_controller_service_account_name = "${local.scale_set_controller_release_name}-gha-rs-controller"
+  scale_set_controller_service_account_name = trimsuffix(
+    substr("${local.scale_set_controller_release_name}-gha-rs-controller", 0, 63),
+    "-",
+  )
 
   repository_targets       = sort(tolist(var.runner_scope.repositories))
   organization_target      = try(trimspace(var.runner_scope.organization), "")

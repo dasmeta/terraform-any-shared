@@ -1,8 +1,3 @@
-moved {
-  from = helm_release.test
-  to   = helm_release.legacy[0]
-}
-
 resource "kubectl_manifest" "pv_mongo_main" {
   count     = local.uses_legacy_deployment && local.uses_legacy_scope ? 1 : 0
   yaml_body = local.legacy_runner_document
@@ -70,6 +65,11 @@ resource "helm_release" "arc_scale_set_controller" {
   chart            = "gha-runner-scale-set-controller"
   version          = var.scale_set.controller_chart_version
   create_namespace = true
+
+  set {
+    name  = "flags.watchSingleNamespace"
+    value = var.namespace
+  }
 }
 
 resource "helm_release" "arc_scale_set" {

@@ -4,9 +4,67 @@ variable "runner_name" {
   default     = "runner"
 }
 
+variable "deployment_mode" {
+  type        = string
+  default     = "legacy"
+  description = "Runner deployment implementation. Use legacy to preserve the existing controller or scale_set for the official GitHub ARC chart path."
+
+  validation {
+    condition     = contains(["legacy", "scale_set"], var.deployment_mode)
+    error_message = "deployment_mode must be legacy or scale_set."
+  }
+}
+
+variable "scale_set" {
+  type = object({
+    github_config_url        = optional(string, null)                      # GitHub organization or repository HTTPS URL served by this scale set.
+    runner_scale_set_name    = optional(string, "github-runner-scale-set") # Workflow runs-on label and official runner scale-set name.
+    min_runners              = optional(number, 1)                         # Minimum idle ephemeral runners retained for new jobs.
+    max_runners              = optional(number, 3)                         # Maximum total ephemeral runners that GitHub may request.
+    controller_chart_version = optional(string, "0.14.2")                  # Official gha-runner-scale-set-controller chart version.
+    chart_version            = optional(string, "0.14.2")                  # Official gha-runner-scale-set chart version.
+  })
+  default     = {}
+  description = "Official GitHub ARC runner scale-set configuration. Required only when deployment_mode is scale_set."
+
+  validation {
+    condition = var.deployment_mode != "scale_set" || (
+      try(trimspace(var.scale_set.github_config_url), "") != "" &&
+      can(regex("^https://github\\.com/[^/[:space:]]+(/[^/[:space:]]+)?/?$", var.scale_set.github_config_url))
+    )
+    error_message = "scale_set.github_config_url must be an HTTPS GitHub organization or repository URL when deployment_mode is scale_set."
+  }
+
+  validation {
+    condition = (
+      length(var.scale_set.runner_scale_set_name) <= 50 &&
+      can(regex("^[a-z0-9]([-a-z0-9]*[a-z0-9])?$", var.scale_set.runner_scale_set_name))
+    )
+    error_message = "scale_set.runner_scale_set_name must be a lowercase Kubernetes DNS label of at most 50 characters."
+  }
+
+  validation {
+    condition = (
+      var.scale_set.min_runners >= 0 &&
+      var.scale_set.max_runners >= var.scale_set.min_runners &&
+      floor(var.scale_set.min_runners) == var.scale_set.min_runners &&
+      floor(var.scale_set.max_runners) == var.scale_set.max_runners
+    )
+    error_message = "scale_set.min_runners and scale_set.max_runners must be non-negative integers, and max_runners must be at least min_runners."
+  }
+
+  validation {
+    condition = (
+      try(trimspace(var.scale_set.controller_chart_version) != "", false) &&
+      try(trimspace(var.scale_set.chart_version) != "", false)
+    )
+    error_message = "scale_set controller and runner chart versions must be non-empty strings."
+  }
+}
+
 variable "personal_access_token" {
   type        = string
-  description = "GitHub personal access token used by the controller. Set to null when github_auth_secret_name is provided."
+  description = "GitHub personal access token used by the selected controller path. Set to null when github_auth_secret_name is provided."
   default     = null
   sensitive   = true
   nullable    = true
@@ -61,7 +119,7 @@ variable "github_auth_secret_name" {
 
 variable "namespace" {
   type        = string
-  description = "Kubernetes namespace in which the legacy runner controller and Runner resources are installed."
+  description = "Kubernetes namespace in which the selected runner controller and runner resources are installed."
   default     = "actions-runner-system"
 
   validation {

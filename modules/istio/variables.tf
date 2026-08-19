@@ -2,7 +2,7 @@ variable "configs" {
   type = object({
     chart = optional(object({                                                                    # Global Helm chart defaults for Istio releases (repository/version/namespace and release behavior)
       repository       = optional(string, "https://istio-release.storage.googleapis.com/charts") # global istio helm charts repository
-      version          = optional(string, "1.29.2")                                              # fallback version for istio base/gateway/istiod charts
+      version          = optional(string, "1.30.3")                                              # fallback version for istio base/gateway/istiod charts
       namespace        = optional(string, "istio-system")                                        # the namespace where istio and related components will be installed
       create_namespace = optional(bool, true)                                                    # whether to create namespace or not
       atomic           = optional(bool, false)                                                   # whether auto rollback if helm install fails
@@ -125,7 +125,7 @@ variable "configs" {
         namespace        = optional(string, null)                            # the namespace where the Kiali operator will be installed; defaults to configs.chart.namespace
         chart            = optional(string, "kiali-operator")                # the Kiali operator chart name or direct .tgz URL
         chart_repository = optional(string, "https://kiali.org/helm-charts") # Kiali operator Helm chart repository
-        chart_version    = optional(string, "2.25.0")                        # optional Kiali operator chart version
+        chart_version    = optional(string, "2.29.0")                        # optional Kiali operator chart version
         create_namespace = optional(bool, true)                              # whether Helm should create the operator namespace
         atomic           = optional(bool, false)                             # whether Helm should roll back on failure
         wait             = optional(bool, true)                              # whether Helm should wait for resources to become ready

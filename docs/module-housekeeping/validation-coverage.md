@@ -49,6 +49,7 @@ example or test scaffolding:
 - `modules/defectdojo`
 - `modules/event-exporter`
 - `modules/gateway-api-crds`
+- `modules/github-actions-runner`
 - `modules/gitlab-runner`
 - `modules/horizon-monitor`
 - `modules/istio`

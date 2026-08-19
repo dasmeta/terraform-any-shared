@@ -17,6 +17,9 @@ jobs:
       matrix:
         path:
           - modules/defectdojo
+          - modules/authentik
+          - modules/cnpg
+          - modules/external-secret
           - modules/event-exporter
           - modules/gateway-api-crds
           - modules/github-actions-runner
@@ -24,6 +27,7 @@ jobs:
           - modules/goldilocks
           - modules/horizon-monitor
           - modules/istio
+          - modules/k8s/namespace
           - modules/kafka
           - modules/keycloak
           - modules/keeper-reader
@@ -35,6 +39,7 @@ jobs:
           - modules/onepassword
           - modules/onepassword_to_secret_manager
           - modules/qdrant
+          - modules/random-secret-values
           - modules/renovate-bot
           - modules/sentry
           - modules/service

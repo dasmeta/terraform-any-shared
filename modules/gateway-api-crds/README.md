@@ -35,7 +35,7 @@ module "gateway_api_crds" {
 2. Pull CRDs from the selected release and vendor them into this module:
 
 ```bash
-VERSION="v1.5.1" # we have the latest one used so make sure you set the version tag to which you are updating to
+VERSION="v1.6.1" # we have the latest one used so make sure you set the version tag to which you are updating to
 curl -fsSL "https://github.com/kubernetes-sigs/gateway-api/releases/download/${VERSION}/standard-install.yaml" \
   -o "modules/gateway-api-crds/files/${VERSION}-standard-install.yaml"
 ```
@@ -64,7 +64,7 @@ module "gateway_api_crds" {
   # version = "x.y.z"
 
   configs = {
-    version  = "v1.5.1"
+    version  = "v1.6.1"
     crdsList = [
       # extracted keys here
     ]
@@ -111,7 +111,7 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_configs"></a> [configs](#input\_configs) | The version of the Gateway API CRDs and the list of CRDs to install. NOTE: This config supposed to be changed when we want to upgrade the Gateway API CRDs version. | <pre>object({<br/>    version = optional(string, "v1.5.1")<br/>    crdsList = optional(list(string), [<br/>      "/apis/apiextensions.k8s.io/v1/customresourcedefinitions/backendtlspolicies.gateway.networking.k8s.io",<br/>      "/apis/apiextensions.k8s.io/v1/customresourcedefinitions/gatewayclasses.gateway.networking.k8s.io",<br/>      "/apis/apiextensions.k8s.io/v1/customresourcedefinitions/gateways.gateway.networking.k8s.io",<br/>      "/apis/apiextensions.k8s.io/v1/customresourcedefinitions/grpcroutes.gateway.networking.k8s.io",<br/>      "/apis/apiextensions.k8s.io/v1/customresourcedefinitions/httproutes.gateway.networking.k8s.io",<br/>      "/apis/apiextensions.k8s.io/v1/customresourcedefinitions/listenersets.gateway.networking.k8s.io",<br/>      "/apis/apiextensions.k8s.io/v1/customresourcedefinitions/referencegrants.gateway.networking.k8s.io",<br/>      "/apis/apiextensions.k8s.io/v1/customresourcedefinitions/tlsroutes.gateway.networking.k8s.io",<br/>      "/apis/admissionregistration.k8s.io/v1/validatingadmissionpolicys/safe-upgrades.gateway.networking.k8s.io",<br/>      "/apis/admissionregistration.k8s.io/v1/validatingadmissionpolicybindings/safe-upgrades.gateway.networking.k8s.io",<br/>    ])<br/>  })</pre> | `{}` | no |
+| <a name="input_configs"></a> [configs](#input\_configs) | The version of the Gateway API CRDs and the list of CRDs to install. NOTE: This config supposed to be changed when we want to upgrade the Gateway API CRDs version. | <pre>object({<br/>    version = optional(string, "v1.6.1")<br/>    crdsList = optional(list(string), [<br/>      "/apis/apiextensions.k8s.io/v1/customresourcedefinitions/backendtlspolicies.gateway.networking.k8s.io",<br/>      "/apis/apiextensions.k8s.io/v1/customresourcedefinitions/gatewayclasses.gateway.networking.k8s.io",<br/>      "/apis/apiextensions.k8s.io/v1/customresourcedefinitions/gateways.gateway.networking.k8s.io",<br/>      "/apis/apiextensions.k8s.io/v1/customresourcedefinitions/grpcroutes.gateway.networking.k8s.io",<br/>      "/apis/apiextensions.k8s.io/v1/customresourcedefinitions/httproutes.gateway.networking.k8s.io",<br/>      "/apis/apiextensions.k8s.io/v1/customresourcedefinitions/listenersets.gateway.networking.k8s.io",<br/>      "/apis/apiextensions.k8s.io/v1/customresourcedefinitions/referencegrants.gateway.networking.k8s.io",<br/>      # tcproutes and udproutes graduated to GA in the standard channel as of Gateway API v1.6.0<br/>      "/apis/apiextensions.k8s.io/v1/customresourcedefinitions/tcproutes.gateway.networking.k8s.io",<br/>      "/apis/apiextensions.k8s.io/v1/customresourcedefinitions/tlsroutes.gateway.networking.k8s.io",<br/>      "/apis/apiextensions.k8s.io/v1/customresourcedefinitions/udproutes.gateway.networking.k8s.io",<br/>      "/apis/admissionregistration.k8s.io/v1/validatingadmissionpolicys/safe-upgrades.gateway.networking.k8s.io",<br/>      "/apis/admissionregistration.k8s.io/v1/validatingadmissionpolicybindings/safe-upgrades.gateway.networking.k8s.io",<br/>    ])<br/>  })</pre> | `{}` | no |
 
 ## Outputs
 

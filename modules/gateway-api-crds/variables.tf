@@ -1,6 +1,6 @@
 variable "configs" {
   type = object({
-    version = optional(string, "v1.5.1")
+    version = optional(string, "v1.6.1")
     crdsList = optional(list(string), [
       "/apis/apiextensions.k8s.io/v1/customresourcedefinitions/backendtlspolicies.gateway.networking.k8s.io",
       "/apis/apiextensions.k8s.io/v1/customresourcedefinitions/gatewayclasses.gateway.networking.k8s.io",
@@ -9,7 +9,10 @@ variable "configs" {
       "/apis/apiextensions.k8s.io/v1/customresourcedefinitions/httproutes.gateway.networking.k8s.io",
       "/apis/apiextensions.k8s.io/v1/customresourcedefinitions/listenersets.gateway.networking.k8s.io",
       "/apis/apiextensions.k8s.io/v1/customresourcedefinitions/referencegrants.gateway.networking.k8s.io",
+      # tcproutes and udproutes graduated to GA in the standard channel as of Gateway API v1.6.0
+      "/apis/apiextensions.k8s.io/v1/customresourcedefinitions/tcproutes.gateway.networking.k8s.io",
       "/apis/apiextensions.k8s.io/v1/customresourcedefinitions/tlsroutes.gateway.networking.k8s.io",
+      "/apis/apiextensions.k8s.io/v1/customresourcedefinitions/udproutes.gateway.networking.k8s.io",
       "/apis/admissionregistration.k8s.io/v1/validatingadmissionpolicys/safe-upgrades.gateway.networking.k8s.io",
       "/apis/admissionregistration.k8s.io/v1/validatingadmissionpolicybindings/safe-upgrades.gateway.networking.k8s.io",
     ])

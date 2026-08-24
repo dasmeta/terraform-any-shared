@@ -4,10 +4,10 @@
 
 | Validation | Coverage | Status | Notes |
 |------------|----------|--------|-------|
-| `.github/workflows/checkov.yaml` | 23 maintained top-level modules | aligned | Support-only `modules/k8s/` excluded |
-| `.github/workflows/tflint.yaml` | 23 maintained top-level modules | aligned | Support-only `modules/k8s/` excluded |
-| `.github/workflows/pre-commit.yaml` | 23 maintained top-level modules | aligned | Matrix handling repaired and path scope normalized |
-| `.github/workflows/terraform-test.yaml` | 17 maintained modules with standardized example/test scaffolding | partial | Five modules remain excluded pending example/test support |
+| `.github/workflows/checkov.yaml` | 24 maintained top-level modules | aligned | Support-only `modules/k8s/` excluded |
+| `.github/workflows/tflint.yaml` | 24 maintained top-level modules | aligned | Support-only `modules/k8s/` excluded |
+| `.github/workflows/pre-commit.yaml` | 24 maintained top-level modules | aligned | Matrix handling repaired and path scope normalized |
+| `.github/workflows/terraform-test.yaml` | 17 maintained modules with standardized example/test scaffolding | partial | Six modules remain excluded pending example/test support |
 | `.github/workflows/tfsec.yaml` | repo-wide Terraform files | aligned | Complements module-scoped workflows |
 | `.pre-commit-config.yaml` | repo-wide formatting and terraform-docs expectations | aligned | Local validation baseline retained and clarified |
 
@@ -38,6 +38,7 @@ and `pre-commit`:
 - `modules/argocd`
 - `modules/sentry`
 - `modules/service`
+- `modules/sftpgo`
 - `modules/supabase`
 
 ## `terraform-test` Coverage
@@ -62,5 +63,6 @@ example or test scaffolding:
 - `modules/renovate-bot`
 - `modules/sentry`
 - `modules/service`
+- `modules/sftpgo`
 
 Excluded modules are tracked in `exceptions.md`.

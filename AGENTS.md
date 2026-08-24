@@ -1,5 +1,9 @@
 # terraform-any-shared Development Guidelines
 
+Auto-generated from all feature plans. Last updated: 2026-07-03
+
+## Active Technologies
+- Terraform ~> 1.3 + Helm provider, SFTPGo Helm chart, Kubernetes via Helm, Speckit, terraform fmt/validate (009-sftpgo-module)
 Auto-generated from all feature plans. Last updated: 2026-08-06
 
 ## Active Technologies
@@ -26,6 +30,7 @@ tests/
 Terraform ~> 1.3: Follow standard conventions
 
 ## Recent Changes
+- 009-sftpgo-module: Added reusable SFTPGo Helm deployment module with S3-backed user bootstrap, sensitive Terraform variable inputs, examples, tests, and Speckit evidence
 - 014-external-secret-module: Added a shared ExternalSecret module for explicit provider-property mappings and typed Kubernetes Secret targets without Terraform secret values.
 
 - 012-add-cnpg-module: Added the shared cluster-only CNPG module with existing Secret references and non-secret read/write and read-only service outputs.

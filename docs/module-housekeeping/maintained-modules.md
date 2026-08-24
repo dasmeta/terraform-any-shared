@@ -26,6 +26,7 @@
 | `modules/argocd/` | maintained | normalized | `examples/basic` | exception | covered | aligned | Helm module for Argo CD with AWS ALB ingress wrapper |
 | `modules/sentry/` | maintained | normalized | `examples/basic` | exception | covered | aligned | README preamble added |
 | `modules/service/` | maintained | normalized | `examples/basic` | exception | covered | excepted | Keeps `deploy.tf` pending explicit approval |
+| `modules/sftpgo/` | maintained | normalized | `examples/basic` | `tests/basic` | covered | aligned | Helm module for SFTPGo with S3-backed bootstrap user storage |
 | `modules/supabase/` | maintained | normalized | exception | exception | covered | excepted | No standardized example/test harness yet |
 | `modules/k8s/` | support-only | n/a | n/a | n/a | repo-wide only | excepted | Asset directory, not a consumer-facing Terraform module |
 
@@ -38,7 +39,7 @@
 
 ## Review Summary
 
-- Maintained top-level module paths: 23
+- Maintained top-level module paths: 24
 - Support-only top-level paths: 1
-- Explicitly excepted maintained modules: 8
+- Explicitly excepted maintained modules: 9
 - Fully aligned maintained modules: 15

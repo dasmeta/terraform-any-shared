@@ -15,10 +15,10 @@ run "uses_existing_auth_secret_with_environment_credentials" {
 
   assert {
     condition = (
-      one([for setting in helm_release.test.set : setting.value if setting.name == "authSecret.create"]) == "false" &&
-      one([for setting in helm_release.test.set : setting.value if setting.name == "authSecret.name"]) == "controller-manager" &&
-      helm_release.test.namespace == "github-actions-runner" &&
-      helm_release.test.version == "0.23.7" &&
+      one([for setting in helm_release.legacy[0].set : setting.value if setting.name == "authSecret.create"]) == "false" &&
+      one([for setting in helm_release.legacy[0].set : setting.value if setting.name == "authSecret.name"]) == "controller-manager" &&
+      helm_release.legacy[0].namespace == "github-actions-runner" &&
+      helm_release.legacy[0].version == "0.23.7" &&
       yamldecode(kubectl_manifest.pv_mongo_main[0].yaml_body).metadata.namespace == "github-actions-runner"
     )
     error_message = "Existing-Secret mode must use the configured Secret, namespace, and chart version."
@@ -38,7 +38,7 @@ run "rejects_missing_authentication" {
     repo_name             = "example/application"
   }
 
-  expect_failures = [helm_release.test]
+  expect_failures = [helm_release.legacy[0]]
 }
 
 run "rejects_mixed_authentication" {
@@ -50,7 +50,7 @@ run "rejects_mixed_authentication" {
     repo_name               = "example/application"
   }
 
-  expect_failures = [helm_release.test]
+  expect_failures = [helm_release.legacy[0]]
 }
 
 run "includes_full_runner_name_in_scoped_name_hash" {
@@ -84,7 +84,7 @@ run "rejects_missing_runner_target" {
     repo_name               = null
   }
 
-  expect_failures = [helm_release.test]
+  expect_failures = [helm_release.legacy[0]]
 }
 
 run "renders_multiple_repository_runners" {
@@ -192,9 +192,143 @@ run "preserves_legacy_repository_contract" {
 
   assert {
     condition = (
-      one([for setting in helm_release.test.set : setting.value if setting.name == "authSecret.create"]) == "true" &&
-      one([for setting in helm_release.test.set_sensitive : nonsensitive(setting.value) if setting.name == "authSecret.github_token"]) == "example-token-value"
+      one([for setting in helm_release.legacy[0].set : setting.value if setting.name == "authSecret.create"]) == "true" &&
+      one([for setting in helm_release.legacy[0].set_sensitive : nonsensitive(setting.value) if setting.name == "authSecret.github_token"]) == "example-token-value"
     )
     error_message = "Legacy token mode must create the chart Secret with the supplied sensitive token."
   }
+}
+
+run "renders_official_scale_set_with_existing_auth_secret" {
+  command = plan
+
+  variables {
+    deployment_mode         = "scale_set"
+    personal_access_token   = null
+    github_auth_secret_name = "controller-manager"
+    kubectl_config_path     = null
+
+    scale_set = {
+      github_config_url        = "https://github.com/example"
+      runner_scale_set_name    = "example-runners"
+      min_runners              = 1
+      max_runners              = 3
+      controller_chart_version = "0.14.2"
+      chart_version            = "0.14.2"
+    }
+  }
+
+  assert {
+    condition = (
+      length(helm_release.legacy) == 0 &&
+      length(kubectl_manifest.pv_mongo_main) == 0 &&
+      length(kubectl_manifest.scoped_runner) == 0 &&
+      length(helm_release.arc_scale_set_controller) == 1 &&
+      length(helm_release.arc_scale_set) == 1
+    )
+    error_message = "Scale-set mode must render only the official ARC chart releases."
+  }
+
+  assert {
+    condition = (
+      helm_release.arc_scale_set[0].repository == "oci://ghcr.io/actions/actions-runner-controller-charts" &&
+      helm_release.arc_scale_set[0].chart == "gha-runner-scale-set" &&
+      helm_release.arc_scale_set[0].version == "0.14.2" &&
+      one([for setting in helm_release.arc_scale_set[0].set : setting.value if setting.name == "githubConfigUrl"]) == "https://github.com/example" &&
+      one([for setting in helm_release.arc_scale_set[0].set : setting.value if setting.name == "githubConfigSecret"]) == "controller-manager" &&
+      one([for setting in helm_release.arc_scale_set[0].set : setting.value if setting.name == "runnerScaleSetName"]) == "example-runners" &&
+      one([for setting in helm_release.arc_scale_set[0].set : setting.value if setting.name == "minRunners"]) == "1" &&
+      one([for setting in helm_release.arc_scale_set[0].set : setting.value if setting.name == "maxRunners"]) == "3" &&
+      one([for setting in helm_release.arc_scale_set[0].set : setting.value if setting.name == "containerMode.type"]) == "dind" &&
+      one([for setting in helm_release.arc_scale_set[0].set : setting.value if setting.name == "controllerServiceAccount.namespace"]) == "actions-runner-system" &&
+      one([for setting in helm_release.arc_scale_set[0].set : setting.value if setting.name == "controllerServiceAccount.name"]) == "arc-example-runners-${substr(sha1("actions-runner-system:example-runners:controller"), 0, 8)}-gha-rs-controller" &&
+      one([for setting in helm_release.arc_scale_set_controller[0].set : setting.value if setting.name == "flags.watchSingleNamespace"]) == "actions-runner-system"
+    )
+    error_message = "Scale-set mode must pass official scope, authentication, capacity, dind, and controller-account values."
+  }
+
+  assert {
+    condition = (
+      output.deployment_mode == "scale_set" &&
+      output.runner_scale_set_name == "example-runners"
+    )
+    error_message = "Scale-set outputs must identify the selected workflow runner label."
+  }
+}
+
+run "matches_official_controller_service_account_truncation" {
+  command = plan
+
+  variables {
+    deployment_mode         = "scale_set"
+    personal_access_token   = null
+    github_auth_secret_name = "controller-manager"
+
+    scale_set = {
+      github_config_url     = "https://github.com/example"
+      runner_scale_set_name = "example-runners-with-a-rather-long-name"
+    }
+  }
+
+  assert {
+    condition = one([
+      for setting in helm_release.arc_scale_set[0].set : setting.value
+      if setting.name == "controllerServiceAccount.name"
+    ]) == "arc-example-runners-with-a-rather-long-name-767f83ef-gha-rs-con"
+    error_message = "The scale-set RoleBinding must reference the ServiceAccount name rendered by the official controller chart for long release names."
+  }
+}
+
+run "renders_official_scale_set_with_sensitive_token" {
+  command = plan
+
+  variables {
+    deployment_mode         = "scale_set"
+    personal_access_token   = "example-token-value"
+    github_auth_secret_name = null
+
+    scale_set = {
+      github_config_url     = "https://github.com/example/application"
+      runner_scale_set_name = "example-runners"
+    }
+  }
+
+  assert {
+    condition = one([
+      for setting in helm_release.arc_scale_set[0].set_sensitive : nonsensitive(setting.value)
+      if setting.name == "githubConfigSecret.github_token"
+    ]) == "example-token-value"
+    error_message = "Token authentication must use the official chart's sensitive githubConfigSecret.github_token value."
+  }
+}
+
+run "rejects_scale_set_without_github_url" {
+  command = plan
+
+  variables {
+    deployment_mode         = "scale_set"
+    personal_access_token   = null
+    github_auth_secret_name = "controller-manager"
+    scale_set               = {}
+  }
+
+  expect_failures = [var.scale_set]
+}
+
+run "rejects_scale_set_with_invalid_capacity_bounds" {
+  command = plan
+
+  variables {
+    deployment_mode         = "scale_set"
+    personal_access_token   = null
+    github_auth_secret_name = "controller-manager"
+
+    scale_set = {
+      github_config_url = "https://github.com/example"
+      min_runners       = 3
+      max_runners       = 1
+    }
+  }
+
+  expect_failures = [var.scale_set]
 }

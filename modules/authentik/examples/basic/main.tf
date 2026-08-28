@@ -10,6 +10,13 @@ module "authentik" {
     user = "authentik"
   }
 
+  ingress = {
+    enabled         = true
+    hostname        = "auth.example.com"
+    tls_secret_name = "auth-example-com-tls"
+    cluster_issuer  = "letsencrypt-prod"
+  }
+
   extra_helm_config = {
     server = {
       replicas = 2

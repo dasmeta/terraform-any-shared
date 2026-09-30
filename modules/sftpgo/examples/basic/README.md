@@ -10,7 +10,22 @@ settings.
 
 Replace the placeholder variable values before applying. Sensitive inputs are
 redacted in normal Terraform output, but they still exist in Terraform state.
-The WebUI signing passphrase must remain stable across pod restarts.
+The WebUI signing passphrase must remain stable across pod restarts. Replace
+`web_proxy.proxy_allowed` with the trusted proxy subnets for your environment
+and restrict direct HTTP access to that proxy path. The example retains
+`token_validation = 0` and trusts the rightmost `X-Forwarded-For` address from
+one ALB in append mode. Omit `web_proxy` if no trusted reverse proxy is used.
+
+The SFTP Service example selects `external_traffic_policy = "Local"` and enables
+NLB cross-zone routing for a single pod. Verify client-IP preservation and HTTP
+health checks on the allocated healthCheckNodePort before production rollout.
+The module default remains Cluster for existing consumers.
+
+The example enables application/pod shutdown windows of 300/330 seconds. Adjust
+them for transfer sizes, align NLB connection draining and leave enough Helm
+timeout for volume reattachment/startup. Test upload completion during shutdown
+in dev. See the module README for a signing Secret reference, disabling bootstrap
+users, and optional PDB/Karpenter placement controls.
 
 ```bash
 terraform init

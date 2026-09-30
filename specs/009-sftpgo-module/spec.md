@@ -156,3 +156,42 @@ the generated Helm values for the expected `config.httpd` fields.
 - **SC-006**: Consumers can enable an SFTP-only LoadBalancer Service without changing the chart's shared internal service.
 - **SC-007**: Consumers can configure a stable WebUI signing passphrase and validate the module without unsupported-argument or validation errors.
 - **SC-008**: The default WebUI token validation mode remains unchanged unless explicitly configured by the consumer.
+
+## 2026-09-30 extension: Trusted HTTP proxy
+
+Scope: `modules/sftpgo`, its README, `examples/basic`, `tests/basic`, and a provider-mocked Terraform test. The user explicitly approved implementing option A after review of the production symptoms and proposed interface extension. No additional approval is needed for this additive interface.
+
+### User story: Keep the admin session behind a load balancer
+
+An administrator behind a trusted HTTP proxy must retain their session when requests arrive through different proxy nodes while SFTPGo continues validating the actual client IP.
+
+Acceptance scenarios:
+1. With a stable client IP and multiple trusted proxy peers, generated configuration uses the forwarded client IP and retains same-IP token validation and the existing signing passphrase.
+2. With the new input omitted, rendered configuration remains unchanged.
+3. Proxy configuration works with or without the optional session input, and retains HTTP port 8080, WebAdmin, WebClient and the bootstrap REST API.
+4. Untrusted direct peers cannot choose their client IP through forwarded headers; consumers must restrict ingress to the trusted proxy path.
+
+Requirements:
+- FR-PROXY-001: Add optional grouped `web_proxy` with required nonempty `proxy_allowed` CIDRs, optional `client_ip_proxy_header` default `X-Forwarded-For`, and optional nonnegative integer `client_ip_header_depth` default 0 (rightmost address). Reject invalid CIDRs, universal /0 ranges, blank headers, and negative/fractional depths.
+- FR-PROXY-002: Preserve `web_session` and generated common/data-provider settings when proxy support is enabled. Keep token_validation default 0.
+- FR-PROXY-003: Keep the existing top-level `extra_values` replacement contract; explicitly document that `extra_values.config` replaces managed configuration and must not be combined with these managed HTTP settings.
+- FR-PROXY-004: Do not change SFTP Service, secrets, replica count, network resources or provider/chart versions in this extension.
+- FR-PROXY-005: Document network trust boundaries, proxy-chain depth, one-time re-login, and the remaining limitation for changing VPN egress IPs.
+
+Success: tests demonstrate defaults, proxy-only, session-only, combined configuration, and input rejection; the pinned Helm chart renders the intended binding with all three HTTP interfaces enabled. Runtime session verification remains a deployment acceptance step, not a claim of local tests.
+
+## 2026-09-30 extension: Preserve SFTP client IP
+
+The user approved implementing Issue 2 after review of the production instance-target NLB with client-IP preservation enabled and Service externalTrafficPolicy Cluster.
+
+Scope: modules/sftpgo, README, examples/basic, tests/basic and a mocked Service plan suite. Add optional `sftp_service.external_traffic_policy`, default Cluster, accepting only Cluster or Local. Set the resource field for LoadBalancer and NodePort; omit it for ClusterIP. Reject Local combined with ClusterIP to avoid silently ignoring consumer intent. Preserve existing Service name, loadBalancerClass, annotations, selectors, port and source ranges. Service remains disabled by default. No replica, web_proxy, secret, provider or Helm chart changes are required.
+
+Acceptance: consumers can select Local for external SFTP traffic; default consumers retain Cluster; ClusterIP remains valid; invalid policies/combinations fail validation. Tests must show unchanged SFTP-only port and selector. Actual client-IP preservation requires downstream NLB health-check, routing and real connection checks after deployment.
+
+For a single-AZ pod behind a multi-AZ NLB, consumer guidance must cover cross-zone routing and Local health checks. IP allowlisting is separate and requires consumer-supplied CIDRs; this extension does not invent an allowlist or enable the defender.
+
+## 2026-09-30 follow-up: credentials and planned shutdown
+
+User requested completing module-owned gaps across all five operational issues. Preserve existing proxy and traffic-policy work. Permit an empty bootstrap user list and omit its sidecar; this does not delete or rotate existing accounts. Support exactly one of a literal web_session.signing_passphrase or a same-namespace signing_passphrase_secret_ref (name/key), avoiding secret reads and literal signing values in generated configuration for the reference path. Add opt-in shutdown settings pairing application grace time and a strictly longer pod termination period. Existing defaults and literal-secret consumers remain compatible.
+
+Use existing extra_values for chart PDB, pod annotations and nodeSelector, with a rendered example and single-replica maintenance caveats. DNS/state adoption, AWS secret provisioning/rotation, bucket lifecycle, NLB connection draining, NodePool controls, and database/storage HA migration remain consumer/platform responsibilities. Do not add AWS resource ownership to this Helm wrapper.

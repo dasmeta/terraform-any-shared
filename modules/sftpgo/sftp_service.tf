@@ -14,6 +14,7 @@ resource "kubernetes_service_v1" "sftp" {
 
   spec {
     type                        = var.sftp_service.type
+    external_traffic_policy     = var.sftp_service.type != "ClusterIP" ? var.sftp_service.external_traffic_policy : null
     load_balancer_class         = var.sftp_service.type == "LoadBalancer" ? var.sftp_service.load_balancer_class : null
     load_balancer_source_ranges = coalesce(var.sftp_service.load_balancer_source_ranges, [])
 

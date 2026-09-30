@@ -25,6 +25,10 @@ module "sftpgo" {
     token_validation   = 0
   }
 
+  web_proxy = {
+    proxy_allowed = ["10.0.1.0/24", "10.0.2.0/24"]
+  }
+
   bootstrap_users = [
     {
       username                = "test-user"
@@ -40,9 +44,10 @@ module "sftpgo" {
   }
 
   sftp_service = {
-    enabled = true
-    type    = "LoadBalancer"
-    port    = 22
+    enabled                 = true
+    type                    = "LoadBalancer"
+    port                    = 22
+    external_traffic_policy = "Local"
     annotations = {
       "service.beta.kubernetes.io/aws-load-balancer-type"   = "nlb"
       "service.beta.kubernetes.io/aws-load-balancer-scheme" = "internal"

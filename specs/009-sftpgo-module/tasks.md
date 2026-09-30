@@ -118,7 +118,7 @@
 - [X] T039 Add validated sensitive `web_session` input and `config.httpd` Helm value mapping.
 - [X] T040 Update the example, README, and test notes for stable signing and cookie settings.
 - [X] T041 Configure the dev consumer with stable WebUI session settings.
-- [ ] T042 Run formatting, module/example/test validation, and diff checks for the session extension.
+- [x] T042 Run formatting, module/example/test validation, and diff checks for the session extension.
 
 ---
 
@@ -147,3 +147,29 @@
 3. Add User Story 2 bootstrap behavior.
 4. Complete documentation and validation artifacts.
 5. Run validation and record any limitations.
+
+## 2026-09-30 trusted HTTP proxy extension
+
+- [x] T043 Record approved option A scope, interface, compatibility and acceptance checks in this package.
+- [x] T044 Add and run failing provider-mocked Terraform tests for web_proxy and preserved session configuration.
+- [x] T045 Add nullable validated web_proxy input and combine its binding with session settings in locals.tf.
+- [x] T046 Update README, example/basic fixture, test guidance and module interface contract.
+- [x] T047 Run formatting, Terraform tests/validation, existing Ruby regressions, pinned-chart render and diff checks; record evidence.
+- [x] T048 Prepare prod-consumer change instructions/patch without choosing an unpublished module version or applying infrastructure.
+
+## 2026-09-30 SFTP client IP extension
+
+- [x] T049 Record approved traffic-policy scope and compatibility plan.
+- [x] T050 Add and observe failing Local Service plan test.
+- [x] T051 Implement optional traffic policy, type-aware mapping and validation.
+- [x] T052 Update docs/examples/fixtures and interface contract.
+- [x] T053 Verify all module tests, static validation, formatting and existing regressions.
+- [x] T054 Prepare and validate consumer patch with Local and cross-zone annotation; record deployment acceptance checks.
+
+## 2026-09-30 remaining module-owned operational fixes
+
+- [x] T055 Record remaining scope, interfaces and external ownership.
+- [x] T056 Add failing tests for Secret reference, no bootstrap and paired shutdown.
+- [x] T057 Implement backward-compatible inputs and Helm value mapping.
+- [x] T058 Add rendered maintenance example and issue ownership guidance.
+- [x] T059 Run all tests, validation and render checks; record limitations.

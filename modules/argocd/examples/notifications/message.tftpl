@@ -1,0 +1,34 @@
+${title}
+Application: {{.app.metadata.name}}
+Environment: {{.context.environment}}
+Destination namespace: {{.app.spec.destination.namespace}}
+Status: sync={{.app.status.sync.status}}, health={{.app.status.health.status}}{{with .app.status.operationState}}, operation={{.phase}}{{end}}
+Application link: {{.context.argocdUrl}}/applications/{{.app.metadata.namespace}}/{{.app.metadata.name}}
+{{- $sources := .app.spec.sources }}
+{{- $source := .app.spec.source }}
+{{- $revisions := .app.status.sync.revisions }}
+{{- $revision := .app.status.sync.revision }}
+{{- $observation := "last compared application state (may precede this operation)" }}
+{{- with .app.status.sync.comparedTo }}
+{{- if or .sources .source }}{{ $sources = .sources }}{{ $source = .source }}{{end}}
+{{- end}}
+%{ if use_operation_result ~}
+{{- with .app.status.operationState }}{{with .syncResult }}
+{{- if or .sources .source }}{{ $sources = .sources }}{{ $source = .source }}{{end}}
+{{- $revisions = .revisions }}
+{{- $revision = .revision }}
+{{- $observation = "current operation result" }}
+{{- end}}{{end}}
+%{ endif ~}
+Revision observation: {{$observation}}
+{{if $sources}}{{range $index, $entry := $sources}}
+Source {{$index}}: {{$entry.repoURL}}
+{{if $entry.chart}}Helm chart: {{$entry.chart}}
+{{if and $revisions (lt $index (len $revisions))}}Chart version: {{index $revisions $index}}{{else}}Requested chart version: {{$entry.targetRevision}} (resolved version unavailable){{end}}
+{{else}}Git revision: {{if and $revisions (lt $index (len $revisions))}}{{index $revisions $index}}{{else}}unavailable (requested {{$entry.targetRevision}}){{end}}{{end}}
+{{end}}{{else if $source}}
+Source: {{$source.repoURL}}
+{{if $source.chart}}Helm chart: {{$source.chart}}
+{{if $revision}}Chart version: {{$revision}}{{else}}Requested chart version: {{$source.targetRevision}} (resolved version unavailable){{end}}
+{{else}}Git revision: {{if $revision}}{{$revision}}{{else}}unavailable (requested {{$source.targetRevision}}){{end}}{{end}}
+{{else}}Resolved sources unavailable.{{end}}

@@ -108,6 +108,38 @@ variable "use_existing_admin_secret" {
   description = "When true, do not manage admin password material and expect an existing argocd-secret in the target namespace."
 }
 
+variable "notifications" {
+  type = object({
+    enabled    = optional(bool)
+    argocd_url = optional(string)
+    context    = optional(map(string))
+    secret = optional(object({
+      create = optional(bool)
+      name   = optional(string)
+      items  = optional(map(string))
+    }))
+    notifiers = optional(map(string))
+    templates = optional(map(string))
+    triggers  = optional(map(string))
+    subscriptions = optional(list(object({
+      recipients = list(string)
+      triggers   = list(string)
+      selector   = optional(string)
+    })))
+  })
+  default     = null
+  description = "Native Argo CD notifications settings. Omitted attributes preserve chart defaults; notifiers, templates, and triggers contain YAML strings. extra_configs takes precedence. Credentials belong in secret.items or an externally managed Secret."
+  sensitive   = true
+
+  validation {
+    condition = alltrue([
+      for key, value in coalesce(try(var.notifications.secret.items, null), {}) :
+      can(regex("^[A-Za-z0-9_-]+$", key)) && value != null
+    ])
+    error_message = "Notification Secret item names must contain only letters, numbers, underscores, and hyphens, and values must not be null. This keeps Helm provider v2 credential redaction reliable."
+  }
+}
+
 variable "extra_configs" {
   type        = any
   default     = {}

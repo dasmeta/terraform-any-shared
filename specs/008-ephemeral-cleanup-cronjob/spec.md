@@ -2,7 +2,7 @@
 
 **Feature Branch**: `008-ephemeral-cleanup-cronjob`
 **Created**: 2026-06-11
-**Status**: Implemented
+**Status**: Extended
 **Input**: Convert the cleanup deployment into a reusable Terraform module that uses DasMeta `base-cronjob` Helm chart and can be applied for different clients with configurable schedule and related settings.
 
 ## Scope
@@ -57,6 +57,18 @@ As an infrastructure operator, I want the cleanup script stored in a ConfigMap a
 2. Given the module renders Helm values, `config.envFrom` is false.
 3. Given Helm renders the chart, the ConfigMap is mounted at `/scripts` with read-only mode and no unwanted `envFrom` entry for the script ConfigMap.
 
+### Story 4 - Delete Ephemeral Namespaces
+
+As an infrastructure operator, I want the cleanup job to remove every matching ephemeral namespace on each scheduled run so direct resources, including non-Helm SeaweedFS deployments, cannot remain indefinitely.
+
+**Acceptance Criteria**
+
+1. Given `namespace_deletion.enabled` is false, the module preserves Helm-only cleanup and does not grant namespace delete permission.
+2. Given the default settings or `namespace_deletion.enabled` is true, the cleanup script deletes every namespace matching `namespace_name_pattern` during each scheduled run.
+3. Given a matching namespace has no Helm releases, the cleanup script still deletes it.
+4. Given dry-run mode, the cleanup script logs namespace deletion but does not execute it.
+5. Given Helm discovery or Helm uninstall fails for a namespace, the job exits non-zero and does not delete that namespace.
+
 ## Functional Requirements
 
 - FR-001: The module must use the Helm provider and a single `helm_release`.
@@ -71,6 +83,12 @@ As an infrastructure operator, I want the cleanup script stored in a ConfigMap a
 - FR-010: The module must expose common CronJob controls: concurrency policy, suspend, history limits, starting deadline, job backoff limit, finished-job TTL, restart policy.
 - FR-011: The module must expose common pod controls: image settings, resources, node selector, tolerations, labels, pod annotations.
 - FR-012: The module must document the chart publication dependency for version `0.1.39`.
+- FR-013: The module must expose `namespace_deletion` with `enabled` defaulting to true.
+- FR-014: When enabled, the module must pass the deletion and minimum-age settings to the cleanup script.
+- FR-015: The cleanup script must delete every matched namespace when deletion is enabled.
+- FR-016: The default RBAC must include namespace delete only when namespace deletion is enabled.
+- FR-017: The cleanup script must continue to support dry-run without any Helm or namespace deletion mutations.
+- FR-018: README, example, and shell tests must document and verify the new behavior.
 
 ### Compatibility & Delivery Requirements
 
@@ -83,7 +101,7 @@ As an infrastructure operator, I want the cleanup script stored in a ConfigMap a
 
 - Do not create a broad pass-through for every `base-cronjob` chart value.
 - Do not include legacy standalone Kubernetes YAML manifests in the module.
-- Do not change the cleanup shell script behavior except preserving test coverage.
+- Do not add label, merge-request-state, or active-environment exemptions: the agreed policy deletes every matching namespace after the configured age.
 - Do not publish the Helm chart package from this repository.
 
 ## Assumptions

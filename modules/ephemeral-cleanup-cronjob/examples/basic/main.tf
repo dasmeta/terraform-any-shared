@@ -21,4 +21,8 @@ module "ephemeral_helm_cleanup" {
   namespace              = "staging"
   schedule               = "0 2 * * *"
   namespace_name_pattern = "ephemeral"
+
+  namespace_deletion = {
+    enabled = true
+  }
 }

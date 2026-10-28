@@ -3,7 +3,7 @@ locals {
     {
       apiGroups = [""]
       resources = ["namespaces"]
-      verbs     = ["get", "list"]
+      verbs     = var.namespace_deletion.enabled ? ["get", "list", "delete"] : ["get", "list"]
     },
     {
       apiGroups = [""]
@@ -97,6 +97,14 @@ locals {
         {
           name  = "NAMESPACE_NAME_PATTERN"
           value = var.namespace_name_pattern
+        },
+        {
+          name  = "DELETE_NAMESPACES"
+          value = tostring(var.namespace_deletion.enabled)
+        },
+        {
+          name  = "JOB_NAMESPACE"
+          value = var.namespace
         }
       ]
       volumes = [

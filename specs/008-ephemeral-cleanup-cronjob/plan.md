@@ -64,6 +64,14 @@ Update the module to:
 - keep the cleanup script sourced from `modules/ephemeral-cleanup-cronjob/scripts/ephemeral-helm-cleanup.sh`
 - keep shell dry-run test coverage in `modules/ephemeral-cleanup-cronjob/tests/ephemeral-helm-cleanup-test.sh`
 
+## Namespace Deletion Extension
+
+Add a `namespace_deletion` grouped input with `enabled = true` by default. Pass `DELETE_NAMESPACES` to the mounted script and add `delete` to the default namespace RBAC verbs when deletion is enabled.
+
+The script will finish Helm release cleanup and then issue `kubectl delete namespace <name> --ignore-not-found=true --wait=false` for every matched namespace. The documented policy deliberately has no label, merge-request-state, active-environment, or age exemption. If Helm discovery or uninstall fails, the script must fail and retain that namespace.
+
+This is a deliberate breaking behavior change: deletion is enabled by default, and consumers that need Helm-only cleanup must explicitly set `namespace_deletion.enabled = false`.
+
 ## Interface Shape
 
 Grouped variables:

@@ -19,6 +19,10 @@ module "ephemeral_helm_cleanup" {
   namespace              = "staging"
   schedule               = "0 2 * * *"
   namespace_name_pattern = "ephemeral"
+
+  namespace_deletion = {
+    enabled = true
+  }
 }
 ```
 
@@ -74,7 +78,9 @@ module "ephemeral_helm_cleanup" {
 
 The script matches namespaces by substring. For example, `namespace_name_pattern = "ephemeral"` matches `ephemeral`, `api-ephemeral-pr-123`, and `web-ephemeral-demo`.
 
-The job uses cluster-wide RBAC by default because Helm release cleanup may delete many namespaced Kubernetes resource types across every matched namespace. Override `rbac.rules` only when the target cluster has a narrower, tested permission model.
+`namespace_deletion.enabled` is `true` by default. Each scheduled run deletes every matching namespace after successful Helm cleanup, except the namespace running this CronJob. It has no label, merge-request-state, active-environment, or age exemption. Set `namespace_deletion.enabled = false` to retain Helm-only cleanup.
+
+The job uses cluster-wide RBAC by default because Helm release cleanup may delete many namespaced Kubernetes resource types across every matched namespace. Override `rbac.rules` only when the target cluster has a narrower, tested permission model. When `namespace_deletion.enabled = true`, custom rules must grant `get`, `list`, and `delete` on the cluster-scoped `namespaces` resource; custom `rbac.rules` replace the module defaults.
 
 ## Inputs
 
@@ -89,6 +95,7 @@ The job uses cluster-wide RBAC by default because Helm release cleanup may delet
 | `job_name` | CronJob name. | `ephemeral-helm-cleanup` |
 | `schedule` | Cron schedule for the cleanup job. | `0 2 * * *` |
 | `namespace_name_pattern` | Substring used to select namespaces. | `ephemeral` |
+| `namespace_deletion` | Deletes matching namespaces on every scheduled run. | enabled |
 | `image` | Image registry, repository, tag, and pull policy. | `alpine/k8s:1.20.15` |
 | `dry_run` | Log uninstall commands without executing them. | `false` |
 | `suspend` | Suspend future CronJob executions. | `false` |
@@ -164,6 +171,7 @@ No modules.
 | <a name="input_job_name"></a> [job\_name](#input\_job\_name) | CronJob name passed to base-cronjob. | `string` | `"ephemeral-helm-cleanup"` | no |
 | <a name="input_labels"></a> [labels](#input\_labels) | Labels passed to base-cronjob. The chart expects label entries with name and value fields. | <pre>list(object({<br/>    name  = string<br/>    value = string<br/>  }))</pre> | `[]` | no |
 | <a name="input_namespace"></a> [namespace](#input\_namespace) | Namespace where the Helm release is installed. | `string` | `"default"` | no |
+| <a name="input_namespace_deletion"></a> [namespace\_deletion](#input\_namespace\_deletion) | Deletion policy for matching namespaces. Deletion is enabled by default. | <pre>object({<br/>    enabled = optional(bool, true) # Enables deletion of matching namespaces on every scheduled run.<br/>  })</pre> | `{}` | no |
 | <a name="input_namespace_name_pattern"></a> [namespace\_name\_pattern](#input\_namespace\_name\_pattern) | Substring used by the cleanup script to select namespaces containing Helm releases to uninstall. | `string` | `"ephemeral"` | no |
 | <a name="input_node_selector"></a> [node\_selector](#input\_node\_selector) | Optional node selector for the cleanup pod. | `map(string)` | `{}` | no |
 | <a name="input_pod_annotations"></a> [pod\_annotations](#input\_pod\_annotations) | Pod annotations passed to base-cronjob. | `map(string)` | `{}` | no |

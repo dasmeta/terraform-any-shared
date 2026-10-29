@@ -77,6 +77,14 @@ variable "namespace_name_pattern" {
   }
 }
 
+variable "namespace_deletion" {
+  type = object({
+    enabled = optional(bool, true) # Enables deletion of matching namespaces on every scheduled run.
+  })
+  default     = {}
+  description = "Deletion policy for matching namespaces. Deletion is enabled by default."
+}
+
 variable "image" {
   type = object({
     registry    = optional(string, "")

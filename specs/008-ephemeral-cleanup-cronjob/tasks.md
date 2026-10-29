@@ -19,6 +19,15 @@
 - [x] Update `examples/basic`.
 - [x] Keep shell dry-run test coverage.
 
+## Namespace Deletion Extension
+
+- [x] Add the `namespace_deletion` grouped variable with enabled-by-default deletion.
+- [x] Pass deletion settings to the CronJob and conditionally grant namespace delete RBAC.
+- [x] Extend the cleanup script to delete every matching namespace after successful Helm cleanup.
+- [x] Make Helm discovery failures visible and prevent deletion for a failed namespace.
+- [x] Add shell coverage for disabled, direct deletion, and dry-run behavior.
+- [x] Update README and basic example with enabled-by-default deletion behavior.
+
 ## Verification
 
 - [x] Run `terraform fmt -check -recursive`.

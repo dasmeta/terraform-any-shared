@@ -80,10 +80,25 @@ resource "helm_release" "this" {
   wait            = var.wait
   timeout         = var.helm_timeout
 
-  values = [
-    yamlencode(local.values),
-    yamlencode(var.extra_configs),
-  ]
+  values = concat(
+    [yamlencode(local.values)],
+    nonsensitive(var.notifications == null) ? [] : [yamlencode({ notifications = local.notifications_values })],
+    [nonsensitive(var.notifications == null) ? yamlencode(var.extra_configs) : sensitive(yamlencode(var.extra_configs))],
+  )
+
+  dynamic "set_sensitive" {
+    for_each = nonsensitive(sensitive(toset(keys(local.notification_sensitive_items))))
+
+    content {
+      name = "notifications.secret.items.${set_sensitive.value}"
+      # Helm strvals treats commas, braces, and backslashes as syntax even
+      # with type=string. Preserve the literal Secret value.
+      value = replace(replace(replace(replace(
+        local.notification_sensitive_items[set_sensitive.value],
+      "\\", "\\\\"), ",", "\\,"), "{", "\\{"), "}", "\\}")
+      type = "string"
+    }
+  }
 
   lifecycle {
     precondition {

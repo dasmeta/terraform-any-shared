@@ -64,6 +64,119 @@ module "argocd" {
 }
 ```
 
+## Notifications
+
+Use `notifications` for the supported notification interface. It defaults to
+`null`: omitting it adds no Helm values and preserves existing chart behavior,
+including the chart's enabled notifications controller. Setting `notifications = {}`
+also preserves chart defaults. Only explicitly supplied, non-null attributes are emitted.
+
+```terraform
+module "argocd" {
+  source = "dasmeta/shared/any//modules/argocd"
+
+  hostname                  = "argocd.example.com"
+  use_existing_admin_secret = true
+
+  notifications = {
+    enabled    = true
+    argocd_url = "https://argocd.example.com"
+    context    = { environment = "dev" }
+    secret = {
+      create = false
+      name   = "argocd-notifications-secret"
+    }
+    notifiers = {
+      "service.slack" = yamlencode({ token = "$slack-token" })
+    }
+    # Add templates, triggers, and subscriptions for your applications.
+  }
+}
+```
+
+| Input attribute | Helm notification value | Format |
+|-----------------|-------------------------|--------|
+| `enabled` | `enabled` | Boolean; omission preserves the chart default |
+| `argocd_url` | `argocdUrl` | Public Argo CD URL used by message links |
+| `context` | `context` | Map of strings, e.g. an explicit environment |
+| `secret` | `secret` | Optional `create`, `name`, and `items` attributes |
+| `notifiers` | `notifiers` | Map of `service.<name>` to YAML strings |
+| `templates` | `templates` | Map of `template.<name>` to YAML strings |
+| `triggers` | `triggers` | Map of `trigger.<name>` to YAML strings |
+| `subscriptions` | `subscriptions` | List of objects with `recipients`, `triggers`, and optional `selector` |
+
+Use `yamlencode` for notifier/template/trigger definitions or supply existing YAML
+strings. This interface targets [chart 9.5.2](https://github.com/argoproj/argo-helm/blob/argo-cd-9.5.2/charts/argo-cd/values.yaml)
+and Argo CD v3.3.7. The [Terraform example](examples/notifications) configures Slack
+and native [Teams Workflows](https://argo-cd.readthedocs.io/en/release-3.3/operator-manual/notifications/services/teams-workflows/),
+with four deployment/health events and application label selection. These are example
+policies; the module does not install default triggers or subscribe applications.
+Teams Workflows requires an Argo CD version that supports `service.teams-workflows`;
+the example does not use legacy Office 365 Connectors.
+
+### Credentials
+
+For externally managed credentials, use `secret.create = false`, set `secret.name`,
+and provision the Secret in the release namespace before deploying Argo CD.
+Notifier definitions reference Secret keys using strings such as `$slack-token`.
+The notifications Secret is separate from the admin `argocd-secret`.
+When migrating an existing Helm-managed notification Secret to external
+management, use a distinct external Secret name: Helm can delete its old Secret
+when `create` changes to `false`.
+
+For Helm-managed credentials, set `secret.create = true` and supply `secret.items`
+through sensitive consumer variables. Keep actual tokens and webhook URLs in
+`secret.items`, not inline in context, notifiers, templates, or triggers. Item
+names support letters, digits, hyphens, and underscores. Dots and other Helm path
+syntax are rejected because Helm provider v2 cannot reliably redact those paths
+from release metadata. Existing externally managed Secret keys are not subject
+to this module validation.
+
+The grouped input is sensitive. Native Secret items also use Helm `set_sensitive`
+to redact their paths from provider metadata and normal output. Those sensitive
+settings use the final `extra_configs` override value, including null removal.
+Legacy credentials supplied only via `extra_configs` retain their existing
+handling; migrate them to `notifications.secret.items` or an external Secret.
+Sensitivity hides normal CLI display; credentials still reside in Terraform
+state and Helm release storage. No credential outputs are added.
+
+### Override precedence and migration
+
+Helm receives module defaults, native notification values, and `extra_configs`
+in that order. Maps merge recursively according to Helm rules; later scalar and
+list values replace earlier values. `extra_configs.notifications` remains the
+final override, including when both interfaces are supplied. Avoid keeping an
+old subscription list in `extra_configs` after migrating, because it overrides
+the native list.
+
+```terraform
+# Before: inside the module block
+extra_configs = {
+  notifications = {
+    argocdUrl = "https://argocd.example.com"
+    secret    = { create = false, name = "argocd-notifications-secret" }
+    notifiers = { "service.slack" = "token: $slack-token" }
+  }
+}
+
+# After: replace that notifications subtree with this native input.
+# Preserve any unrelated extra_configs entries.
+notifications = {
+  argocd_url = "https://argocd.example.com"
+  secret    = { create = false, name = "argocd-notifications-secret" }
+  notifiers = { "service.slack" = "token: $slack-token" }
+}
+```
+
+Consumers on module version 1.9.0 must upgrade to a release containing this input
+before using it. This additive feature is recommended for the next **minor**
+release through the repository's normal release process. It changes no chart or
+provider version, existing input defaults, or resource addresses; existing
+`extra_configs.notifications` configurations continue working without migration.
+
+See the [Terraform example](examples/notifications/README.md) for both destinations,
+the four event definitions, and existing Secret references.
+
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
@@ -76,7 +189,7 @@ module "argocd" {
 
 | Name | Version |
 |------|---------|
-| <a name="provider_helm"></a> [helm](#provider\_helm) | ~> 2.0 |
+| <a name="provider_helm"></a> [helm](#provider\_helm) | 2.17.0 |
 
 ## Modules
 
@@ -104,8 +217,9 @@ No modules.
 | <a name="input_ingress"></a> [ingress](#input\_ingress) | Ingress configuration for the consumer-managed AWS ALB ingress path. | <pre>object({<br/>    enabled            = optional(bool, true)<br/>    controller         = optional(string, "aws")<br/>    ingress_class_name = optional(string, "alb")<br/>    annotations        = optional(map(string), {})<br/>    path               = optional(string, "/")<br/>    path_type          = optional(string, "Prefix")<br/>    tls_secret_name    = optional(string, null)<br/>  })</pre> | `{}` | no |
 | <a name="input_name"></a> [name](#input\_name) | The name of the Helm release. | `string` | `"argocd"` | no |
 | <a name="input_namespace"></a> [namespace](#input\_namespace) | The Kubernetes namespace where Argo CD is deployed. | `string` | `"argocd"` | no |
+| <a name="input_notifications"></a> [notifications](#input\_notifications) | Native Argo CD notifications settings. Omitted attributes preserve chart defaults; notifiers, templates, and triggers contain YAML strings. extra\_configs takes precedence. Credentials belong in secret.items or an externally managed Secret. | <pre>object({<br/>    enabled    = optional(bool)<br/>    argocd_url = optional(string)<br/>    context    = optional(map(string))<br/>    secret = optional(object({<br/>      create = optional(bool)<br/>      name   = optional(string)<br/>      items  = optional(map(string))<br/>    }))<br/>    notifiers = optional(map(string))<br/>    templates = optional(map(string))<br/>    triggers  = optional(map(string))<br/>    subscriptions = optional(list(object({<br/>      recipients = list(string)<br/>      triggers   = list(string)<br/>      selector   = optional(string)<br/>    })))<br/>  })</pre> | `null` | no |
 | <a name="input_replicas"></a> [replicas](#input\_replicas) | The number of Argo CD server replicas. | `number` | `2` | no |
-| <a name="input_resources"></a> [resources](#input\_resources) | Resource requests/limits for the Argo CD server workload. | <pre>object({<br/>    requests = optional(map(string), {<br/>      cpu    = "100m"<br/>      memory = "256Mi"<br/>    })<br/>    limits = optional(map(string), {<br/>      cpu    = "500m"<br/>      memory = "512Mi"<br/>    })<br/>  })</pre> | `{}` | no |
+| <a name="input_resources"></a> [resources](#input\_resources) | Resource requests/limits for the Argo CD server workload. | <pre>object({<br/>    requests = optional(map(string), { cpu = "100m", memory = "256Mi" })<br/>    limits   = optional(map(string), { cpu = "500m", memory = "512Mi" })<br/>  })</pre> | `{}` | no |
 | <a name="input_use_existing_admin_secret"></a> [use\_existing\_admin\_secret](#input\_use\_existing\_admin\_secret) | When true, do not manage admin password material and expect an existing argocd-secret in the target namespace. | `bool` | `false` | no |
 | <a name="input_wait"></a> [wait](#input\_wait) | Whether Helm should wait until all resources are in a ready state before marking the release as successful (helm\_release.wait). | `bool` | `true` | no |
 
@@ -161,6 +275,7 @@ No modules.
 | <a name="input_ingress"></a> [ingress](#input\_ingress) | Ingress configuration for the consumer-managed AWS ALB ingress path. | <pre>object({<br/>    enabled            = optional(bool, true)<br/>    controller         = optional(string, "aws")<br/>    ingress_class_name = optional(string, "alb")<br/>    annotations        = optional(map(string), {})<br/>    path               = optional(string, "/")<br/>    path_type          = optional(string, "Prefix")<br/>    tls_secret_name    = optional(string, null)<br/>  })</pre> | `{}` | no |
 | <a name="input_name"></a> [name](#input\_name) | The name of the Helm release. | `string` | `"argocd"` | no |
 | <a name="input_namespace"></a> [namespace](#input\_namespace) | The Kubernetes namespace where Argo CD is deployed. | `string` | `"argocd"` | no |
+| <a name="input_notifications"></a> [notifications](#input\_notifications) | Native Argo CD notifications settings. Omitted attributes preserve chart defaults; notifiers, templates, and triggers contain YAML strings. extra\_configs takes precedence. Credentials belong in secret.items or an externally managed Secret. | <pre>object({<br/>    enabled    = optional(bool)<br/>    argocd_url = optional(string)<br/>    context    = optional(map(string))<br/>    secret = optional(object({<br/>      create = optional(bool)<br/>      name   = optional(string)<br/>      items  = optional(map(string))<br/>    }))<br/>    notifiers = optional(map(string))<br/>    templates = optional(map(string))<br/>    triggers  = optional(map(string))<br/>    subscriptions = optional(list(object({<br/>      recipients = list(string)<br/>      triggers   = list(string)<br/>      selector   = optional(string)<br/>    })))<br/>  })</pre> | `null` | no |
 | <a name="input_replicas"></a> [replicas](#input\_replicas) | The number of Argo CD server replicas. | `number` | `2` | no |
 | <a name="input_resources"></a> [resources](#input\_resources) | Resource requests/limits for the Argo CD server workload. | <pre>object({<br/>    requests = optional(map(string), { cpu = "100m", memory = "256Mi" })<br/>    limits   = optional(map(string), { cpu = "500m", memory = "512Mi" })<br/>  })</pre> | `{}` | no |
 | <a name="input_use_existing_admin_secret"></a> [use\_existing\_admin\_secret](#input\_use\_existing\_admin\_secret) | When true, do not manage admin password material and expect an existing argocd-secret in the target namespace. | `bool` | `false` | no |

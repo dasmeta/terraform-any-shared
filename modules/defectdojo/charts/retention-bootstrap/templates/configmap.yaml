@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}
+  namespace: {{ .Release.Namespace }}
+data:
+  policy.json: {{ dict "namespace" .Release.Namespace "release_name" .Release.Name "application_release" (required "Application release is required" .Values.applicationRelease) "target_secret" .Values.targetSecret.name "target_key" .Values.targetSecret.key "api_url" (required "API URL is required" .Values.apiUrl) | toJson | quote }}
+  bootstrap.py: |
+{{ required "The bundled bootstrap worker is missing" (.Files.Get "files/bootstrap.py") | indent 4 }}

@@ -91,23 +91,62 @@ variable "admin" {
 
 variable "web_session" {
   type = object({
-    signing_passphrase = string
-    cookie_lifetime    = optional(number, 720)
-    token_validation   = optional(number, 0)
+    signing_passphrase = optional(string)
+    signing_passphrase_secret_ref = optional(object({
+      name = string
+      key  = string
+    }))
+    cookie_lifetime  = optional(number, 720)
+    token_validation = optional(number, 0)
   })
   default     = null
-  description = "Optional SFTPGo WebAdmin/WebClient session settings. signing_passphrase must remain stable across pod restarts and is supplied through Terraform as a sensitive value."
+  description = "Optional WebAdmin/WebClient session settings. Supply exactly one stable signing_passphrase or signing_passphrase_secret_ref referencing an existing Secret in the release namespace. Literal values are stored in Terraform state; references do not read the secret."
   sensitive   = true
 
   validation {
     condition = var.web_session == null ? true : (
-      length(trimspace(var.web_session.signing_passphrase)) > 0 &&
+      (var.web_session.signing_passphrase != null) != (var.web_session.signing_passphrase_secret_ref != null) &&
+      (var.web_session.signing_passphrase == null ? true : length(trimspace(var.web_session.signing_passphrase)) > 0) &&
+      (var.web_session.signing_passphrase_secret_ref == null ? true : try(
+        length(trimspace(var.web_session.signing_passphrase_secret_ref.name)) > 0 &&
+        length(trimspace(var.web_session.signing_passphrase_secret_ref.key)) > 0, false
+      )) &&
       var.web_session.cookie_lifetime >= 1 &&
       var.web_session.cookie_lifetime <= 720 &&
       var.web_session.token_validation >= 0 &&
       var.web_session.token_validation <= 3
     )
-    error_message = "web_session.signing_passphrase must be non-empty, cookie_lifetime must be between 1 and 720 minutes, and token_validation must be between 0 and 3."
+    error_message = "web_session requires exactly one non-empty signing_passphrase or signing_passphrase_secret_ref with non-empty name/key; cookie_lifetime must be between 1 and 720 minutes and token_validation between 0 and 3."
+  }
+}
+
+variable "web_proxy" {
+  type = object({
+    proxy_allowed          = list(string)
+    client_ip_proxy_header = optional(string, "X-Forwarded-For")
+    client_ip_header_depth = optional(number, 0)
+  })
+  default     = null
+  description = "Optional trusted HTTP proxy configuration for the WebAdmin, WebClient and REST API binding on port 8080. Trust only proxy CIDRs and restrict direct HTTP access to the proxy path. Header depth counts from the right."
+
+  validation {
+    condition = var.web_proxy == null ? true : try(
+      length(var.web_proxy.proxy_allowed) > 0 && alltrue([
+        for cidr in var.web_proxy.proxy_allowed :
+        can(cidrhost(cidr, 0)) && tonumber(split("/", cidr)[1]) > 0
+      ]),
+      false
+    )
+    error_message = "web_proxy.proxy_allowed must contain valid IPv4 or IPv6 CIDRs; empty lists, null entries and universal /0 ranges are not allowed."
+  }
+
+  validation {
+    condition = var.web_proxy == null ? true : (
+      length(trimspace(var.web_proxy.client_ip_proxy_header)) > 0 &&
+      var.web_proxy.client_ip_header_depth >= 0 &&
+      floor(var.web_proxy.client_ip_header_depth) == var.web_proxy.client_ip_header_depth
+    )
+    error_message = "web_proxy.client_ip_proxy_header must be non-empty and client_ip_header_depth must be a nonnegative integer (0 trusts the rightmost address)."
   }
 }
 
@@ -142,13 +181,10 @@ variable "bootstrap_users" {
     home_dir                = optional(string)
     require_password_change = optional(bool, true)
   }))
-  description = "SFTPGo users to create or update during bootstrap. Passwords are supplied through Terraform and stored in state as sensitive."
+  default     = []
+  nullable    = false
+  description = "SFTPGo users to create or update during bootstrap. An empty list disables the bootstrap sidecar without deleting existing users. Passwords are stored in Terraform state as sensitive."
   sensitive   = true
-
-  validation {
-    condition     = length(var.bootstrap_users) > 0
-    error_message = "bootstrap_users must include at least one user."
-  }
 
   validation {
     condition = alltrue([
@@ -175,6 +211,7 @@ variable "sftp_service" {
     enabled                     = optional(bool, false)
     type                        = optional(string, "LoadBalancer")
     port                        = optional(number, 22)
+    external_traffic_policy     = optional(string, "Cluster")
     annotations                 = optional(map(string), {})
     load_balancer_class         = optional(string, "service.k8s.aws/nlb")
     load_balancer_source_ranges = optional(list(string), [])
@@ -185,6 +222,16 @@ variable "sftp_service" {
   validation {
     condition     = contains(["ClusterIP", "NodePort", "LoadBalancer"], var.sftp_service.type)
     error_message = "sftp_service.type must be one of ClusterIP, NodePort, or LoadBalancer."
+  }
+
+  validation {
+    condition     = contains(["Cluster", "Local"], var.sftp_service.external_traffic_policy)
+    error_message = "sftp_service.external_traffic_policy must be Cluster or Local."
+  }
+
+  validation {
+    condition     = var.sftp_service.type != "ClusterIP" || var.sftp_service.external_traffic_policy == "Cluster"
+    error_message = "sftp_service.external_traffic_policy = Local requires a LoadBalancer or NodePort Service."
   }
 
   validation {
@@ -206,6 +253,25 @@ variable "resources" {
   })
   default     = {}
   description = "SFTPGo container resource requests and limits."
+}
+
+variable "shutdown" {
+  type = object({
+    grace_time                       = optional(number, 300)
+    termination_grace_period_seconds = optional(number, 330)
+  })
+  default     = null
+  description = "Optional planned shutdown settings. SFTPGo waits up to grace_time seconds for transfers; the pod termination period must be longer. Coordinate load balancer draining and Helm timeout separately."
+
+  validation {
+    condition = var.shutdown == null ? true : (
+      var.shutdown.grace_time > 0 &&
+      floor(var.shutdown.grace_time) == var.shutdown.grace_time &&
+      var.shutdown.termination_grace_period_seconds > var.shutdown.grace_time &&
+      floor(var.shutdown.termination_grace_period_seconds) == var.shutdown.termination_grace_period_seconds
+    )
+    error_message = "shutdown requires a positive integer grace_time and a strictly larger integer termination_grace_period_seconds."
+  }
 }
 
 variable "strategy" {

@@ -180,11 +180,45 @@ EOT
   }
 
   web_session_values = var.web_session == null ? {} : {
+    httpd = merge(
+      {
+        cookie_lifetime  = var.web_session.cookie_lifetime
+        token_validation = var.web_session.token_validation
+      },
+      var.web_session.signing_passphrase == null ? {} : {
+        signing_passphrase = var.web_session.signing_passphrase
+      }
+    )
+  }
+
+  web_session_secret_values = try(var.web_session.signing_passphrase_secret_ref, null) == null ? {} : {
+    envVars = [{
+      name = "SFTPGO_HTTPD__SIGNING_PASSPHRASE"
+      valueFrom = {
+        secretKeyRef = var.web_session.signing_passphrase_secret_ref
+      }
+    }]
+  }
+
+  web_proxy_values = var.web_proxy == null ? {} : {
     httpd = {
-      signing_passphrase = var.web_session.signing_passphrase
-      cookie_lifetime    = var.web_session.cookie_lifetime
-      token_validation   = var.web_session.token_validation
+      bindings = [{
+        port                   = 8080
+        enable_web_admin       = true
+        enable_web_client      = true
+        enable_rest_api        = true
+        proxy_allowed          = var.web_proxy.proxy_allowed
+        client_ip_proxy_header = var.web_proxy.client_ip_proxy_header
+        client_ip_header_depth = var.web_proxy.client_ip_header_depth
+      }]
     }
+  }
+
+  httpd_values = {
+    for key in ["httpd"] : key => merge(
+      try(local.web_session_values.httpd, {}),
+      try(local.web_proxy_values.httpd, {})
+    ) if var.web_session != null || var.web_proxy != null
   }
 
   chart_values = merge(
@@ -199,17 +233,22 @@ EOT
             create_default_admin = var.admin.enabled
           }
         },
-        local.web_session_values
+        local.httpd_values
       )
-      env = {
-        AWS_ACCESS_KEY_ID             = var.s3_storage.access_key
-        AWS_DEFAULT_REGION            = var.s3_storage.region
-        AWS_REGION                    = var.s3_storage.region
-        AWS_SECRET_ACCESS_KEY         = var.s3_storage.access_secret
-        SFTPGO_DEFAULT_ADMIN_USERNAME = var.admin.username
-        SFTPGO_DEFAULT_ADMIN_PASSWORD = var.admin.password
-      }
-      extraContainers = [
+      env = merge(
+        {
+          AWS_ACCESS_KEY_ID             = var.s3_storage.access_key
+          AWS_DEFAULT_REGION            = var.s3_storage.region
+          AWS_REGION                    = var.s3_storage.region
+          AWS_SECRET_ACCESS_KEY         = var.s3_storage.access_secret
+          SFTPGO_DEFAULT_ADMIN_USERNAME = var.admin.username
+          SFTPGO_DEFAULT_ADMIN_PASSWORD = var.admin.password
+        },
+        var.shutdown == null ? {} : {
+          SFTPGO_GRACE_TIME = tostring(var.shutdown.grace_time)
+        }
+      )
+      extraContainers = length(var.bootstrap_users) == 0 ? [] : [
         {
           name            = "user-bootstrap"
           image           = var.bootstrap_image
@@ -223,6 +262,10 @@ EOT
       imagePullSecrets   = var.image_pull_secrets
     },
     local.persistence_values,
+    local.web_session_secret_values,
+    var.shutdown == null ? {} : {
+      podTerminationGracePeriodSeconds = var.shutdown.termination_grace_period_seconds
+    },
     var.extra_values
   )
 }

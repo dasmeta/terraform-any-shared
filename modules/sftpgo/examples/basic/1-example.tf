@@ -12,9 +12,15 @@ module "sftpgo" {
   atomic          = true
   cleanup_on_fail = true
   wait            = true
-  timeout         = 600
+  timeout         = 900
 
   replica_count = 1
+
+  # Opt in to planned transfer draining; coordinate the NLB drain timeout too.
+  shutdown = {
+    grace_time                       = 300
+    termination_grace_period_seconds = 330
+  }
 
   s3_storage = {
     bucket        = "example-dev-sftpgo"
@@ -33,6 +39,13 @@ module "sftpgo" {
     signing_passphrase = var.sftpgo_web_session_signing_passphrase
     cookie_lifetime    = 720
     token_validation   = 0
+  }
+
+  # Replace these CIDRs with the trusted reverse proxy subnets in your environment.
+  web_proxy = {
+    proxy_allowed          = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
+    client_ip_proxy_header = "X-Forwarded-For"
+    client_ip_header_depth = 0
   }
 
   bootstrap_users = [
@@ -64,12 +77,14 @@ module "sftpgo" {
   }
 
   sftp_service = {
-    enabled = true
-    type    = "LoadBalancer"
-    port    = 22
+    enabled                 = true
+    type                    = "LoadBalancer"
+    port                    = 22
+    external_traffic_policy = "Local"
     annotations = {
-      "service.beta.kubernetes.io/aws-load-balancer-type"   = "nlb"
-      "service.beta.kubernetes.io/aws-load-balancer-scheme" = "internal"
+      "service.beta.kubernetes.io/aws-load-balancer-type"       = "nlb"
+      "service.beta.kubernetes.io/aws-load-balancer-scheme"     = "internal"
+      "service.beta.kubernetes.io/aws-load-balancer-attributes" = "load_balancing.cross_zone.enabled=true"
     }
   }
 

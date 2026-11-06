@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: defectdojo-retention
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+data:
+  policy.json: {{ required "An explicit retention policy is required" .Values.policy | toJson | quote }}
+  retention.py: |
+{{ required "The bundled retention worker is missing" (.Files.Get "files/retention.py") | indent 4 }}

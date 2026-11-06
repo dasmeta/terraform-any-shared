@@ -1,0 +1,77 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-bootstrap
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    helm.sh/hook: post-install,post-upgrade
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+spec:
+  backoffLimit: 0
+  activeDeadlineSeconds: 600
+  ttlSecondsAfterFinished: 86400
+  template:
+    metadata:
+      annotations:
+        checksum/content: {{ .Values.contentChecksum | quote }}
+        checksum/worker: {{ .Files.Get "files/bootstrap.py" | sha256sum | quote }}
+    spec:
+      serviceAccountName: {{ .Release.Name }}
+      automountServiceAccountToken: true
+      restartPolicy: Never
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        fsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: bootstrap
+          image: {{ .Values.image | quote }}
+          imagePullPolicy: IfNotPresent
+          command: ["python", "-B", "/config/bootstrap.py"]
+          env:
+            - name: BOOTSTRAP_POLICY_FILE
+              value: /config/policy.json
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 25m
+              memory: 64Mi
+            limits:
+              cpu: 250m
+              memory: 256Mi
+          volumeMounts:
+            - name: config
+              mountPath: /config
+              readOnly: true
+            - name: username
+              mountPath: /credentials/username
+              subPath: username
+              readOnly: true
+            - name: password
+              mountPath: /credentials/password
+              subPath: password
+              readOnly: true
+      volumes:
+        - name: config
+          configMap:
+            name: {{ .Release.Name }}
+        - name: username
+          configMap:
+            name: {{ required "Application fullname is required" .Values.sourceFullname | quote }}
+            items:
+              - key: DD_ADMIN_USER
+                path: username
+        - name: password
+          secret:
+            secretName: {{ .Values.sourceFullname | quote }}
+            defaultMode: 0440
+            items:
+              - key: DD_ADMIN_PASSWORD
+                path: password

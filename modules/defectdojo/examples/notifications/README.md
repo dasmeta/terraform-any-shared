@@ -86,6 +86,12 @@ an explicit default port already have a different namespace: preserve that
 history and plan its migration before applying; this fix does not silently
 rewrite or delete old namespaces or remote alert aliases.
 
+Pagination hints use the same HTTP/HTTPS standard-port equivalence: a canonical
+`next` URL without `:443`/`:80` is accepted for a configured explicit default
+port, and vice versa. All actual requests still use the configured API base.
+Different origins, paths, filters, credentials and malformed ports remain
+rejected; accepting a hint never authorizes following it or a redirect.
+
 **Known import-completion limitation on DefectDojo 3.4.304:** its Test API does
 not expose processing/status. Old unchanged Test timestamps and import history,
 even with a settlement interval, cannot prove that reimport or deduplication has
@@ -93,7 +99,9 @@ finished. Intermediate findings can therefore generate premature notifications.
 A reliable repair requires a producer-owned begin/end generation gate covering
 every import and successful synchronous post-processing, or an equivalent
 upstream API completion signal. A completion-only callback or longer delay is
-insufficient. This integration change remains open pending operator approval.
+insufficient. By operator decision, producer coordination is deferred to a separate follow-up
+ticket. It is not fixed by this module change, and importer scripts remain
+unchanged.
 
 Daily Slack delivery uses one summary card per nonempty Engagement: global
 open/new/fixed counts, the five oldest findings and a **View All Findings**

@@ -42,6 +42,14 @@ def origin_url(value):
         raise SourceError('invalid_api_url') from None
 
 
+def _normalized_origin(parts):
+    """Compare explicit and implicit standard ports without merging protocols."""
+    port = parts.port
+    if port is None:
+        port = {'http': 80, 'https': 443}.get(parts.scheme)
+    return parts.scheme, parts.hostname, port
+
+
 class NoRedirect(HTTPRedirectHandler):
     def redirect_request(self, *args, **kwargs):
         return None
@@ -65,8 +73,9 @@ class API:
             if not isinstance(link, str) or re.search(r'[\s\\]', link):
                 raise ValueError
             p, b = urlsplit(link), urlsplit(self.base)
-            if ((p.scheme or p.netloc) and (p.scheme, p.hostname, p.port) != (b.scheme, b.hostname, b.port)
-                    or p.username or p.password or p.fragment or p.path != b.path + path):
+            if ((p.scheme or p.netloc) and _normalized_origin(p) != _normalized_origin(b)
+                    or p.username is not None or p.password is not None
+                    or p.fragment or p.path != b.path + path):
                 raise ValueError
             query = parse_qs(p.query, strict_parsing=True)
             if any(query.get(k) != [str(v)] for k, v in params.items() if k != 'offset'):

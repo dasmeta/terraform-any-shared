@@ -612,6 +612,73 @@ class APITests(unittest.TestCase):
                     valid.replace('Critical', 'High'), valid + '#fragment']:
             with self.assertRaises(SourceError): api.check_link(bad, 'findings/', params)
 
+    def test_pagination_equivalent_default_ports_are_accepted_in_both_directions(self):
+        from notifier.source import API
+        params = {'test': 10, 'limit': 50, 'offset': 0}
+        for scheme, port in (('https', 443), ('http', 80)):
+            bare = f'{scheme}://dojo.example.com'
+            explicit = f'{bare}:{port}'
+            for base, target in ((explicit, bare), (bare, explicit),
+                                 (f'{bare}:00{port}', bare),
+                                 (bare, f'{scheme.upper()}://DOJO.example.com:{port}')):
+                with self.subTest(base=base, target=target):
+                    API(base, 'token').check_link(
+                        target + '/api/v2/findings/?test=10&limit=50&offset=50', 'findings/', params)
+        API('https://dojo.example.com:8443', 'token').check_link(
+            'https://dojo.example.com:8443/api/v2/findings/?test=10&limit=50&offset=50',
+            'findings/', params)
+
+    def test_paginated_api_accepts_canonical_next_but_only_requests_configured_base(self):
+        import json
+        from urllib.parse import parse_qs, urlsplit
+        from notifier.source import API
+        class Response:
+            status = 200
+            def __init__(self, body): self.body = json.dumps(body).encode()
+            def __enter__(self): return self
+            def __exit__(self, *args): pass
+            def read(self, limit): return self.body[:limit]
+        class Opener:
+            def __init__(self, target): self.target, self.calls = target, []
+            def open(self, request, timeout):
+                self.calls.append(request.full_url)
+                offset = int(parse_qs(urlsplit(request.full_url).query)['offset'][0])
+                rows = [{'id': i} for i in range(1, 52)]
+                return Response(dict(count=51, results=rows[offset:offset + 50],
+                                     next=self.target + '/api/v2/findings/?test=10&limit=50&offset=50'
+                                     if offset == 0 else None))
+        for base, target in (('https://dojo.example.com:443', 'https://dojo.example.com'),
+                             ('https://dojo.example.com', 'https://dojo.example.com:443'),
+                             ('http://dojo.example.com:80', 'http://dojo.example.com'),
+                             ('http://dojo.example.com', 'http://dojo.example.com:80')):
+            with self.subTest(base=base):
+                opener = Opener(target)
+                api = API(base, 'token', opener=opener)
+                rows = Source(api, {}).listing('findings/', {'test': 10})
+                self.assertEqual([row['id'] for row in rows], list(range(1, 52)))
+                self.assertEqual(len(opener.calls), 2)
+                self.assertTrue(all(url.startswith(base + '/api/v2/findings/') for url in opener.calls))
+
+    def test_pagination_port_normalization_keeps_origin_and_scope_guards(self):
+        from notifier.source import API, SourceError
+        params = {'test': 10, 'limit': 50, 'offset': 0}
+        suffix = '/api/v2/findings/?test=10&limit=50&offset=50'
+        api = API('https://dojo.example.com:443', 'token')
+        for target in ('https://evil.example.com', 'http://dojo.example.com',
+                       'https://dojo.example.com:8443', 'https://dojo.example.com:0',
+                       'https://dojo.example.com:65536', 'https://u:p@dojo.example.com',
+                       'https://@dojo.example.com', '//dojo.example.com'):
+            with self.subTest(target=target), self.assertRaises(SourceError):
+                api.check_link(target + suffix, 'findings/', params)
+        for link in ('https://dojo.example.com' + suffix.replace('test=10', 'test=20'),
+                     'https://dojo.example.com' + suffix.replace('findings/', 'tests/'),
+                     'https://dojo.example.com' + suffix + '#fragment'):
+            with self.subTest(link=link), self.assertRaises(SourceError):
+                api.check_link(link, 'findings/', params)
+        with self.assertRaises(SourceError):
+            API('https://dojo.example.com:8443', 'token').check_link(
+                'https://dojo.example.com' + suffix, 'findings/', params)
+
     def test_api_does_not_expose_error_body_or_token(self):
         import io
         from urllib.error import HTTPError

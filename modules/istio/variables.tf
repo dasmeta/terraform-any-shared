@@ -1,13 +1,15 @@
+# Existing in-place installs must upgrade one minor at a time: 1.30 -> 1.31 -> 1.32.
+# Pin chart/image versions for the intermediate apply; see UPGRADING.md.
 variable "configs" {
   type = object({
-    chart = optional(object({                                                                    # Global Helm chart defaults for Istio releases (repository/version/namespace and release behavior)
-      repository       = optional(string, "https://istio-release.storage.googleapis.com/charts") # global istio helm charts repository
-      version          = optional(string, "1.30.3")                                              # fallback version for istio base/gateway/istiod charts
-      namespace        = optional(string, "istio-system")                                        # the namespace where istio and related components will be installed
-      create_namespace = optional(bool, true)                                                    # whether to create namespace or not
-      atomic           = optional(bool, false)                                                   # whether auto rollback if helm install fails
-      wait             = optional(bool, true)                                                    # whether wait to get the workload run successfully
-      timeout          = optional(number, 300)                                                   # wait timeout in seconds (default 5 minutes)
+    chart = optional(object({                                                           # Global Helm chart defaults for Istio releases (repository/version/namespace and release behavior)
+      repository       = optional(string, "https://blob.istio.io/istio-release/charts") # global istio helm charts repository
+      version          = optional(string, "1.32.0")                                     # fallback version for istio base/gateway/istiod charts
+      namespace        = optional(string, "istio-system")                               # the namespace where istio and related components will be installed
+      create_namespace = optional(bool, true)                                           # whether to create namespace or not
+      atomic           = optional(bool, false)                                          # whether auto rollback if helm install fails
+      wait             = optional(bool, true)                                           # whether wait to get the workload run successfully
+      timeout          = optional(number, 300)                                          # wait timeout in seconds (default 5 minutes)
     }), {})
     image = optional(object({      # global image settings used by Istio components
       registry  = optional(string) # image registry host (for example: docker.io, ghcr.io), default is empty which means it points to "docker.io"

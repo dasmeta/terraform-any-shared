@@ -1,0 +1,148 @@
+{
+  "mrkdwn": false,
+  "parse": "none",
+  "link_names": false,
+  "unfurl_links": false,
+  "unfurl_media": false,
+  "text": "Critical Findings Summary — Example API | 220 Open | 12 New | 3 Fixed",
+  "attachments": [
+    {
+      "color": "#DC2626",
+      "fallback": "Critical Findings Summary — Example API | 220 Open | 12 New | 3 Fixed",
+      "blocks": [
+        {
+          "type": "header",
+          "text": {
+            "type": "plain_text",
+            "text": "🚨 Critical Findings Summary",
+            "emoji": true
+          }
+        },
+        {
+          "type": "section",
+          "fields": [
+            {
+              "type": "mrkdwn",
+              "text": "*Project*\nExample API",
+              "verbatim": true
+            },
+            {
+              "type": "mrkdwn",
+              "text": "*Branch*\n`main`",
+              "verbatim": true
+            },
+            {
+              "type": "mrkdwn",
+              "text": "*Engagement ID*\n7",
+              "verbatim": true
+            },
+            {
+              "type": "mrkdwn",
+              "text": "*Report Date*\n2026-11-16",
+              "verbatim": true
+            }
+          ]
+        },
+        {
+          "type": "divider"
+        },
+        {
+          "type": "section",
+          "fields": [
+            {
+              "type": "mrkdwn",
+              "text": "*🔴 Open Critical*\n*220*",
+              "verbatim": true
+            },
+            {
+              "type": "mrkdwn",
+              "text": "*🆕 New (24h)*\n*12*",
+              "verbatim": true
+            },
+            {
+              "type": "mrkdwn",
+              "text": "*✅ Fixed (24h)*\n*3*",
+              "verbatim": true
+            }
+          ]
+        },
+        {
+          "type": "divider"
+        },
+        {
+          "type": "section",
+          "text": {
+            "type": "mrkdwn",
+            "text": "*🔎 Critical Findings — Sample*",
+            "verbatim": true
+          }
+        },
+        {
+          "type": "section",
+          "text": {
+            "type": "mrkdwn",
+            "text": "🔴 *<https://defectdojo.example.com/finding/1|CVE-2026-12341>*\n`example-package 1.2.3-r4` · 11 days",
+            "verbatim": true
+          }
+        },
+        {
+          "type": "section",
+          "text": {
+            "type": "mrkdwn",
+            "text": "🔴 *<https://defectdojo.example.com/finding/2|CVE-2026-12342>*\n`example-package 1.2.3-r4` · 11 days",
+            "verbatim": true
+          }
+        },
+        {
+          "type": "section",
+          "text": {
+            "type": "mrkdwn",
+            "text": "🔴 *<https://defectdojo.example.com/finding/3|CVE-2026-12343>*\n`example-package 1.2.3-r4` · 11 days",
+            "verbatim": true
+          }
+        },
+        {
+          "type": "section",
+          "text": {
+            "type": "mrkdwn",
+            "text": "🔴 *<https://defectdojo.example.com/finding/4|CVE-2026-12344>*\n`example-package 1.2.3-r4` · 11 days",
+            "verbatim": true
+          }
+        },
+        {
+          "type": "section",
+          "text": {
+            "type": "mrkdwn",
+            "text": "🔴 *<https://defectdojo.example.com/finding/5|CVE-2026-12345>*\n`example-package 1.2.3-r4` · 11 days",
+            "verbatim": true
+          }
+        },
+        {
+          "type": "context",
+          "elements": [
+            {
+              "type": "mrkdwn",
+              "text": "Showing 5 of 220 open critical findings | Source: DefectDojo",
+              "verbatim": true
+            }
+          ]
+        },
+        {
+          "type": "actions",
+          "elements": [
+            {
+              "type": "button",
+              "text": {
+                "type": "plain_text",
+                "text": "View All Findings ↗",
+                "emoji": true
+              },
+              "url": "https://defectdojo.example.com/engagement/7",
+              "action_id": "view_all_findings"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

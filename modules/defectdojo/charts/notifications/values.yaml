@@ -1,0 +1,33 @@
+enabled: false
+image: python:3.12-slim@sha256:b18b261e1b4974b4f321451ad5251ded85abb22c2b8b262da527dda1d031ab30
+pollSchedule: "0 * * * *"
+digestSchedule: "30 13 * * *"
+timeZone: UTC
+contentChecksum: ""
+apiTokenSecret:
+  name: ""
+  key: api-key
+mysqlCredentialsSecret:
+  name: ""
+  usernameKey: username
+  passwordKey: password
+mysqlCaSecret:
+  name: ""
+  key: ca.crt
+channelsSecret:
+  name: ""
+  slackKey: slack-url
+  teamsKey: teams-url
+  opsgenieKey: opsgenie-key
+createChannelsSecret: false
+# Base64 data supplied only through Terraform Helm set_sensitive in direct mode.
+# Empty destinations are omitted from the Secret; each destination is independent.
+channelsData:
+  slack-url: ""
+  teams-url: ""
+  opsgenie-key: ""
+policy: {}
+
+managedMysql: false
+sourceFiles: {}
+wheelFiles: {}

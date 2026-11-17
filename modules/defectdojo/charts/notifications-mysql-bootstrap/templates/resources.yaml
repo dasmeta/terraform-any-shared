@@ -1,0 +1,176 @@
+{{- if .Values.enabled }}
+{{- $secret := required "A target Secret name is required" .Values.targetSecret.name }}
+{{- $service := required "A MySQL Service name is required" .Values.serviceName }}
+{{- $pvc := required "The retained MySQL PVC name is required" .Values.pvcName }}
+{{- if and .Values.namespace (ne .Values.namespace .Release.Namespace) }}{{ fail "Namespace must match release namespace" }}{{ end }}
+{{- $existing := lookup "v1" "Secret" .Release.Namespace $secret }}
+{{- if not $existing }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ $secret | quote }}
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    helm.sh/resource-policy: keep
+  labels:
+    app.kubernetes.io/name: defectdojo-notifications-mysql-bootstrap
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+type: Opaque
+# Omit data/stringData: runtime generation is never held in Helm/Terraform values.
+{{- end }}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ .Release.Name }}
+  namespace: {{ .Release.Namespace }}
+automountServiceAccountToken: true
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ .Release.Name }}
+  namespace: {{ .Release.Namespace }}
+rules:
+  - apiGroups: [""]
+    resources: ["secrets"]
+    resourceNames: [{{ $secret | quote }}]
+    verbs: {{ if .Values.retainState }}["get", "patch"]{{ else }}["get", "patch", "delete"]{{ end }}
+  - apiGroups: [""]
+    resources: ["persistentvolumeclaims"]
+    resourceNames: [{{ $pvc | quote }}]
+    verbs: {{ if .Values.retainState }}["get"]{{ else }}["get", "delete"]{{ end }}
+  {{- if not .Values.retainState }}
+  - apiGroups: ["apps"]
+    resources: ["statefulsets"]
+    resourceNames: [{{ $service | quote }}]
+    verbs: ["get"]
+  - apiGroups: [""]
+    resources: ["pods"]
+    resourceNames: [{{ printf "%s-0" $service | quote }}]
+    verbs: ["get"]
+  {{- end }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ .Release.Name }}
+  namespace: {{ .Release.Namespace }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ .Release.Name }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ .Release.Name }}
+    namespace: {{ .Release.Namespace }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}
+  namespace: {{ .Release.Namespace }}
+data:
+  policy.json: {{ dict "namespace" .Release.Namespace "release_name" .Release.Name "target_secret" $secret "service_name" $service "pvc_name" $pvc "username" "notifier" | toJson | quote }}
+  bootstrap.py: |
+{{ required "The bootstrap worker is missing" (.Files.Get "files/bootstrap.py") | indent 4 }}
+  {{- if not .Values.retainState }}
+  cleanup.py: |
+{{ required "The cleanup worker is missing" (.Files.Get "files/cleanup.py") | indent 4 }}
+  {{- end }}
+  generate-tls.sh: |
+{{ required "The TLS generator is missing" (.Files.Get "files/generate-tls.sh") | indent 4 }}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-bootstrap
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    helm.sh/hook: post-install,post-upgrade
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+spec:
+  backoffLimit: 0
+  activeDeadlineSeconds: 600
+  ttlSecondsAfterFinished: 86400
+  template:
+    metadata:
+      annotations:
+        checksum/content: {{ .Values.contentChecksum | quote }}
+        checksum/worker: {{ .Files.Get "files/bootstrap.py" | sha256sum | quote }}
+        checksum/tls-generator: {{ .Files.Get "files/generate-tls.sh" | sha256sum | quote }}
+    spec:
+      restartPolicy: Never
+      serviceAccountName: {{ .Release.Name }}
+      automountServiceAccountToken: true
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        fsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      initContainers:
+        - name: candidate-tls
+          image: {{ required "A MySQL image containing openssl is required" .Values.mysqlImage | quote }}
+          imagePullPolicy: IfNotPresent
+          command: ["bash", "/config/generate-tls.sh"]
+          env:
+            - name: MYSQL_SERVICE_NAME
+              value: {{ $service | quote }}
+            - name: MYSQL_NAMESPACE
+              value: {{ .Release.Namespace | quote }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 500m
+              memory: 128Mi
+          volumeMounts:
+            - name: config
+              mountPath: /config
+              readOnly: true
+            - name: work
+              mountPath: /work
+      containers:
+        - name: bootstrap
+          image: {{ required "A Python image is required" .Values.image | quote }}
+          imagePullPolicy: IfNotPresent
+          command: ["python", "-B", "/config/bootstrap.py"]
+          env:
+            - name: BOOTSTRAP_POLICY_FILE
+              value: /config/policy.json
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 25m
+              memory: 64Mi
+            limits:
+              cpu: 250m
+              memory: 128Mi
+          volumeMounts:
+            - name: config
+              mountPath: /config
+              readOnly: true
+            - name: work
+              mountPath: /work
+      volumes:
+        - name: config
+          configMap:
+            name: {{ .Release.Name }}
+        - name: work
+          emptyDir:
+            medium: Memory
+            sizeLimit: 16Mi
+{{- end }}

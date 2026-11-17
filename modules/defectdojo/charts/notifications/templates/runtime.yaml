@@ -1,0 +1,45 @@
+{{- if .Values.enabled }}
+{{- $source := required "Module notifier source files are required" .Values.sourceFiles }}
+{{- $wheels := required "Module bundled dependency wheels are required" .Values.wheelFiles }}
+{{- range $required := list "__init__.py" "__main__.py" "config.py" "source.py" "engine.py" "store.py" "delivery.py" }}
+{{- if not (hasKey $source $required) }}
+{{- fail (printf "Missing notifier source file %s" $required) }}
+{{- end }}
+{{- end }}
+{{- if or (gt (len (toJson $source)) 900000) (gt (len (toJson $wheels)) 900000) }}
+{{- fail "Notifier source/dependency ConfigMap exceeds the supported object-size budget" }}
+{{- end }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-source
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: defectdojo-notifications
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+data:
+  {{- range $filename, $content := $source }}
+  {{- if not (regexMatch "^[a-z_][a-z0-9_]*\\.py$" $filename) }}
+  {{- fail "Unexpected notifier source filename" }}
+  {{- end }}
+  {{ $filename }}: {{ $content | quote }}
+  {{- end }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-dependencies
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: defectdojo-notifications
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+binaryData:
+  {{- range $filename, $content := $wheels }}
+  {{- if not (regexMatch "^[A-Za-z0-9_.-]+-none-any\\.whl$" $filename) }}
+  {{- fail "Only portable dependency wheel filenames are supported" }}
+  {{- end }}
+  {{ $filename }}: {{ $content | quote }}
+  {{- end }}
+{{- end }}

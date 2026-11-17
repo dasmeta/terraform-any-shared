@@ -1,0 +1,2 @@
+PyMySQL==1.2.4
+tzdata==2026.6

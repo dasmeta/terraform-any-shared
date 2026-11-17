@@ -1,0 +1,57 @@
+{{- if and .Values.enabled (not .Values.retainState) }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-cleanup
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    helm.sh/hook: pre-delete
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+spec:
+  activeDeadlineSeconds: 600
+  backoffLimit: 2
+  ttlSecondsAfterFinished: 86400
+  template:
+    metadata:
+      annotations:
+        checksum/content: {{ .Values.contentChecksum | quote }}
+        checksum/cleanup: {{ .Files.Get "files/cleanup.py" | sha256sum | quote }}
+    spec:
+      restartPolicy: Never
+      serviceAccountName: {{ .Release.Name }}
+      automountServiceAccountToken: true
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: cleanup
+          image: {{ required "A Python image is required" .Values.image | quote }}
+          imagePullPolicy: IfNotPresent
+          command: ["python", "-B", "/config/cleanup.py"]
+          env:
+            - name: BOOTSTRAP_POLICY_FILE
+              value: /config/policy.json
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 25m
+              memory: 32Mi
+            limits:
+              cpu: 250m
+              memory: 128Mi
+          volumeMounts:
+            - name: config
+              mountPath: /config
+              readOnly: true
+      volumes:
+        - name: config
+          configMap:
+            name: {{ .Release.Name }}
+{{- end }}

@@ -42,7 +42,7 @@ locals {
     for filename in sort(fileset("${path.module}/notifier/vendor", "*.whl")) : filename => filebase64("${path.module}/notifier/vendor/${filename}")
   }
   notifications_policy = {
-    namespace       = sha256(jsonencode([var.namespace, var.name, lower(trimsuffix(var.notifications.api_url, "/"))]))
+    namespace       = sha256(jsonencode([var.namespace, var.name, local.notifications_api_origin]))
     api_url         = trimsuffix(var.notifications.api_url, "/")
     engagement_ids  = [for id in sort([for id in var.notifications.engagement_ids : tostring(id)]) : tonumber(id)]
     all_engagements = var.notifications.all_engagements

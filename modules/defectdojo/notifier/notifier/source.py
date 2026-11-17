@@ -276,18 +276,23 @@ class Source:
                     if str(record['id']) in observations:
                         raise SourceError('duplicate_finding_identity')
                     current[str(record['id'])] = record
-                for key, old in previous.items():
-                    if old['open'] and old['test_id'] == test_id and key not in current:
-                        row = self.api.get(f'findings/{old["id"]}/', missing_ok=True)
-                        if row is None:
-                            blocked.add(engagement_id)
-                            continue
-                        if row.get('id') != old['id']:
-                            raise SourceError('invalid_direct_finding_identity')
-                        if positive(row.get('test')) and row['test'] != test_id:
-                            blocked.add(engagement_id)
-                            continue  # A legitimate move is unknown here, never a remediation.
-                        current[key] = self.observation(row, test_id, engagement)
+                missing = sorted(old['id'] for key, old in previous.items()
+                                 if old['open'] and old['test_id'] == test_id and key not in current)
+                for offset in range(0, len(missing), 50):
+                    batch = missing[offset:offset + 50]
+                    requested = set(batch)
+                    # Pinned DefectDojo's NumberInFilter is named "id". Query
+                    # all statuses/severities; absence or a move remains unknown.
+                    rows = self.listing('findings/', {'test': test_id, 'id': ','.join(map(str, batch)),
+                                                     'o': 'id'}, max_count=len(batch))
+                    for row in rows:
+                        if row['id'] not in requested:
+                            raise SourceError('invalid_reconciled_finding_identity')
+                        if str(row['id']) in observations:
+                            raise SourceError('duplicate_finding_identity')
+                        current[str(row['id'])] = self.observation(row, test_id, engagement)
+                    if requested - {row['id'] for row in rows}:
+                        blocked.add(engagement_id)
                 after = self.api.get(f'tests/{test_id}/')
                 self.test_scope(after, test_id, engagement_id)
                 if (self.fingerprint(before) != self.fingerprint(after) or not self.ready(after)

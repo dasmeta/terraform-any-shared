@@ -60,6 +60,9 @@ class FakeAPI:
                         items = [r for r in items if r[key] == params[key]]
                 if params.get('active') == 'true':
                     items = [r for r in items if r['active'] is True]
+                if 'id' in params:
+                    ids = {int(value) for value in str(params['id']).split(',')}
+                    items = [r for r in items if r['id'] in ids]
         offset, limit = (params or {}).get('offset', 0), (params or {}).get('limit', 50)
         result = copy.deepcopy(items[offset:offset + limit])
         if self.truncate and kind == 'findings':

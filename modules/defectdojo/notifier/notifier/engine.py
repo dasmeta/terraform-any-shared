@@ -296,7 +296,13 @@ class Engine:
             raise ValueError('invalid_mode')
         self.generation = self.store.generation()
         previous = self.store.load_findings()
-        observed, blocked = self.source.collect(previous)
+        try:
+            observed, blocked = self.source.collect(previous)
+        except SourceError as error:
+            # Collection has no durable writes. Previously committed deliveries
+            # can still progress under the caller's lock during a source outage.
+            error.details = dict(error.details, **self.dispatch())
+            raise
         records, events = self.reconcile(previous, observed)
         summary = dict(mode=mode, observed=len(observed),
                        blocked_engagements=len(blocked), blocked_engagement_ids=sorted(blocked))

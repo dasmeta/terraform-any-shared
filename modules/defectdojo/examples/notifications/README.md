@@ -72,6 +72,29 @@ configured destinations. Monitor failed Jobs and, when using Opsgenie, review su
 enabling delivery. Poll and digest share a MySQL advisory lock and bounded Job
 retries.
 
+Previously open findings absent from the active list are reconciled in bounded
+Test-scoped ID batches, including all statuses and severities. Missing or moved
+IDs remain unknown rather than inferred fixed. A source-collection error saves
+no partial observations; already committed pending deliveries can still retry.
+
+The state namespace uses the canonical API origin: hostname/scheme case,
+trailing slash and explicit default ports (`:443` for HTTPS, `:80` for HTTP,
+including padded standard ports) do not create separate ledgers. HTTP versus
+HTTPS, other hosts and nondefault ports remain separate. Existing bare-origin
+namespaces are unchanged. Development installations created before this fix with
+an explicit default port already have a different namespace: preserve that
+history and plan its migration before applying; this fix does not silently
+rewrite or delete old namespaces or remote alert aliases.
+
+**Known import-completion limitation on DefectDojo 3.4.304:** its Test API does
+not expose processing/status. Old unchanged Test timestamps and import history,
+even with a settlement interval, cannot prove that reimport or deduplication has
+finished. Intermediate findings can therefore generate premature notifications.
+A reliable repair requires a producer-owned begin/end generation gate covering
+every import and successful synchronous post-processing, or an equivalent
+upstream API completion signal. A completion-only callback or longer delay is
+insufficient. This integration change remains open pending operator approval.
+
 Daily Slack delivery uses one summary card per nonempty Engagement: global
 open/new/fixed counts, the five oldest findings and a **View All Findings**
 button. See [slack-summary.example.json](slack-summary.example.json). Teams and

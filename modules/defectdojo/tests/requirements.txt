@@ -1,4 +1,4 @@
-pytest==8.4.2
+pytest==9.0.3
 # CI's disposable MySQL 8.4 fixture uses caching_sha2_password over localhost.
 # RSA support is test-only; deployed workers continue using verified TLS.
 cryptography==50.0.2

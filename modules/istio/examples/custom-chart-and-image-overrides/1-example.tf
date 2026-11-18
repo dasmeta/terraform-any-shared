@@ -1,6 +1,7 @@
 # Example: explicitly pass chart/image overrides using current defaults.
 # This example shows where to set custom values for all Istio components and
 # gateway-api chart while keeping behavior equal to defaults.
+# Existing 1.30 installs: pin both chart.version and image.tag to 1.31.x first; see ../../UPGRADING.md.
 
 module "this" {
   source = "../.."
@@ -8,8 +9,8 @@ module "this" {
   configs = {
     # helm chart override settings for base/istiod/gateway istio components.
     chart = {
-      repository       = "https://istio-release.storage.googleapis.com/charts"
-      version          = "1.29.2"
+      repository       = "https://blob.istio.io/istio-release/charts"
+      version          = "1.32.0"
       namespace        = "istio-system"
       create_namespace = true
       atomic           = false
@@ -20,7 +21,7 @@ module "this" {
     image = {
       registry  = "docker.io"
       namespace = "istio"
-      tag       = "1.29.2"
+      tag       = "1.32.0"
       repository = {
         istiod = "pilot"
         proxy  = "proxyv2"

@@ -4,6 +4,293 @@ Deploys DefectDojo into Kubernetes with an opinionated Helm-based baseline.
 Use this module when you need a shared security-testing installation with a
 small input surface and override-friendly chart configuration.
 
+See the [notification example](examples/notifications) for configuration and
+delivery behavior, including the known reimport-completion limitation.
+
+## Database lifecycle and recovery
+
+Notifications use a dedicated single-instance MySQL 8.4 by default. There is no
+high availability or automatic backup. Back up the database/PVC and its matching
+`<app>-notifications-mysql-credentials` Secret together using encrypted storage.
+That Secret contains `username`, `password`, `root-password`, `ca.crt`, `tls.crt`
+and `tls.key`; backups contain passwords and a private key. Never print them,
+commit them, or place them in logs. A volume snapshot alone is insufficient.
+
+Disabling notifications removes workers and managed MySQL. The default
+`retain_state=false` pre-delete hook also deletes the managed PVC and generated
+Secret: history and pending sends are lost, and re-enabling sends the current
+eligible Critical backlog again with fresh Opsgenie identities. Remote alerts
+and messages remain. Caller-owned API/channel Secrets, shared retention tokens,
+external MySQL data and the main DefectDojo installation are unaffected.
+
+To preserve history, apply `retain_state=true` **while notifications are enabled**,
+then disable in a separate apply. Uninstall uses the last installed hook policy;
+changing retention and disabling together does not update it. The same rule
+applies before switching managed MySQL to external mode. Storage reclaim policy
+can retain an underlying PV/disk even after PVC deletion. Bypassing Helm hooks
+also bypasses cleanup. Owned channel and notification-only API Secrets are
+removed independently of database retention.
+
+Restore a consistent database/PVC plus its matching Secret in the original
+namespace and resource names, preserving the Secret's Helm ownership metadata,
+before re-enabling. Keep workers suspended until schema/TLS checks succeed.
+An existing PVC with missing/empty credentials fails closed; restore the matching
+Secret instead of regenerating passwords against an existing database. Partial,
+malformed or foreign Secrets also fail closed. Do not reset/delete the Secret
+as a repair. Ordinary bootstrap requires unexpired TLS. The renewal procedure
+below requires the bootstrap Helm release and its ServiceAccount, RBAC and
+ConfigMap to remain installed. If they are present, renew expired certificates
+before normal bootstrap. After disabling a retained installation those resources
+are removed: `helm get hooks` cannot renew a detached Secret. Stop and prepare a
+reviewed recovery that restores the bootstrap prerequisites and matching state
+before renewal; do not re-enable normally or regenerate database passwords.
+
+## Database maintenance
+
+Treat database name, storage size and StorageClass as provisioning settings.
+Terraform does not migrate schemas or data, switch existing storage backends, or
+expand immutable StatefulSet volume templates. Plan a backed-up migration or
+explicit storage maintenance for an existing database. Review MySQL image/version
+compatibility before upgrading; the managed hook initializes schema automatically.
+External MySQL needs a reviewed `init-db` run on installation and schema upgrades:
+runtime grants are SELECT/INSERT/UPDATE, while initialization also requires CREATE.
+The managed user already has the schema grants needed for `init-db`.
+
+Use the following shared pause/drain procedure before maintenance or renewal.
+Prerequisites: Bash, Python 3, `kubectl`, cluster access and an exclusive maintenance
+window; do not concurrently apply Helm/Terraform or start manual worker Jobs.
+Run the snippets in the same Bash session. Do not use `enabled=false` to pause:
+its default teardown purges history. For TLS renewal, pause/drain here, then run
+the renewal section **before** the smoke check and resume steps.
+
+```bash
+set -euo pipefail
+umask 077
+export NS=example-security APP=example-defectdojo
+export WORKER="${APP}-notifications"
+export MAINT_DIR
+MAINT_DIR=$(mktemp -d "${TMPDIR:-/tmp}/example-notifications.XXXXXX")
+chmod 700 "$MAINT_DIR"
+kubectl -n "$NS" get cronjob "$WORKER-poll" "$WORKER-digest" \
+  -o json > "$MAINT_DIR/cronjobs-before.json"
+python3 - <<'PY'
+import json, os, subprocess, time
+from pathlib import Path
+p = Path(os.environ['MAINT_DIR'])
+ns, worker = os.environ['NS'], os.environ['WORKER']
+jobs = json.loads((p / 'cronjobs-before.json').read_text())['items']
+assert {j['metadata']['name'] for j in jobs} == {worker+'-poll', worker+'-digest'}
+states = {j['metadata']['name']: j['spec'].get('suspend', False) for j in jobs}
+(p / 'suspend-before.json').write_text(json.dumps(states))
+def kube(*args):
+    return subprocess.check_output(['kubectl', '-n', ns, *args])
+for name in states:
+    kube('patch', 'cronjob', name, '--type=merge', '-p', '{"spec":{"suspend":true}}')
+labels = {'app.kubernetes.io/name': 'defectdojo-notifications',
+          'app.kubernetes.io/instance': worker}
+selector = ','.join(k+'='+v for k, v in labels.items())
+deadline = time.monotonic() + 3900
+while True:
+    # Inspect pod-template labels too: a manual/retrying Job may have no Pod yet.
+    pending = []
+    for job in json.loads(kube('get', 'jobs', '-o', 'json'))['items']:
+        template = job['spec']['template'].get('metadata', {}).get('labels', {})
+        if not all(template.get(k) == v for k, v in labels.items()):
+            continue
+        status = job.get('status', {})
+        done = any(c.get('type') in ('Complete', 'Failed') and c.get('status') == 'True'
+                   for c in status.get('conditions', []))
+        if not done or status.get('active', 0):
+            pending.append(job['metadata']['name'])
+    pods = json.loads(kube('get', 'pods', '-l', selector, '-o', 'json'))['items']
+    pending += [p['metadata']['name'] for p in pods
+                if p.get('status', {}).get('phase') not in ('Succeeded', 'Failed')]
+    if not pending:
+        break
+    if time.monotonic() >= deadline:
+        raise SystemExit('Workers have not drained; keep suspended and investigate: '+', '.join(pending))
+    time.sleep(5)
+PY
+```
+
+This waits for all labeled worker Pods and unfinished Jobs, including manually
+created Jobs, rather than relying only on CronJob ownership. Investigate failed
+Jobs before proceeding. Keep the saved directory and original suspension flags;
+rerunning setup would overwrite the intended resume state with `true`.
+If upgrading, keep notifications enabled, recheck that both CronJobs remain
+suspended after the apply, and use the **updated** poll CronJob for this smoke
+check. Review any changed maintenance manifests before applying them.
+
+The following one-off `init-db` checks schema and the configured connection
+without sending alerts. With managed TLS it verifies CA, hostname and negotiated
+cipher through PyMySQL. It retains worker Pod labels required by NetworkPolicy,
+images, policy, source/dependencies and Secret mounts. External mode requires
+CREATE permission; restore any temporary elevated credentials before resuming.
+
+```bash
+kubectl -n "$NS" get cronjob "$WORKER-poll" "$WORKER-digest" -o json \
+  | python3 -c 'import json,sys; j=json.load(sys.stdin)["items"]; assert len(j)==2 and all(x["spec"].get("suspend",False) for x in j), "Keep both CronJobs suspended"'
+export SMOKE_JOB="${WORKER}-check-$(date +%s)"
+kubectl -n "$NS" create job "$SMOKE_JOB" --from="cronjob/$WORKER-poll" \
+  --dry-run=client -o json > "$MAINT_DIR/smoke.json"
+python3 - <<'PY'
+import json, os
+from pathlib import Path
+p = Path(os.environ['MAINT_DIR']) / 'smoke.json'
+j = json.loads(p.read_text())
+containers = j['spec']['template']['spec']['containers']
+assert len(containers) == 1 and containers[0]['name'] == 'poll'
+containers[0]['command'] = ['python', '-m', 'notifier', 'init-db']
+p.write_text(json.dumps(j, indent=2)+'\n')
+PY
+kubectl apply --dry-run=server -f "$MAINT_DIR/smoke.json"
+kubectl create -f "$MAINT_DIR/smoke.json"
+kubectl -n "$NS" wait --for=condition=complete "job/$SMOKE_JOB" --timeout=3600s
+kubectl -n "$NS" logs "job/$SMOKE_JOB"
+```
+
+Require successful completion with `initialized: true`. Do not substitute a
+`poll`/`digest` run: those send real notifications. **On any renewal, restart,
+initialization or smoke failure, keep both schedules suspended and investigate.**
+Only after success, restore each saved flag (including an intentional prior
+suspension); resumed schedules persist state and deliver messages:
+
+```bash
+python3 - <<'PY'
+import json, os, subprocess
+from pathlib import Path
+states = json.loads((Path(os.environ['MAINT_DIR']) / 'suspend-before.json').read_text())
+for name, suspended in states.items():
+    subprocess.run(['kubectl', '-n', os.environ['NS'], 'patch', 'cronjob', name,
+                    '--type=merge', '-p', json.dumps({'spec': {'suspend': suspended}})], check=True)
+PY
+```
+
+## TLS expiry and renewal
+
+Managed MySQL uses a generated CA valid for 3650 days and server certificate
+valid for 365 days. Monitor both expirations and renew manually before expiry;
+there is no automatic renewal. Normal install/upgrade bootstrap reuses a complete
+valid Secret and does not rotate it. The explicit `renew-tls` path accepts old
+expired PEM material, validates the replacement, and patches only `ca.crt`,
+`tls.crt`, `tls.key`, preserving `username`, `password` and `root-password`.
+The generator creates a **new CA on every renewal** and discards its private key;
+both the database and clients must load the new trust material.
+
+After the maintenance pause/drain above, take a current database backup and this
+Secret backup. Keep the directory mode 0700 and files 0600, encrypt/archive the
+backup securely and never print the JSON or private key. Inspect certificate
+dates without displaying Secret values:
+
+```bash
+export DB="${APP}-notifications-mysql" INIT="${APP}-notifications-db-init"
+export SECRET="${DB}-credentials"
+kubectl -n "$NS" get secret "$SECRET" -o json > "$MAINT_DIR/secret-before.json"
+chmod 600 "$MAINT_DIR/secret-before.json"
+python3 - <<'PY'
+import base64, json, os
+from pathlib import Path
+p = Path(os.environ['MAINT_DIR'])
+s = json.loads((p / 'secret-before.json').read_text())
+assert set(s['data']) == {'username','password','root-password','ca.crt','tls.crt','tls.key'}
+for key in ('ca.crt', 'tls.crt'):
+    (p / key).write_bytes(base64.b64decode(s['data'][key], validate=True))
+PY
+openssl x509 -in "$MAINT_DIR/ca.crt" -noout -dates
+openssl x509 -in "$MAINT_DIR/tls.crt" -noout -dates
+```
+
+The installed bootstrap hook is `$INIT-bootstrap`; Helm normally deletes it on
+success (`before-hook-creation,hook-succeeded`). Do not assume a Job exists to
+clone, and `kubectl create job --from=job/...` is unsupported. Prerequisite:
+Ruby with its standard YAML/JSON libraries. Extract **only** the installed
+bootstrap Job from Helm hook manifests, preserving its TLS init container,
+images, ServiceAccount/scoped RBAC references, policy and volume mounts. The
+following creates a plain fresh Job, discards hook metadata, and changes only the
+bootstrap command. Never run a cleanup hook/worker or uninstall for renewal.
+
+```bash
+helm get hooks "$INIT" -n "$NS" > "$MAINT_DIR/hooks.yaml"
+export RENEW_JOB="${APP}-tls-renew-$(date +%s)"
+ruby -ryaml -rjson - "$MAINT_DIR/hooks.yaml" > "$MAINT_DIR/renew.json" <<'RUBY'
+docs = YAML.load_stream(File.read(ARGV.fetch(0))).compact
+matches = docs.select { |d| d['kind'] == 'Job' &&
+  d.dig('metadata','name') == ENV.fetch('INIT')+'-bootstrap' &&
+  d.dig('metadata','annotations','helm.sh/hook') == 'post-install,post-upgrade' }
+abort 'Expected exactly one installed bootstrap hook' unless matches.length == 1
+j = matches.first
+pod = j.fetch('spec').fetch('template').fetch('spec')
+abort 'Unexpected ServiceAccount' unless pod['serviceAccountName'] == ENV.fetch('INIT')
+abort 'Unexpected TLS init container' unless pod.fetch('initContainers').map { |c| c['name'] } == ['candidate-tls']
+c = pod.fetch('containers')
+abort 'Unexpected bootstrap container' unless c.length == 1 && c[0]['name'] == 'bootstrap' &&
+  c[0]['command'] == ['python','-B','/config/bootstrap.py']
+j['metadata'] = {'name'=>ENV.fetch('RENEW_JOB'), 'namespace'=>ENV.fetch('NS')}
+c[0]['command'] = ['python','-B','/config/bootstrap.py','renew-tls']
+puts JSON.pretty_generate(j)
+RUBY
+kubectl apply --dry-run=server -f "$MAINT_DIR/renew.json"
+# Review renew.json locally: it must contain only the intended renewal Job.
+kubectl create -f "$MAINT_DIR/renew.json"
+kubectl -n "$NS" wait --for=condition=complete "job/$RENEW_JOB" --timeout=660s
+kubectl -n "$NS" logs "job/$RENEW_JOB" -c bootstrap
+kubectl -n "$NS" get secret "$SECRET" -o json > "$MAINT_DIR/secret-after.json"
+python3 - <<'PY'
+import json, os
+from pathlib import Path
+p = Path(os.environ['MAINT_DIR'])
+a, b = [json.loads((p / ('secret-'+phase+'.json')).read_text()) for phase in ('before','after')]
+assert a['metadata']['uid'] == b['metadata']['uid'], 'Secret was replaced; keep suspended'
+assert set(a['data']) == set(b['data']), 'Secret fields changed unexpectedly'
+assert all(a['data'][k] == b['data'][k] for k in ('username','password','root-password')), 'Credentials changed'
+assert all(a['data'][k] != b['data'][k] for k in ('ca.crt','tls.crt','tls.key')), 'TLS was not replaced'
+print('Same Secret UID and credentials; all three TLS fields replaced')
+PY
+```
+
+Require `reason: renewed` and all assertions passing. Only the generated
+credentials/TLS Secret is rotated; do not reset it or touch API/channel Secrets.
+Secret volume updates project new files, but `mysqld` does **not** automatically
+reload TLS. While workers remain suspended/drained, restart the single managed
+StatefulSet and wait for readiness; this causes a brief database outage. Its
+`mysql` container mounts the Secret at `/run/mysql-secrets`.
+
+```bash
+kubectl -n "$NS" rollout restart "statefulset/$DB"
+kubectl -n "$NS" rollout status "statefulset/$DB" --timeout=900s
+```
+
+Now run the maintenance `init-db` smoke check above using the current poll
+CronJob, whose new Pod loads the new CA from the Secret, then restore the original
+suspend flags only after success. Update any other authorized clients' trust
+stores to the new CA before reconnecting. Retain the paired backup securely;
+recovery after a failed renewal must keep database/server/client trust consistent.
+The exact implementation is in
+[bootstrap resources](charts/notifications-mysql-bootstrap/templates/resources.yaml),
+[bootstrap worker](charts/notifications-mysql-bootstrap/files/bootstrap.py),
+[TLS generator](charts/notifications-mysql-bootstrap/files/generate-tls.sh) and
+[MySQL resources](charts/notifications-mysql/templates/resources.yaml).
+
+## API token selection and ownership
+
+Notifications select credentials in this order: explicit
+`notifications.api_token_secret.name/key`, otherwise enabled retention's actual
+Secret/key when API origins match, otherwise a notification-owned
+`<app>-notifications-api` bootstrap from this module's application account.
+Origin comparison normalizes hostname/scheme case, trailing slash and default
+ports; different origins require an explicit suitable Secret. Automatic bootstrap
+must target this module's DefectDojo installation.
+
+The application-account token can carry retention's deletion privileges; it is
+not a read-only notification token. Use an explicitly managed Secret with a
+separate suitably restricted account when narrower privileges or stable ownership
+are needed. Selecting a bootstrap-created Secret explicitly does not transfer
+its ownership. Notification-only bootstrap/Secret cleanup occurs when disabled,
+even with database retention; shared retention and caller-owned Secrets are not
+deleted. There is no automatic rotation/revocation, and deleting the generated
+Secret does not revoke the underlying account token. Plan account/token rotation
+and independent retention/notification toggles with the Secret owner.
+
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
 

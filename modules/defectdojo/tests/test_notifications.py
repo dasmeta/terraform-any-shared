@@ -22,6 +22,10 @@ def test_row(id=10, engagement=1, **changes):
                 updated=OLD, **changes)
 
 
+# This imported fixture factory must not be collected as a pytest test.
+test_row.__test__ = False
+
+
 def finding(id=1, test=10, **changes):
     row = dict(id=id, test=test, title=f'Finding {id}', date='2026-11-05', severity='Critical',
                active=True, duplicate=False, false_p=False, out_of_scope=False,

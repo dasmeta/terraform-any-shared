@@ -222,97 +222,27 @@ regardless of `retain_state`; it does not create MySQL or initialize tables
 automatically. Its runtime user needs SELECT, INSERT and UPDATE on the dedicated
 notification schema; initialization/upgrades additionally need CREATE.
 
-Before upgrading an external database installation, suspend both CronJobs and
-wait for every unfinished Job owned by them to finish. Suspension prevents new
-scheduled Jobs; it does not stop Jobs already running. The following reviewed
-maintenance commands identify ownership directly, without assuming Job labels:
+For external installation and upgrades, follow the module's
+[database maintenance procedure](../../README.md#database-maintenance): save the
+original suspend flags, suspend both CronJobs and drain all worker Pods and
+unfinished Jobs, including manual Jobs. Investigate failures before proceeding.
+Keep notifications enabled while applying an upgrade and verify both CronJobs
+remain suspended afterward. Clone the **updated** poll CronJob for the documented
+one-off `init-db` check with CREATE permission; cloning before upgrade would run
+old schema code. The clone preserves image, source/dependencies, policy, Secret
+mounts, security settings and worker labels required by NetworkPolicy.
 
-```sh
-kubectl -n example-security patch cronjob example-defectdojo-notifications-poll \
-  --type=merge -p '{"spec":{"suspend":true}}'
-kubectl -n example-security patch cronjob example-defectdojo-notifications-digest \
-  --type=merge -p '{"spec":{"suspend":true}}'
-python3 - <<'PY'
-import json
-import subprocess
-import time
+For a fresh external installation, pause/drain as soon as the CronJobs exist and
+initialize before resuming. Until schema/generation initialization succeeds,
+workers fail closed before sending. `init-db` preserves existing state and does
+not send alerts. Review the manifest, require successful initialization and
+restore any temporary elevated credentials before restoring the original suspend
+flags. On failure keep both schedules suspended. Do not disable notifications to
+pause scheduling: the default teardown purges managed history. Resumed schedules
+perform real persistence and delivery; managed mode initializes schema through
+its install/upgrade hook. Managed certificate rotation uses the separate
+[TLS renewal procedure](../../README.md#tls-expiry-and-renewal).
 
-owners = {'example-defectdojo-notifications-poll', 'example-defectdojo-notifications-digest'}
-deadline = time.monotonic() + 3900
-while True:
-    jobs = json.loads(subprocess.check_output(
-        ['kubectl', '-n', 'example-security', 'get', 'jobs', '-o', 'json']))['items']
-    pending = []
-    for job in jobs:
-        owned = any(ref.get('kind') == 'CronJob' and ref.get('name') in owners
-                    for ref in job['metadata'].get('ownerReferences', []))
-        status = job.get('status', {})
-        finished = any(condition.get('type') in {'Complete', 'Failed'}
-                       and condition.get('status') == 'True'
-                       for condition in status.get('conditions', []))
-        if owned and (not finished or status.get('active', 0)):
-            pending.append(job['metadata']['name'])
-    if not pending:
-        break
-    if time.monotonic() >= deadline:
-        raise SystemExit('Jobs still unfinished; do not upgrade: ' + ', '.join(pending))
-    time.sleep(5)
-PY
-```
-
-Investigate failed Jobs, then apply the updated module while keeping it enabled
-and both CronJobs suspended. Confirm the upgraded CronJobs remain suspended
-before initialization. Run a reviewed one-off `init-db` Job with CREATE
-permission by cloning the **updated** poll CronJob. It inherits the current
-image, bundled source/dependencies, policy, Secret mounts and security settings,
-adding history-generation metadata while preserving existing state. Cloning an
-old CronJob before the upgrade runs old code and does not upgrade the schema.
-
-For a fresh external installation, use the same suspension/drain procedure as
-soon as the CronJobs exist, initialize, then resume. Until schema/generation
-initialization succeeds, scheduled workers fail closed before sending. Do not
-disable the managed module simply to pause scheduling: its default teardown
-purges notification history.
-
-```sh
-kubectl -n example-security get cronjob \
-  example-defectdojo-notifications-poll example-defectdojo-notifications-digest \
-  -o json | python3 -c 'import json,sys; jobs=json.load(sys.stdin)["items"]; assert len(jobs)==2 and all(job["spec"].get("suspend", False) for job in jobs), "Both CronJobs must remain suspended"'
-kubectl -n example-security create job example-notifications-init \
-  --from=cronjob/example-defectdojo-notifications-poll \
-  --dry-run=client -o json > /tmp/example-notifications-init.json
-python3 - <<'PY'
-import json
-from pathlib import Path
-path = Path('/tmp/example-notifications-init.json')
-job = json.loads(path.read_text())
-job['spec']['template']['spec']['containers'][0]['command'] = ['python', '-m', 'notifier', 'init-db']
-path.write_text(json.dumps(job, indent=2) + '\n')
-PY
-kubectl apply --dry-run=server -f /tmp/example-notifications-init.json
-kubectl apply -f /tmp/example-notifications-init.json
-kubectl -n example-security wait --for=condition=complete \
-  job/example-notifications-init --timeout=3600s
-```
-
-Inspect the generated manifest before applying. `init-db` initializes tables
-without sending notifications. The `kubectl --dry-run` flags above validate
-the Job manifest; they do not change notification behavior. Restore the runtime
-Secret if you temporarily used schema-creation credentials. Confirm successful
-initialization and continued suspension, then resume both schedules:
-
-```sh
-kubectl -n example-security get cronjob \
-  example-defectdojo-notifications-poll example-defectdojo-notifications-digest \
-  -o json | python3 -c 'import json,sys; jobs=json.load(sys.stdin)["items"]; assert len(jobs)==2 and all(job["spec"].get("suspend", False) for job in jobs), "Both CronJobs must remain suspended"'
-kubectl -n example-security patch cronjob example-defectdojo-notifications-poll \
-  --type=merge -p '{"spec":{"suspend":false}}'
-kubectl -n example-security patch cronjob example-defectdojo-notifications-digest \
-  --type=merge -p '{"spec":{"suspend":false}}'
-```
-
-Resumed schedules perform real persistence and delivery. Managed mode performs
-schema initialization automatically through its install/upgrade hook.
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
 

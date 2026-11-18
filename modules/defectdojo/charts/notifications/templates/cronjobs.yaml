@@ -1,0 +1,29 @@
+{{- if .Values.enabled }}
+{{- range $kind, $schedule := dict "poll" .Values.pollSchedule "digest" .Values.digestSchedule }}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ $.Release.Name }}-{{ $kind }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: defectdojo-notifications
+    app.kubernetes.io/instance: {{ $.Release.Name }}
+    app.kubernetes.io/component: {{ $kind }}
+    app.kubernetes.io/managed-by: {{ $.Release.Service }}
+spec:
+  schedule: {{ required "A schedule is required" $schedule | quote }}
+  timeZone: {{ $.Values.timeZone | quote }}
+  concurrencyPolicy: Forbid
+  startingDeadlineSeconds: 900
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 10
+      activeDeadlineSeconds: 3600
+      ttlSecondsAfterFinished: 86400
+      template:
+        {{- include "notifications.podTemplate" (dict "root" $ "kind" $kind) | nindent 8 }}
+{{- end }}
+{{- end }}

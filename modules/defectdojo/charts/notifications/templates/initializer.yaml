@@ -1,0 +1,20 @@
+{{- if and .Values.enabled .Values.managedMysql }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-init-db
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    helm.sh/hook: post-install,post-upgrade
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+  labels:
+    app.kubernetes.io/name: defectdojo-notifications
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: init-db
+spec:
+  backoffLimit: 10
+  activeDeadlineSeconds: 3600
+  ttlSecondsAfterFinished: 86400
+  template:
+    {{- include "notifications.podTemplate" (dict "root" . "kind" "init-db") | nindent 4 }}
+{{- end }}

@@ -1,0 +1,86 @@
+{
+  "mrkdwn": false,
+  "parse": "none",
+  "link_names": false,
+  "unfurl_links": false,
+  "unfurl_media": false,
+  "attachments": [
+    {
+      "color": "#DC2626",
+      "fallback": "NEW Critical — CVE-2026-56367 libmagickwand-6.q16-6 8:6.9.11.60+dfsg-1.3+deb11u5\nEngagement: Example API\nBranch: main\nReason: open\nDiscovered: 2026-11-16\nhttps://defectdojo.example.com/finding/123",
+      "blocks": [
+        {
+          "type": "header",
+          "text": {
+            "type": "plain_text",
+            "text": "🚨 Critical Security Finding",
+            "emoji": true
+          }
+        },
+        {
+          "type": "section",
+          "text": {
+            "type": "mrkdwn",
+            "text": "*CVE-2026-56367*\nAffected: `libmagickwand-6.q16-6 8:6.9.11.60+dfsg-1.3+deb11u5`",
+            "verbatim": true
+          }
+        },
+        {
+          "type": "section",
+          "fields": [
+            {
+              "type": "mrkdwn",
+              "text": "*Project*\nExample API",
+              "verbatim": true
+            },
+            {
+              "type": "mrkdwn",
+              "text": "*Severity*\n🔴 Critical",
+              "verbatim": true
+            },
+            {
+              "type": "mrkdwn",
+              "text": "*Branch*\n`main`",
+              "verbatim": true
+            },
+            {
+              "type": "mrkdwn",
+              "text": "*Status*\nOpen",
+              "verbatim": true
+            },
+            {
+              "type": "mrkdwn",
+              "text": "*Discovered*\n2026-11-16",
+              "verbatim": true
+            }
+          ]
+        },
+        {
+          "type": "context",
+          "elements": [
+            {
+              "type": "mrkdwn",
+              "text": "Source: DefectDojo | Event: NEW",
+              "verbatim": true
+            }
+          ]
+        },
+        {
+          "type": "actions",
+          "elements": [
+            {
+              "type": "button",
+              "text": {
+                "type": "plain_text",
+                "text": "View Finding ↗",
+                "emoji": true
+              },
+              "url": "https://defectdojo.example.com/finding/123",
+              "action_id": "view_finding"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+apiVersion: v2
+name: defectdojo-notifications-mysql
+description: Dedicated persistent MySQL for DefectDojo notification state
+type: application
+version: 0.1.0
+appVersion: "8.4"
+kubeVersion: ">=1.27.0-0"

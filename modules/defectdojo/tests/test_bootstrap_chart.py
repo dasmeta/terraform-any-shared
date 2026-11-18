@@ -49,6 +49,13 @@ class BootstrapChartTests(unittest.TestCase):
         self.assertEqual(secret["metadata"]["name"], "example-retention-token")
         self.assertEqual(secret["metadata"]["annotations"]["helm.sh/resource-policy"], "keep")
 
+    def test_notification_owned_token_secret_is_removable_without_exposing_token(self):
+        values = dict(self.values, keepSecret=False)
+        secret = self.render(values=values)['Secret']
+        self.assertNotIn('helm.sh/resource-policy', secret['metadata'].get('annotations', {}))
+        self.assertNotIn('data', secret)
+        self.assertNotIn('stringData', secret)
+
     def test_bootstrap_rbac_writes_only_named_target_secret(self):
         docs = self.render()
         role = docs["Role"]

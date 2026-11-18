@@ -1,0 +1,16 @@
+{{- if .Values.enabled }}
+{{- if gt (len .Release.Name) 45 }}
+{{- fail "Notifications release name must be at most 45 characters for CronJob names" }}
+{{- end }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: defectdojo-notifications
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+data:
+  policy.json: {{ required "An explicit notification policy is required" .Values.policy | toJson | quote }}
+{{- end }}

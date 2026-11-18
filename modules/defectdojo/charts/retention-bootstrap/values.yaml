@@ -6,3 +6,5 @@ contentChecksum: ""
 targetSecret:
   name: ""
   key: api-key
+
+keepSecret: true

@@ -2,15 +2,16 @@
 # chart names. This demonstrates the module's direct chart archive handling.
 
 locals {
-  istio_version             = "1.30.3"
+  # Existing 1.30 installs: apply 1.31.x first, verify, then use 1.32.0. See ../../UPGRADING.md.
+  istio_version             = "1.32.0"
   gateway_api_chart_version = "0.1.7"
   kiali_chart_version       = "2.29.0"
 
   chart_urls = {
     gateway_api    = "https://github.com/dasmeta/helm/releases/download/gateway-api-${local.gateway_api_chart_version}/gateway-api-${local.gateway_api_chart_version}.tgz"
-    istio_base     = "https://istio-release.storage.googleapis.com/charts/base-${local.istio_version}.tgz"
-    istio_istiod   = "https://istio-release.storage.googleapis.com/charts/istiod-${local.istio_version}.tgz"
-    istio_gateway  = "https://istio-release.storage.googleapis.com/charts/gateway-${local.istio_version}.tgz"
+    istio_base     = "https://blob.istio.io/istio-release/charts/base-${local.istio_version}.tgz"
+    istio_istiod   = "https://blob.istio.io/istio-release/charts/istiod-${local.istio_version}.tgz"
+    istio_gateway  = "https://blob.istio.io/istio-release/charts/gateway-${local.istio_version}.tgz"
     kiali_operator = "https://kiali.org/helm-charts/kiali-operator-${local.kiali_chart_version}.tgz"
   }
 

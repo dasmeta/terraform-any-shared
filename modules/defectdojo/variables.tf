@@ -188,11 +188,12 @@ variable "notifications" {
 
   validation {
     condition = (
-      length(var.notifications.opsgenie_title_prefix) <= 80 &&
+      # Count Unicode code points like Python len(), not Terraform string graphemes.
+      length(regexall("(?s).", var.notifications.opsgenie_title_prefix)) <= 80 &&
       var.notifications.opsgenie_title_prefix == trimspace(var.notifications.opsgenie_title_prefix) &&
       !can(regex("[[:cntrl:]]", var.notifications.opsgenie_title_prefix))
     )
-    error_message = "Opsgenie title prefix must be at most 80 characters, trimmed and without control characters."
+    error_message = "Opsgenie title prefix must be at most 80 Unicode code points, trimmed and without control characters."
   }
 
   # Terraform 1.3 validations must reference this variable only. Keep the

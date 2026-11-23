@@ -53,6 +53,7 @@ def validate(policy):
             raise ConfigError('invalid_mysql_ca')
     if policy['opsgenie_region'] not in ('us', 'eu') or policy['priority'] not in ('P1', 'P2', 'P3', 'P4', 'P5'):
         raise ConfigError('invalid_opsgenie_config')
+    # Python len() counts Unicode code points; Terraform validation uses the same unit.
     prefix = policy.get('opsgenie_title_prefix', '')
     if (not isinstance(prefix, str) or len(prefix) > 80 or prefix != prefix.strip()
             or any(ord(char) < 32 or ord(char) == 127 for char in prefix)):

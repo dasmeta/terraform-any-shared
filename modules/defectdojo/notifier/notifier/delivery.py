@@ -107,6 +107,7 @@ class Sender:
             raise DeliveryError("invalid_region")
         if priority not in ("P1", "P2", "P3", "P4", "P5"):
             raise DeliveryError("invalid_priority")
+        # Python len() counts Unicode code points; Terraform validation uses the same unit.
         if (not isinstance(title_prefix, str) or len(title_prefix) > 80 or title_prefix != title_prefix.strip()
                 or any(ord(char) < 32 or ord(char) == 127 for char in title_prefix)):
             raise DeliveryError("invalid_title_prefix")

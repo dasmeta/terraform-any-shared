@@ -10,7 +10,7 @@ delivery behavior, including the known reimport-completion limitation.
 Set `notifications.opsgenie_title_prefix` to a client or service label such as
 `"Example Security:"` to prefix Opsgenie finding and daily summary titles only.
 The default empty string preserves existing titles. The prefix must be trimmed,
-contain no control characters and be at most 80 characters; the complete title
+contain no control characters and be at most 80 Unicode code points; the complete title
 retains the existing 130-character limit. Tags, descriptions, Slack/Teams messages
 and MySQL event identities/history are unchanged. The setting applies when queued
 notifications are dispatched; previously delivered alerts are not renamed or replayed.

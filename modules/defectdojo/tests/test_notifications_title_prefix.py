@@ -28,6 +28,20 @@ def policy():
                 opsgenie_region='us', priority='P2')
 
 
+UNICODE_PREFIX_CASES = (
+    ('zwj_at_limit', 'x' * 77 + '👩‍💻', True),
+    ('zwj_over_limit', 'x' * 78 + '👩‍💻', False),
+    ('flag_at_limit', 'x' * 78 + '🇦🇲', True),
+    ('flag_over_limit', 'x' * 79 + '🇦🇲', False),
+    ('variation_at_limit', 'x' * 78 + '✈️', True),
+    ('variation_over_limit', 'x' * 79 + '✈️', False),
+    ('combining_at_limit', 'x' * 78 + 'x́', True),
+    ('combining_over_limit', 'x' * 79 + 'x́', False),
+    ('cyrillic_at_limit', 'А' * 80, True),
+    ('cyrillic_over_limit', 'А' * 81, False),
+)
+
+
 class TitlePrefixTests(unittest.TestCase):
     def test_opsgenie_finding_reopened_and_digest_prefix_only_message(self):
         for kind in ('new', 'reopened', 'digest'):
@@ -79,6 +93,20 @@ class TitlePrefixTests(unittest.TestCase):
             with self.subTest(value=value), self.assertRaisesRegex(config.ConfigError, 'invalid_opsgenie_title_prefix'):
                 config.validate(dict(policy(), opsgenie_title_prefix=value))
 
+    def test_unicode_codepoint_boundary_matches_config_and_sender(self):
+        for name, prefix, accepted in UNICODE_PREFIX_CASES:
+            with self.subTest(case=name):
+                self.assertEqual(len(prefix), 80 if accepted else 81)
+                configured = dict(policy(), opsgenie_title_prefix=prefix)
+                if accepted:
+                    self.assertEqual(config.validate(configured)['opsgenie_title_prefix'], prefix)
+                    self.assertEqual(Sender({}, title_prefix=prefix).title_prefix, prefix)
+                else:
+                    with self.assertRaisesRegex(config.ConfigError, 'invalid_opsgenie_title_prefix'):
+                        config.validate(configured)
+                    with self.assertRaisesRegex(DeliveryError, 'invalid_title_prefix'):
+                        Sender({}, title_prefix=prefix)
+
     def test_cli_passes_configured_prefix_to_sender(self):
         with tempfile.TemporaryDirectory() as directory:
             for name in ('api-token', 'mysql-user', 'mysql-password', 'opsgenie-key'):
@@ -111,6 +139,14 @@ class TitlePrefixTerraformTests(unittest.TestCase):
         for index, prefix in enumerate(('x' * 81, ' lead', 'tail ', 'bad\nvalue', 'bad\x7fvalue')):
             value = dict(good, opsgenie_title_prefix=prefix)
             fixture += 'run "invalid_' + str(index) + '" {\n command = plan\n variables {\n notifications = ' + json.dumps(value) + '\n }\n expect_failures = [var.notifications]\n}\n'
+        for name, prefix, accepted in UNICODE_PREFIX_CASES:
+            value = dict(good, opsgenie_title_prefix=prefix)
+            fixture += 'run "unicode_' + name + '" {\n command = plan\n variables {\n notifications = ' + json.dumps(value, ensure_ascii=False) + '\n }\n'
+            if accepted:
+                fixture += ' assert {\n condition = jsondecode(helm_release.notifications[0].values[0]).policy.opsgenie_title_prefix == ' + json.dumps(prefix, ensure_ascii=False) + '\n error_message = "Accepted Unicode prefix must reach Python unchanged."\n }\n'
+            else:
+                fixture += ' expect_failures = [var.notifications]\n'
+            fixture += '}\n'
         with tempfile.TemporaryDirectory() as directory:
             directory = Path(directory)
             for path in ROOT.glob('*.tf'):

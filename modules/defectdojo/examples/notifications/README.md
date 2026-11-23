@@ -3,7 +3,9 @@
 For a client/service label in Opsgenie titles, set
 `notifications.opsgenie_title_prefix = "Example Security:"` on the parent module.
 This affects finding and summary titles only; tags, other channels and database
-history stay unchanged. Omit it to preserve existing titles.
+history stay unchanged. Omit it to preserve existing titles. The prefix limit is
+80 Unicode code points, matching the worker validation; a combined emoji can
+contain more than one code point.
 
 Requires Kubernetes >=1.27, an accessible DefectDojo API and a default
 StorageClass (or explicit `notifications.mysql.storage_class`; an empty string

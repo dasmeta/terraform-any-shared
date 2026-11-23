@@ -282,7 +282,7 @@ class OptionalCLITests(unittest.TestCase):
                 self.assertIn(f':{store.generation_id}:', sender.calls[0]['payload']['alias'])
                 connect.assert_called_once_with(self.policy()['mysql'], 'example', 'user', 'password')
                 make_sender.assert_called_once_with({'slack-url': 'https://hooks.example.com/slack'},
-                                                    region='us', priority='P2')
+                                                    region='us', priority='P2', title_prefix='')
                 if mode == 'poll':
                     self.assertEqual(store.calls, ['snapshot'])
                     self.assertEqual(len(store.records), 1)

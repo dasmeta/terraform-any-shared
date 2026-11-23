@@ -1,5 +1,10 @@
 # Notification example
 
+For a client/service label in Opsgenie titles, set
+`notifications.opsgenie_title_prefix = "Example Security:"` on the parent module.
+This affects finding and summary titles only; tags, other channels and database
+history stay unchanged. Omit it to preserve existing titles.
+
 Requires Kubernetes >=1.27, an accessible DefectDojo API and a default
 StorageClass (or explicit `notifications.mysql.storage_class`; an empty string
 selects no class and requires a static/preprovisioned volume). Enabling
@@ -105,11 +110,15 @@ unchanged.
 
 Daily Slack delivery uses one summary card per nonempty Engagement: global
 open/new/fixed counts, the five oldest findings and a **View All Findings**
-button. See [slack-summary.example.json](slack-summary.example.json). Teams and
-Opsgenie retain the complete numbered lists. New counts describe observations
+button. See [slack-summary.example.json](slack-summary.example.json). Opsgenie
+also receives one compact P5 summary alert per nonempty Engagement/date, with the
+same total counts and oldest-five selection plus a View All Findings link. It
+has no numbered continuation alerts; Teams retains the complete numbered lists.
+New counts describe observations
 in the last 24 hours, so the first backlog can count as new despite older
 discovery dates. An existing daily snapshot stays frozen across layout upgrades;
-the new card appears with the next daily snapshot. Unusually large text can
+the new format appears with the next daily snapshot. Existing multipart queue
+rows are not rewritten or removed by the upgrade. Unusually large text can
 reduce the sample below five, with the displayed count stated explicitly.
 
 Removing a destination preserves its pending deliveries without sending them;

@@ -178,12 +178,22 @@ variable "notifications" {
       teams_key    = optional(string, "teams-url")
       opsgenie_key = optional(string, "opsgenie-key")
     }), {})
-    opsgenie_region = optional(string, "us")
-    priority        = optional(string, "P2")
+    opsgenie_title_prefix = optional(string, "")
+    opsgenie_region       = optional(string, "us")
+    priority              = optional(string, "P2")
   })
   default     = {}
   nullable    = false
   description = "Critical main-branch Trivy notifications, automatically enabled by a configured channel or channels Secret when enabled is omitted; enabled=false explicitly disables and enabled=true requires complete valid configuration. Deliver to any combination of Slack, Teams and Opsgenie, using a dedicated managed MySQL outbox by default. Enabled scheduled jobs persist state and send real notifications. Requires Kubernetes >=1.27 and exactly one channel source: an existing channels_secret or direct channels values for at least one destination. Slack, Teams and Opsgenie are independent; one Opsgenie integration key authenticates findings and P5 summaries. Direct values use sensitive Helm settings but are stored in Terraform/Helm state; their owned Secret is removed with the worker release independently of retain_state. API token selection prefers an explicit Secret, otherwise matching-origin retention credentials, otherwise automatic application-account bootstrap. Source and bundled dependencies run in a public Python image; use mysql.create=false for an external MySQL and its existing credentials/CA Secrets. Choose engagement_ids or explicit all_engagements=true. Managed provisioning initializes tables. Disabling purges managed PVC/credentials by default and reenabling resends the current Critical backlog; explicitly set retain_state=true to preserve history. Uninstall uses the last installed hook policy, so apply retention changes while enabled before disabling. External MySQL and shared/caller API/channel Secrets are never purged. Notification-only API token Secrets are removed with their bootstrap without revoking the token. P5 Opsgenie summaries may page depending on integration rules."
+
+  validation {
+    condition = (
+      length(var.notifications.opsgenie_title_prefix) <= 80 &&
+      var.notifications.opsgenie_title_prefix == trimspace(var.notifications.opsgenie_title_prefix) &&
+      !can(regex("[[:cntrl:]]", var.notifications.opsgenie_title_prefix))
+    )
+    error_message = "Opsgenie title prefix must be at most 80 characters, trimmed and without control characters."
+  }
 
   # Terraform 1.3 validations must reference this variable only. Keep the
   # activation expression aligned with notifications_requested in notifications.tf.

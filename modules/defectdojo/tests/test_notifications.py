@@ -440,14 +440,14 @@ class NotificationTests(unittest.TestCase):
     def test_digest_chunking_keeps_every_finding(self):
         self.api.findings = {i: finding(i, title=f'UNIQUE-{i}: ' + 'x' * 100) for i in range(1, 90)}
         self.digest()
-        for channel in ('teams', 'opsgenie'):
+        for channel in ('teams',):
             texts = [e['payload']['text'] for e in self.sender.calls if e['channel'] == channel]
             self.assertGreater(len(texts), 1)
             self.assertTrue(all(len(s) <= 3000 for s in texts))
             for i in range(1, 90):
                 self.assertEqual(sum(s.count(f'UNIQUE-{i}:') for s in texts), 1)
 
-    def test_large_digest_has_one_slack_snapshot_and_complete_other_destinations(self):
+    def test_large_digest_has_compact_snapshots_and_complete_teams_list(self):
         self.api.findings = {i: finding(i, title=f'UNIQUE-{i}: ' + 'x' * 100,
                                         date='2026-11-01' if i >= 210 else '2026-11-05')
                              for i in range(1, 221)}
@@ -468,7 +468,7 @@ class NotificationTests(unittest.TestCase):
                               url=f'https://dojo.example.com/finding/{i}') for i in range(210, 215)]})
         self.assertEqual(event['payload']['text'],
                          'Critical Findings Summary — Example | 219 Open | 220 New | 1 Fixed')
-        for channel in ('teams', 'opsgenie'):
+        for channel in ('teams',):
             texts = [e['payload']['text'] for e in self.sender.calls
                      if e['channel'] == channel and e['kind'] == 'digest']
             self.assertGreater(len(texts), 1)
@@ -495,6 +495,8 @@ class NotificationTests(unittest.TestCase):
                 self.assertEqual({e['channel'] for e in self.store.events}, set(channels))
                 if 'slack' in channels:
                     self.assertEqual(sum(e['channel'] == 'slack' for e in self.store.events), 1)
+                if 'opsgenie' in channels:
+                    self.assertEqual(sum(e['channel'] == 'opsgenie' for e in self.store.events), 1)
                 frozen = copy.deepcopy(self.store.events)
                 self.engine.channels = ('slack', 'teams', 'opsgenie')
                 self.digest()

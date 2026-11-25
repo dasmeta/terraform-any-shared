@@ -33,7 +33,8 @@ def main(argv=None):
             source = Source(api, policy, now=now)
             from .delivery import Sender
             secrets, channels = config.channel_secrets(directory)
-            sender = Sender(secrets, region=policy['opsgenie_region'], priority=policy['priority'])
+            sender = Sender(secrets, region=policy['opsgenie_region'], priority=policy['priority'],
+                            title_prefix=policy.get('opsgenie_title_prefix', ''))
             engine = Engine(source, store, sender, policy, now=now, channels=channels)
             with store.lock():
                 result = engine.run(mode)

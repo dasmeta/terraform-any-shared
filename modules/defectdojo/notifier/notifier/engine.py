@@ -1,5 +1,6 @@
 """Finding lifecycle, immutable daily lists and persistent per-channel delivery."""
 import hashlib
+import json
 import re
 import time
 from collections import defaultdict
@@ -18,6 +19,39 @@ def key(value):
 def clean(value):
     """Scanner content is untrusted; flatten names without altering stored source."""
     return re.sub(r'[\x00-\x1f\x7f]', ' ', str(value))
+
+
+def opsgenie_summary(summary):
+    """One compact description; preserve full oldest titles while the sample fits."""
+    header = (f'🚨 Critical Findings Summary\nProject: {summary["project"]}\n'
+              f'Branch: {summary["branch"]}\nEngagement ID: {summary["engagement_id"]}\n'
+              f'Report Date: {summary["report_date"]}\n\n'
+              f'🔴 Open Critical: {summary["open_count"]}\n'
+              f'🆕 New (24h): {summary["new_count"]}\n'
+              f'✅ Fixed (24h): {summary["fixed_count"]}\n\n'
+              '🔎 Critical Findings — Sample\n')
+
+    def render(entries):
+        return (header + '\n\n'.join(entries) +
+                f'\n\nShowing {len(entries)} of {summary["open_count"]} open critical findings\n'
+                f'Source: DefectDojo\nView All Findings: {summary["url"]}')
+
+    def fits(text):
+        # Leave room for message/alias/tags in the provider's complete JSON body.
+        return len(text) <= 15000 and len(json.dumps(text, ensure_ascii=False).encode('utf-8')) <= 60000
+
+    entries = []
+    text = render(entries)
+    if not fits(text):
+        raise SourceError('summary_header_budget')
+    for finding in summary['findings']:
+        entry = f'{len(entries) + 1}. {finding["title"]} — {finding["age_days"]} days\n{finding["url"]}'
+        candidate = render(entries + [entry])
+        if not fits(candidate):
+            break
+        entries.append(entry)
+        text = candidate
+    return text
 
 
 class Engine:
@@ -239,7 +273,7 @@ class Engine:
             text = header + f'Part: {index}/{len(parts)}\n\n' + body
             for channel in self.channels:
                 payload = dict(alias=alias, title=title, text=text, engagement_id=engagement_id)
-                if channel == 'slack':
+                if channel in ('slack', 'opsgenie'):
                     if index != 1:
                         continue
                     # Summary links are built from configured DefectDojo origin,
@@ -255,6 +289,9 @@ class Engine:
                                        url=f'{origin}/finding/{record["id"]}') for record in records[:5]])
                     payload['text'] = (f'Critical Findings Summary — {name} | {len(records)} Open | '
                                        f'{len(new)} New | {len(fixed)} Fixed')
+                    if channel == 'opsgenie':
+                        payload['title'] = payload['text']
+                        payload['text'] = opsgenie_summary(payload['summary'])
                 events.extend(self.events(alias, 'digest', alias, payload, channels=(channel,)))
         return local_date, events
 

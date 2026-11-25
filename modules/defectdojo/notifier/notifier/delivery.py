@@ -102,11 +102,16 @@ def _processed(value):
 
 
 class Sender:
-    def __init__(self, secrets, region="us", priority="P2", http=None):
+    def __init__(self, secrets, region="us", priority="P2", http=None, title_prefix=""):
         if region not in ("us", "eu"):
             raise DeliveryError("invalid_region")
         if priority not in ("P1", "P2", "P3", "P4", "P5"):
             raise DeliveryError("invalid_priority")
+        # Python len() counts Unicode code points; Terraform validation uses the same unit.
+        if (not isinstance(title_prefix, str) or len(title_prefix) > 80 or title_prefix != title_prefix.strip()
+                or any(ord(char) < 32 or ord(char) == 127 for char in title_prefix)):
+            raise DeliveryError("invalid_title_prefix")
+        self.title_prefix = title_prefix
         self.secrets = dict(secrets)
         self.base = "https://api.eu.opsgenie.com" if region == "eu" else "https://api.opsgenie.com"
         self.priority = priority
@@ -255,7 +260,8 @@ class Sender:
         if len(payload["text"]) > 15000:
             raise DeliveryError("payload_too_large")
         return self._accepted(self._request("POST", self.base + "/v2/alerts", {
-            "message": payload["title"][:130], "description": payload["text"], "alias": alias,
+            "message": ((self.title_prefix + " " if self.title_prefix else "") + payload["title"])[:130],
+            "description": payload["text"], "alias": alias,
             "priority": "P5" if kind == "digest" else self.priority, "source": "DefectDojo notifier",
             "tags": ["defectdojo", "defectdojo-summary" if kind == "digest" else "defectdojo-finding"],
         }, key=key))

@@ -41,7 +41,7 @@ locals {
   notifications_wheel_files = {
     for filename in sort(fileset("${path.module}/notifier/vendor", "*.whl")) : filename => filebase64("${path.module}/notifier/vendor/${filename}")
   }
-  notifications_policy = {
+  notifications_policy = merge({
     namespace       = sha256(jsonencode([var.namespace, var.name, local.notifications_api_origin]))
     api_url         = trimsuffix(var.notifications.api_url, "/")
     engagement_ids  = [for id in sort([for id in var.notifications.engagement_ids : tostring(id)]) : tonumber(id)]
@@ -57,7 +57,9 @@ locals {
     })
     opsgenie_region = var.notifications.opsgenie_region
     priority        = var.notifications.priority
-  }
+    }, var.notifications.opsgenie_title_prefix == "" ? {} : {
+    opsgenie_title_prefix = var.notifications.opsgenie_title_prefix
+  })
   notifications_chart_files = sort([
     for filename in fileset("${path.module}/charts/notifications", "**") : filename
     if length(regexall("(^|/)__pycache__(/|$)|\\.pyc$", filename)) == 0

@@ -23,9 +23,29 @@ variable "scale_set" {
     max_runners              = optional(number, 3)                         # Maximum total ephemeral runners that GitHub may request.
     controller_chart_version = optional(string, "0.14.2")                  # Official gha-runner-scale-set-controller chart version.
     chart_version            = optional(string, "0.14.2")                  # Official gha-runner-scale-set chart version.
+    container_resources = optional(map(object({                            # Opt-in resource budgets for the runner and Docker daemon.
+      requests = map(string)                                               # CPU and memory reserved for scheduling.
+      limits   = map(string)                                               # CPU and memory ceilings for the container.
+    })))
   })
   default     = {}
   description = "Official GitHub ARC runner scale-set configuration. Required only when deployment_mode is scale_set."
+
+  validation {
+    condition = var.scale_set.container_resources == null ? true : (
+      toset(keys(var.scale_set.container_resources)) == toset(["runner", "dind"]) &&
+      alltrue([
+        for budget in values(var.scale_set.container_resources) : alltrue([
+          for quantities in [budget.requests, budget.limits] : try(
+            toset(keys(quantities)) == toset(["cpu", "memory"]) &&
+            alltrue([for quantity in values(quantities) : trimspace(quantity) != ""]),
+            false,
+          )
+        ])
+      ])
+    )
+    error_message = "scale_set.container_resources requires CPU and memory requests and limits for both runner and dind."
+  }
 
   validation {
     condition = var.deployment_mode != "scale_set" || (

@@ -332,3 +332,67 @@ run "rejects_scale_set_with_invalid_capacity_bounds" {
 
   expect_failures = [var.scale_set]
 }
+
+run "passes_separate_runner_and_dind_resource_budgets" {
+  command = plan
+
+  variables {
+    deployment_mode         = "scale_set"
+    github_auth_secret_name = "controller-manager"
+
+    scale_set = {
+      github_config_url = "https://github.com/example"
+      container_resources = {
+        runner = {
+          requests = { cpu = "1", memory = "3Gi" }
+          limits   = { cpu = "4", memory = "3Gi" }
+        }
+        dind = {
+          requests = { cpu = "500m", memory = "1536Mi" }
+          limits   = { cpu = "2", memory = "1536Mi" }
+        }
+      }
+    }
+  }
+
+  assert {
+    condition = !contains(
+      [for setting in helm_release.arc_scale_set[0].set : setting.name],
+      "containerMode.type",
+    )
+    error_message = "The chart must use the bounded custom DinD pod instead of injecting a second DinD container."
+  }
+
+  assert {
+    condition = (
+      yamldecode(one(helm_release.arc_scale_set[0].values)).template.spec.containers[0].name == "runner" &&
+      yamldecode(one(helm_release.arc_scale_set[0].values)).template.spec.containers[0].resources.requests.cpu == "1" &&
+      yamldecode(one(helm_release.arc_scale_set[0].values)).template.spec.containers[0].resources.limits.memory == "3Gi" &&
+      yamldecode(one(helm_release.arc_scale_set[0].values)).template.spec.containers[1].name == "dind" &&
+      yamldecode(one(helm_release.arc_scale_set[0].values)).template.spec.containers[1].resources.requests.memory == "1536Mi" &&
+      yamldecode(one(helm_release.arc_scale_set[0].values)).template.spec.containers[1].resources.limits.cpu == "2"
+    )
+    error_message = "The customized runner and Docker daemon must each receive their own resource budget."
+  }
+}
+
+run "rejects_incomplete_resource_budgets" {
+  command = plan
+
+  variables {
+    deployment_mode         = "scale_set"
+    github_auth_secret_name = "controller-manager"
+
+    scale_set = {
+      github_config_url = "https://github.com/example"
+      container_resources = {
+        runner = {
+          requests = { cpu = "1", memory = "3Gi" }
+          limits   = { cpu = "4", memory = "3Gi" }
+        }
+      }
+    }
+  }
+
+  expect_failures = [var.scale_set]
+}

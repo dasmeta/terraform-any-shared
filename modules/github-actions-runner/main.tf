@@ -101,9 +101,19 @@ resource "helm_release" "arc_scale_set" {
     value = tostring(var.scale_set.max_runners)
   }
 
-  set {
-    name  = "containerMode.type"
-    value = "dind"
+  values = var.scale_set.container_resources == null ? null : [
+    templatefile("${path.module}/templates/dind-resources.yaml.tftpl", {
+      resources = var.scale_set.container_resources
+    }),
+  ]
+
+  dynamic "set" {
+    for_each = var.scale_set.container_resources == null ? ["dind"] : []
+
+    content {
+      name  = "containerMode.type"
+      value = set.value
+    }
   }
 
   set {

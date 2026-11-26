@@ -64,6 +64,17 @@ authentication it contains `github_token`; the official chart also supports a
 Secret containing its documented GitHub App keys. The module references an
 external Secret without reading or managing its value.
 
+### Runner resource budgets
+
+In scale-set mode, set `scale_set.container_resources` to configure CPU and
+memory requests and limits for `runner` and `dind`. Use Kubernetes resource
+quantities for all four values per container. The
+[scale-set example](examples/scale-set/1-example.tf) shows a complete budget.
+
+The opt-in template keeps the Docker daemon as an ordinary sidecar and
+preserves the existing job socket and mounts. It is verified with ARC 0.14.2
+on Kubernetes 1.27. Omission preserves the chart's built-in DinD template.
+
 ## Authentication
 
 Choose exactly one authentication source:
@@ -242,7 +253,7 @@ No modules.
 | <a name="input_repo_name"></a> [repo\_name](#input\_repo\_name) | GitHub repository in owner/name form for the legacy single-repository mode. Required when runner\_scope is empty. | `string` | `null` | no |
 | <a name="input_runner_name"></a> [runner\_name](#input\_runner\_name) | Runner Name | `string` | `"runner"` | no |
 | <a name="input_runner_scope"></a> [runner\_scope](#input\_runner\_scope) | Optional runner target selection. Set repositories or organization, but not both. An empty object preserves repo\_name behavior. | <pre>object({<br/>    repositories = optional(set(string), []) # Explicit GitHub repositories in owner/name form.<br/>    organization = optional(string)          # GitHub organization name for organization-wide runners.<br/>  })</pre> | `{}` | no |
-| <a name="input_scale_set"></a> [scale\_set](#input\_scale\_set) | Official GitHub ARC runner scale-set configuration. Required only when deployment\_mode is scale\_set. | <pre>object({<br/>    github_config_url        = optional(string, null)                      # GitHub organization or repository HTTPS URL served by this scale set.<br/>    runner_scale_set_name    = optional(string, "github-runner-scale-set") # Workflow runs-on label and official runner scale-set name.<br/>    min_runners              = optional(number, 1)                         # Minimum idle ephemeral runners retained for new jobs.<br/>    max_runners              = optional(number, 3)                         # Maximum total ephemeral runners that GitHub may request.<br/>    controller_chart_version = optional(string, "0.14.2")                  # Official gha-runner-scale-set-controller chart version.<br/>    chart_version            = optional(string, "0.14.2")                  # Official gha-runner-scale-set chart version.<br/>  })</pre> | `{}` | no |
+| <a name="input_scale_set"></a> [scale\_set](#input\_scale\_set) | Official GitHub ARC runner scale-set configuration. Required only when deployment\_mode is scale\_set. | <pre>object({<br/>    github_config_url        = optional(string, null)                      # GitHub organization or repository HTTPS URL served by this scale set.<br/>    runner_scale_set_name    = optional(string, "github-runner-scale-set") # Workflow runs-on label and official runner scale-set name.<br/>    min_runners              = optional(number, 1)                         # Minimum idle ephemeral runners retained for new jobs.<br/>    max_runners              = optional(number, 3)                         # Maximum total ephemeral runners that GitHub may request.<br/>    controller_chart_version = optional(string, "0.14.2")                  # Official gha-runner-scale-set-controller chart version.<br/>    chart_version            = optional(string, "0.14.2")                  # Official gha-runner-scale-set chart version.<br/>    container_resources = optional(map(object({                            # Opt-in resource budgets for the runner and Docker daemon.<br/>      requests = map(string)                                               # CPU and memory reserved for scheduling.<br/>      limits   = map(string)                                               # CPU and memory ceilings for the container.<br/>    })))<br/>  })</pre> | `{}` | no |
 
 ## Outputs
 

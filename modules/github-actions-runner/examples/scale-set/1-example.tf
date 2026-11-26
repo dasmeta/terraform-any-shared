@@ -14,6 +14,16 @@ module "runner" {
     max_runners              = 3
     controller_chart_version = "0.14.2"
     chart_version            = "0.14.2"
+    container_resources = {
+      runner = {
+        requests = { cpu = "1", memory = "3Gi" }
+        limits   = { cpu = "4", memory = "3Gi" }
+      }
+      dind = {
+        requests = { cpu = "500m", memory = "1536Mi" }
+        limits   = { cpu = "2", memory = "1536Mi" }
+      }
+    }
   }
 }
 
